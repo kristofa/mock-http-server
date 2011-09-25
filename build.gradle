@@ -1,13 +1,12 @@
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'groovy'
-//apply plugin: 'code-quality'
+apply plugin: "java"
+apply plugin: "eclipse"
+apply plugin: "groovy"
 
 sourceCompatibility = 1.5
-version = '1.0'
+version = "1.0"
 jar {
     manifest {
-        attributes 'Implementation-Title': 'Mock HTTP Server for Java Testing', 'Implementation-Version': version
+        attributes "Implementation-Title": "Mock HTTP Server for Java Testing", "Implementation-Version": version
     }
 }
 
@@ -17,14 +16,14 @@ repositories {
 
 dependencies {
     compile "org.eclipse.jetty:jetty-server:8.0.1.v20110908"
-	compile "commons-io:commons-io:2.0.1"
+    compile "commons-io:commons-io:2.0.1"
     testCompile "org.apache.httpcomponents:httpclient:4.1.2"
-    testCompile 'junit:junit:4.8.2'
+    testCompile "junit:junit:4.8.2"
 }
 
 uploadArchives {
     repositories {
-       flatDir(dirs: file('repos'))
+       flatDir(dirs: file("repos"))
     }
 }
 
