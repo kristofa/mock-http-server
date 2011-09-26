@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    compile "org.eclipse.jetty:jetty-server:8.0.1.v20110908"
+    compile "org.simpleframework:simple:4.1.21"
     compile "commons-io:commons-io:2.0.1"
     testCompile "org.apache.httpcomponents:httpclient:4.1.2"
     testCompile "junit:junit:4.8.2"

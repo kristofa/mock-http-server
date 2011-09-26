@@ -1,17 +1,17 @@
 package com.harlap.test.http;
 
 import java.io.IOException;
+import java.io.PrintStream;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.simpleframework.http.Request;
+import org.simpleframework.http.Response;
+import org.simpleframework.http.core.Container;
+import org.simpleframework.transport.connect.Connection;
+import org.simpleframework.transport.connect.SocketConnection;
 
 public class MockHttpServer {
 	public enum Method {
@@ -50,7 +50,7 @@ public class MockHttpServer {
 		public String toString() {
 			return (method + " " + path + " " + data);
 		}
-		
+
 		@Override
 		public boolean equals(Object obj) {
 			ExpectedRequest req = (ExpectedRequest) obj;
@@ -88,7 +88,7 @@ public class MockHttpServer {
 		}
 	}
 
-	public class ExpectationHandler extends AbstractHandler {
+	public class ExpectationHandler implements Container {
 
 		private Map<ExpectedRequest, ExpectedResponse> expectedRequests;
 		private ExpectedRequest lastAddedExpectation = null;
@@ -97,31 +97,44 @@ public class MockHttpServer {
 			expectedRequests = new HashMap<MockHttpServer.ExpectedRequest, MockHttpServer.ExpectedResponse>();
 		}
 
-		public void handle(String target, Request baseRequest,
-				HttpServletRequest request, HttpServletResponse response)
-				throws IOException, ServletException {
-
+		public void handle(Request req, Response response) {
 			String data = null;
 			try {
-				if(baseRequest.getContentLength() > 0) {
-					data = IOUtils.toString(baseRequest.getReader());
+				if(req.getContentLength() > 0) {
+					data = req.getContent();
 				}
 			} catch (IOException e) {
 			}
 
 			ExpectedRequest expectedRequest = new ExpectedRequest(
-					Method.valueOf(baseRequest.getMethod()),
-					baseRequest.getRequestURI(), data);
+					Method.valueOf(req.getMethod()),
+					req.getTarget(), data);
 			if (expectedRequests.containsKey(expectedRequest)) {
 				ExpectedResponse expectedResponse = expectedRequests
 						.get(expectedRequest);
-				response.setStatus(expectedResponse.getStatusCode());
-				response.setContentType(expectedResponse.getContentType());
-				IOUtils.write(expectedResponse.getBody(),
-						response.getOutputStream());
-				baseRequest.setHandled(true);
+				response.setCode(expectedResponse.getStatusCode());
+				response.set("Content-Type", expectedResponse.getContentType());
+				PrintStream body = null;
+				try {
+					body = response.getPrintStream();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				body.print(expectedResponse.getBody());
+				body.close();
 			} else {
-				throw new ServletException("Received unexpected request " + expectedRequest.toString());
+				response.setCode(500);
+				response.set("Content-Type", "text/plain;charset=utf-8");
+				PrintStream body;
+				try {
+					body = response.getPrintStream();
+					body.print("Received unexpected request " + expectedRequest.toString());
+					body.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 
@@ -135,27 +148,30 @@ public class MockHttpServer {
 		}
 	}
 
-	private Server server;
-
 	private ExpectationHandler handler;
+
+	private int port;
 
 	public static final String GET = "GET";
 	public static final String POST = "POST";
 	public static final String PUT = "PUT";
 	public static final String DELETE = "DELETE";
 
+	private Connection connection;
+
 	public MockHttpServer(int port) {
-		server = new Server(port);
-		handler = new ExpectationHandler();
-		server.setHandler(handler);
+		this.port = port;
 	}
 
 	public void start() throws Exception {
-		server.start();
+		handler = new ExpectationHandler();
+		connection = new SocketConnection(handler);
+		SocketAddress address = new InetSocketAddress(port);
+		connection.connect(address);
 	}
 
 	public void stop() throws Exception {
-		server.stop();
+		connection.close();
 	}
 
 	public MockHttpServer expect(Method method, String path) {
