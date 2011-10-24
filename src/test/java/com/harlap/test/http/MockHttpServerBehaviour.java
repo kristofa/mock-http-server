@@ -121,5 +121,71 @@ public class MockHttpServerBehaviour {
 		// Then the response is "Yes sir!"
 		assertEquals("Yes sir!", responseBody);
 	}
+	
+	@Test(expected=UnsatisfiedExpectationException.class)
+	public void testShouldFailWhenGetExpectationNotInvoqued() throws ClientProtocolException,
+			IOException {
+		// Given a mock server configured to respond to a GET / with "OK"
+		server.expect(MockHttpServer.Method.GET, "/").respondWith(200,
+				"text/plain", "OK");
+		
+		server.verify();
+	}
+	
+	@Test
+	public void testShouldNotFailWhenGetExpectationIsInvoqued() throws ClientProtocolException,
+			IOException {
+		// Given a mock server configured to respond to a GET / with "OK"
+		server.expect(MockHttpServer.Method.GET, "/").respondWith(200,
+				"text/plain", "OK");
+		
+		HttpGet req = new HttpGet(baseUrl + "/");
+		client.execute(req);
+		
+		server.verify();
+	}
+
+	@Test(expected=UnsatisfiedExpectationException.class)
+	public void testShouldFailWhenPostExpectationNotInvoqued() throws ClientProtocolException,
+			IOException {
+		// Given a mock server configured to respond to a GET / with "OK"
+		server.expect(MockHttpServer.Method.POST, "/").respondWith(200,
+				"text/plain", "OK");
+		
+		server.verify();
+	}
+		
+	@Test
+	public void testShouldNotFailWhenPostExpectationIsInvoqued() throws ClientProtocolException,
+			IOException {
+		// Given a mock server configured to respond to a GET / with "OK"
+		server.expect(MockHttpServer.Method.POST, "/").respondWith(200,
+				"text/plain", "OK");
+		
+		HttpPost req = new HttpPost(baseUrl + "/");
+		client.execute(req);
+		
+		server.verify();
+	}
+	
+	@Test(expected=UnsatisfiedExpectationException.class)
+	public void testShouldFailWhenOneOfSeveralGetExpectationsIsNotInvoqued() throws ClientProtocolException,
+			IOException {
+		// Given a mock server configured to respond to a GET / with "OK"
+		server.expect(MockHttpServer.Method.GET, "/").respondWith(200,
+				"text/plain", "OK");
+		server.expect(MockHttpServer.Method.GET, "/other").respondWith(200,
+				"text/plain", "OK");
+		
+		HttpGet req = new HttpGet(baseUrl + "/");
+		client.execute(req);
+		
+		server.verify();
+	}
+
+	@Test
+	public void testVerifyDoNothingWhenNoExceptations() {
+		server.verify();
+	}
 
 }

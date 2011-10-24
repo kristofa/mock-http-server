@@ -6,7 +6,9 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import org.junit.Assert;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
 import org.simpleframework.http.core.Container;
@@ -22,6 +24,7 @@ public class MockHttpServer {
 		private Method method = null;
 		private String path = null;
 		private String data = null;
+		private boolean satisfied = false;
 
 		public ExpectedRequest(Method method, String path) {
 			this.method = method;
@@ -44,6 +47,14 @@ public class MockHttpServer {
 
 		public String getData() {
 			return data;
+		}
+		
+		public boolean isSatisfied() {
+			return satisfied;
+		}
+		
+		public void passed(){
+			satisfied = true;
 		}
 
 		@Override
@@ -90,11 +101,13 @@ public class MockHttpServer {
 
 	public class ExpectationHandler implements Container {
 
-		private Map<ExpectedRequest, ExpectedResponse> expectedRequests;
+		private Map<ExpectedRequest, ExpectedRequest> expectedRequests;
+		private Map<ExpectedRequest, ExpectedResponse> responsesForRequests;
 		private ExpectedRequest lastAddedExpectation = null;
-
+		
 		public ExpectationHandler() {
-			expectedRequests = new HashMap<MockHttpServer.ExpectedRequest, MockHttpServer.ExpectedResponse>();
+			responsesForRequests = new HashMap<MockHttpServer.ExpectedRequest, MockHttpServer.ExpectedResponse>();
+			expectedRequests = new HashMap<MockHttpServer.ExpectedRequest, MockHttpServer.ExpectedRequest>();
 		}
 
 		public void handle(Request req, Response response) {
@@ -105,12 +118,12 @@ public class MockHttpServer {
 				}
 			} catch (IOException e) {
 			}
-
-			ExpectedRequest expectedRequest = new ExpectedRequest(
+			
+			ExpectedRequest expectedRequest = expectedRequests.get(new ExpectedRequest(
 					Method.valueOf(req.getMethod()),
-					req.getTarget(), data);
-			if (expectedRequests.containsKey(expectedRequest)) {
-				ExpectedResponse expectedResponse = expectedRequests
+					req.getTarget(), data));
+			if (responsesForRequests.containsKey(expectedRequest)) {
+				ExpectedResponse expectedResponse = responsesForRequests
 						.get(expectedRequest);
 				response.setCode(expectedResponse.getStatusCode());
 				response.set("Content-Type", expectedResponse.getContentType());
@@ -122,6 +135,7 @@ public class MockHttpServer {
 					e.printStackTrace();
 				}
 				body.print(expectedResponse.getBody());
+				expectedRequest.passed();
 				body.close();
 			} else {
 				response.setCode(500);
@@ -143,8 +157,18 @@ public class MockHttpServer {
 		}
 
 		public void addExpectedResponse(ExpectedResponse response) {
-			expectedRequests.put(lastAddedExpectation, response);
+			responsesForRequests.put(lastAddedExpectation, response);
+			expectedRequests.put(lastAddedExpectation, lastAddedExpectation);
 			lastAddedExpectation = null;
+		}
+
+		public void verify() {
+			for (ExpectedRequest expectedRequest : responsesForRequests.keySet()) {
+				if ( !expectedRequest.isSatisfied()){
+					throw new UnsatisfiedExpectationException("Unsatisfied expectation: "+expectedRequest);
+				}
+			}
+			
 		}
 	}
 
@@ -189,6 +213,10 @@ public class MockHttpServer {
 	public MockHttpServer expect(Method method, String path, String data) {
 		handler.addExpectedRequest(new ExpectedRequest(method, path, data));
 		return this;
+	}
+
+	public void verify() {
+		handler.verify();
 	}
 
 }
