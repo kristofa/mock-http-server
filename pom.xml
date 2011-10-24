@@ -1,50 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.harlap</groupId>
-    <artifactId>mock-http-server</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
-    <name>Mock Http Server</name>
-    <description>Mock Http Server</description>
-    <url>https://github.com/jharlap/mock-http-server</url>
-    <build>
-    		<plugins>
-    			<plugin>
-    				<groupId>org.apache.maven.plugins</groupId>
-    				<artifactId>maven-compiler-plugin</artifactId>
-    				<inherited>true</inherited>
-    				<configuration>
-    					<source>1.6</source>
-    					<target>1.6</target>
-    				</configuration>
-    			</plugin>
-    		</plugins>
-    	</build>
-    <dependencies>
-    	<dependency>
-    		<groupId>org.simpleframework</groupId>
-    		<artifactId>simple</artifactId>
-    		<version>4.1.21</version>
-    	</dependency>
-	    <dependency>
-		    <groupId>junit</groupId>
-		    <artifactId>junit</artifactId>
-		    <version>4.8.2</version>
-		  </dependency>
-	    <dependency>
-		    <groupId>commons-io</groupId>
-		    <artifactId>commons-io</artifactId>
-		    <version>2.0.1</version>
-		  </dependency>
-	    <dependency>
-		    <groupId>org.apache.httpcomponents</groupId>
-		    <artifactId>httpclient</artifactId>
-		    <version>4.1.2</version>
-		  </dependency>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.harlap</groupId>
+	<artifactId>mock-http-server</artifactId>
+	<version>1.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<name>Mock Http Server</name>
+	<description>Mock Http Server</description>
+	<url>https://github.com/jharlap/mock-http-server</url>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<inherited>true</inherited>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.simpleframework</groupId>
+			<artifactId>simple</artifactId>
+			<version>4.1.21</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.1.2</version>
+		</dependency>
 
-    </dependencies>
+	</dependencies>
 </project>
