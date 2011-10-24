@@ -92,6 +92,23 @@ public class MockHttpServerBehaviour {
 		// Then the response status is 204
 		assertEquals(204, response.getStatusLine().getStatusCode());
 	}
+	
+	@Test
+	public void testShouldNotMatchDataWhenExceptedDataIsNull() throws ClientProtocolException,
+			IOException {
+		// Given a mock server configured to respond to a POST /test with no data
+		server.expect(MockHttpServer.Method.POST, "/test")
+				.respondWith(204, "text/plain", "");
+
+		// When a request for POST /test arrives with parameters
+		HttpPost req = new HttpPost(baseUrl + "/test");
+		req.setEntity(new StringEntity("Hello World", HTTP.UTF_8));
+		
+		HttpResponse response = client.execute(req);
+
+		// Then the response status is 204
+		assertEquals(204, response.getStatusLine().getStatusCode());
+	}
 
 	@Test
 	public void testShouldHandleMultipleRequests()

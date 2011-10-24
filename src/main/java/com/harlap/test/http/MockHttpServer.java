@@ -66,12 +66,12 @@ public class MockHttpServer {
 		public boolean equals(Object obj) {
 			ExpectedRequest req = (ExpectedRequest) obj;
 			return req.getMethod().equals(method) && req.getPath().equals(path)
-					&& (req.getData() == null ? data == null : req.getData().equals(data));
+					&& (req.getData() == null || data == null || req.getData().equals(data));
 		}
 
 		@Override
 		public int hashCode() {
-			return (method + " " + path + " " + data).hashCode();
+			return (method + " " + path).hashCode();
 		}
 	}
 
