@@ -10,6 +10,13 @@
 	<packaging>jar</packaging>
 	<name>Mock Http Server</name>
 	<description>Mock HTTP Server for Java Testing</description>
+	<licenses>
+		<license>
+			<name>Apache 2</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 	<url>https://github.com/jharlap/mock-http-server</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -17,6 +24,21 @@
 	</properties>
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<version>1.10.b1</version>
+				<configuration>
+					<header>src/etc/header.txt</header>
+					<includes>
+						<!-- Only copyright the java and pom.xml -->
+						<include>src/main/java/**</include>
+						<include>src/test/java/**</include>
+						<include>pom.xml</include>
+						<include>LICENCE</include>
+					</includes>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
