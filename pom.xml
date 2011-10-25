@@ -9,7 +9,7 @@
 	<version>1.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Mock Http Server</name>
-	<description>Mock Http Server</description>
+	<description>Mock HTTP Server for Java Testing</description>
 	<url>https://github.com/jharlap/mock-http-server</url>
 	<build>
 		<plugins>
