@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.harlap</groupId>
 	<artifactId>mock-http-server</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.1</version>
 	<packaging>jar</packaging>
 	<name>Mock Http Server</name>
 	<description>Mock HTTP Server for Java Testing</description>
@@ -22,6 +22,16 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
+	<distributionManagement>
+		<repository>
+			<id>releases</id>
+			<url>https://joel1di1@github.com/joel1di1/joel1di1-mvn-repo/raw/master/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<url>https://joel1di1@github.com/joel1di1/joel1di1-mvn-repo/raw/master/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 	<build>
 		<plugins>
 			<plugin>
