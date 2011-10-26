@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.harlap</groupId>
 	<artifactId>mock-http-server</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Mock Http Server</name>
 	<description>Mock HTTP Server for Java Testing</description>
