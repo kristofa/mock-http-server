@@ -156,7 +156,7 @@ public class MockHttpServer {
 				PrintStream body;
 				try {
 					body = response.getPrintStream();
-					body.print("Received unexpected request " + expectedRequest.toString());
+					body.print("Received unexpected request " + req.getMethod() + ":" + req.getTarget() + " with data: " + data);
 					body.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
