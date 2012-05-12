@@ -214,6 +214,16 @@ public class MockHttpServerBehaviour {
 		
 		server.verify();
 	}
+	
+	@Test
+	public void testShouldRespondWith500OWhenNotMatchingAnyRequestExpectation() throws ClientProtocolException, IOException {
+	  server.expect(MockHttpServer.Method.GET, "/foo").respondWith(200, "text/plain", "OK");
+	  
+	  HttpGet req = new HttpGet(baseUrl + "/bar");
+	  HttpResponse response = client.execute(req);
+	  
+	  assertEquals(500, response.getStatusLine().getStatusCode());
+	}
 
 	@Test
 	public void testVerifyDoNothingWhenNoExceptations() {
