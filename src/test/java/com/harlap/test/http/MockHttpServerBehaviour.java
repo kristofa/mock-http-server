@@ -1,21 +1,13 @@
 /**
- *   Copyright 2011 <jharlap@gitub.com>
- *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * Copyright 2011 <jharlap@gitub.com> Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
+ * file except in compliance with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing permissions and limitations under the License.
  */
 package com.harlap.test.http;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
@@ -37,197 +29,179 @@ import org.junit.Test;
 
 public class MockHttpServerBehaviour {
 
-	private static final int PORT = 51234;
-	private static final String baseUrl = "http://localhost:" + PORT;
-	private MockHttpServer server;
-	private HttpClient client;
+    private static final int PORT = 51234;
+    private static final String baseUrl = "http://localhost:" + PORT;
+    private MockHttpServer server;
+    private SimpleExpectedHttpResponseProvider responseProvider;
+    private HttpClient client;
 
-	@Before
-	public void setUp() throws Exception {
-		server = new MockHttpServer(PORT);
-		server.start();
-		client = new DefaultHttpClient();
-	}
+    @Before
+    public void setUp() throws Exception {
+        responseProvider = new SimpleExpectedHttpResponseProvider();
+        server = new MockHttpServer(PORT, responseProvider);
+        server.start();
+        client = new DefaultHttpClient();
+    }
 
-	@After
-	public void tearDown() throws Exception {
-		client.getConnectionManager().shutdown();
-		server.stop();
-	}
+    @After
+    public void tearDown() throws Exception {
+        client.getConnectionManager().shutdown();
+        server.stop();
+    }
 
-	@Test
-	public void testShouldHandleGetRequests() throws ClientProtocolException,
-			IOException {
-		// Given a mock server configured to respond to a GET / with "OK"
-		server.expect(MockHttpServer.Method.GET, "/").respondWith(200,
-				"text/plain", "OK");
+    @Test
+    public void testShouldHandleGetRequests() throws ClientProtocolException, IOException {
+        // Given a mock server configured to respond to a GET / with "OK"
+        responseProvider.expect(Method.GET, "/").respondWith(200, "text/plain", "OK");
 
-		// When a request for GET / arrives
-		HttpGet req = new HttpGet(baseUrl + "/");
-		HttpResponse response = client.execute(req);
-		String responseBody = IOUtils.toString(response.getEntity().getContent());
-		int statusCode = response.getStatusLine().getStatusCode();
-		
-		// Then the response is "OK"
-		assertEquals("OK", responseBody);
-		
-		// And the status code is 200
-		assertEquals(200, statusCode);
-	}
+        // When a request for GET / arrives
+        final HttpGet req = new HttpGet(baseUrl + "/");
+        final HttpResponse response = client.execute(req);
+        final String responseBody = IOUtils.toString(response.getEntity().getContent());
+        final int statusCode = response.getStatusLine().getStatusCode();
 
-	@Test
-	public void testShouldHandlePostRequests() throws ClientProtocolException,
-			IOException {
-		// Given a mock server configured to respond to a POST / with data
-		// "Hello World" with an ID
-		server.expect(MockHttpServer.Method.POST, "/", "Hello World")
-				.respondWith(200, "text/plain", "ABCD1234");
+        // Then the response is "OK"
+        assertEquals("OK", responseBody);
 
-		// When a request for POST / arrives
-		HttpPost req = new HttpPost(baseUrl + "/");
-		req.setEntity(new StringEntity("Hello World", HTTP.UTF_8));
-		ResponseHandler<String> handler = new BasicResponseHandler();
-		String responseBody = client.execute(req, handler);
+        // And the status code is 200
+        assertEquals(200, statusCode);
+    }
 
-		// Then the response is "ABCD1234"
-		assertEquals("ABCD1234", responseBody);
-	}
-	
-	@Test
-	public void testShouldHandleDeleteRequests() throws ClientProtocolException,
-			IOException {
-		// Given a mock server configured to respond to a DELETE /test
-		server.expect(MockHttpServer.Method.DELETE, "/test")
-				.respondWith(204, "text/plain", "");
+    @Test
+    public void testShouldHandlePostRequests() throws ClientProtocolException, IOException {
+        // Given a mock server configured to respond to a POST / with data
+        // "Hello World" with an ID
+        responseProvider.expect(Method.POST, "/", "text/plain; charset=UTF-8", "Hello World").respondWith(200, "text/plain",
+            "ABCD1234");
 
-		// When a request for DELETE /test arrives
-		HttpDelete req = new HttpDelete(baseUrl + "/test");
-		HttpResponse response = client.execute(req);
+        // When a request for POST / arrives
+        final HttpPost req = new HttpPost(baseUrl + "/");
+        req.setEntity(new StringEntity("Hello World", HTTP.UTF_8));
+        final ResponseHandler<String> handler = new BasicResponseHandler();
+        final String responseBody = client.execute(req, handler);
 
-		// Then the response status is 204
-		assertEquals(204, response.getStatusLine().getStatusCode());
-	}
-	
-	@Test
-	public void testShouldNotMatchDataWhenExceptedDataIsNull() throws ClientProtocolException,
-			IOException {
-		// Given a mock server configured to respond to a POST /test with no data
-		server.expect(MockHttpServer.Method.POST, "/test")
-				.respondWith(204, "text/plain", "");
+        // Then the response is "ABCD1234"
+        assertEquals("ABCD1234", responseBody);
+    }
 
-		// When a request for POST /test arrives with parameters
-		HttpPost req = new HttpPost(baseUrl + "/test");
-		req.setEntity(new StringEntity("Hello World", HTTP.UTF_8));
-		
-		HttpResponse response = client.execute(req);
+    @Test
+    public void testShouldHandleDeleteRequests() throws ClientProtocolException, IOException {
+        // Given a mock server configured to respond to a DELETE /test
+        responseProvider.expect(Method.DELETE, "/test").respondWith(204, "text/plain", "");
 
-		// Then the response status is 204
-		assertEquals(204, response.getStatusLine().getStatusCode());
-	}
+        // When a request for DELETE /test arrives
+        final HttpDelete req = new HttpDelete(baseUrl + "/test");
+        final HttpResponse response = client.execute(req);
 
-	@Test
-	public void testShouldHandleMultipleRequests()
-			throws ClientProtocolException, IOException {
-		// Given a mock server configured to respond to a POST / with data
-		// "Hello World" with an ID
-		// And configured to respond to a GET /test with "Yes sir!"
-		server.expect(MockHttpServer.Method.POST, "/", "Hello World")
-				.respondWith(200, "text/plain", "ABCD1234");
-		server.expect(MockHttpServer.Method.GET, "/test").respondWith(200,
-				"text/plain", "Yes sir!");
+        // Then the response status is 204
+        assertEquals(204, response.getStatusLine().getStatusCode());
+    }
 
-		// When a request for POST / arrives
-		HttpPost req = new HttpPost(baseUrl + "/");
-		req.setEntity(new StringEntity("Hello World", HTTP.UTF_8));
-		ResponseHandler<String> handler = new BasicResponseHandler();
-		String responseBody = client.execute(req, handler);
+    @Test
+    public void testShouldNotMatchDataWhenExceptedDataIsNull() throws ClientProtocolException, IOException {
+        // Given a mock server configured to respond to a POST /test with no data
+        responseProvider.expect(Method.POST, "/test").respondWith(204, "text/plain", "");
 
-		// Then the response is "ABCD1234"
-		assertEquals("ABCD1234", responseBody);
+        // When a request for POST /test arrives with parameters
+        final HttpPost req = new HttpPost(baseUrl + "/test");
+        req.setEntity(new StringEntity("Hello World", HTTP.UTF_8));
 
-		// When a request for GET /test arrives
-		HttpGet get = new HttpGet(baseUrl + "/test");
-		handler = new BasicResponseHandler();
-		responseBody = client.execute(get, handler);
+        final HttpResponse response = client.execute(req);
 
-		// Then the response is "Yes sir!"
-		assertEquals("Yes sir!", responseBody);
-	}
-	
-	@Test(expected=UnsatisfiedExpectationException.class)
-	public void testShouldFailWhenGetExpectationNotInvoqued() throws ClientProtocolException,
-			IOException {
-		// Given a mock server configured to respond to a GET / with "OK"
-		server.expect(MockHttpServer.Method.GET, "/").respondWith(200,
-				"text/plain", "OK");
-		
-		server.verify();
-	}
-	
-	@Test
-	public void testShouldNotFailWhenGetExpectationIsInvoqued() throws ClientProtocolException,
-			IOException {
-		// Given a mock server configured to respond to a GET / with "OK"
-		server.expect(MockHttpServer.Method.GET, "/").respondWith(200,
-				"text/plain", "OK");
-		
-		HttpGet req = new HttpGet(baseUrl + "/");
-		client.execute(req);
-		
-		server.verify();
-	}
+        // Then the response status is 500
+        assertEquals(500, response.getStatusLine().getStatusCode());
+    }
 
-	@Test(expected=UnsatisfiedExpectationException.class)
-	public void testShouldFailWhenPostExpectationNotInvoqued() throws ClientProtocolException,
-			IOException {
-		// Given a mock server configured to respond to a GET / with "OK"
-		server.expect(MockHttpServer.Method.POST, "/").respondWith(200,
-				"text/plain", "OK");
-		
-		server.verify();
-	}
-		
-	@Test
-	public void testShouldNotFailWhenPostExpectationIsInvoqued() throws ClientProtocolException,
-			IOException {
-		// Given a mock server configured to respond to a GET / with "OK"
-		server.expect(MockHttpServer.Method.POST, "/").respondWith(200,
-				"text/plain", "OK");
-		
-		HttpPost req = new HttpPost(baseUrl + "/");
-		client.execute(req);
-		
-		server.verify();
-	}
-	
-	@Test(expected=UnsatisfiedExpectationException.class)
-	public void testShouldFailWhenOneOfSeveralGetExpectationsIsNotInvoqued() throws ClientProtocolException,
-			IOException {
-		// Given a mock server configured to respond to a GET / with "OK"
-		server.expect(MockHttpServer.Method.GET, "/").respondWith(200,
-				"text/plain", "OK");
-		server.expect(MockHttpServer.Method.GET, "/other").respondWith(200,
-				"text/plain", "OK");
-		
-		HttpGet req = new HttpGet(baseUrl + "/");
-		client.execute(req);
-		
-		server.verify();
-	}
-	
-	@Test
-	public void testShouldRespondWith500OWhenNotMatchingAnyRequestExpectation() throws ClientProtocolException, IOException {
-	  server.expect(MockHttpServer.Method.GET, "/foo").respondWith(200, "text/plain", "OK");
-	  
-	  HttpGet req = new HttpGet(baseUrl + "/bar");
-	  HttpResponse response = client.execute(req);
-	  
-	  assertEquals(500, response.getStatusLine().getStatusCode());
-	}
+    @Test
+    public void testShouldHandleMultipleRequests() throws ClientProtocolException, IOException {
+        // Given a mock server configured to respond to a POST / with data
+        // "Hello World" with an ID
+        // And configured to respond to a GET /test with "Yes sir!"
+        responseProvider.expect(Method.POST, "/", "text/plain; charset=UTF-8", "Hello World").respondWith(200, "text/plain",
+            "ABCD1234");
+        responseProvider.expect(Method.GET, "/test").respondWith(200, "text/plain", "Yes sir!");
 
-	@Test
-	public void testVerifyDoNothingWhenNoExceptations() {
-		server.verify();
-	}
+        // When a request for POST / arrives
+        final HttpPost req = new HttpPost(baseUrl + "/");
+        req.setEntity(new StringEntity("Hello World", HTTP.UTF_8));
+        ResponseHandler<String> handler = new BasicResponseHandler();
+        String responseBody = client.execute(req, handler);
+
+        // Then the response is "ABCD1234"
+        assertEquals("ABCD1234", responseBody);
+
+        // When a request for GET /test arrives
+        final HttpGet get = new HttpGet(baseUrl + "/test");
+        handler = new BasicResponseHandler();
+        responseBody = client.execute(get, handler);
+
+        // Then the response is "Yes sir!"
+        assertEquals("Yes sir!", responseBody);
+    }
+
+    @Test(expected = UnsatisfiedExpectationException.class)
+    public void testShouldFailWhenGetExpectationNotInvoqued() throws ClientProtocolException, IOException {
+        // Given a mock server configured to respond to a GET / with "OK"
+        responseProvider.expect(Method.GET, "/").respondWith(200, "text/plain", "OK");
+
+        server.verify();
+    }
+
+    @Test
+    public void testShouldNotFailWhenGetExpectationIsInvoqued() throws ClientProtocolException, IOException {
+        // Given a mock server configured to respond to a GET / with "OK"
+        responseProvider.expect(Method.GET, "/").respondWith(200, "text/plain", "OK");
+
+        final HttpGet req = new HttpGet(baseUrl + "/");
+        client.execute(req);
+
+        server.verify();
+    }
+
+    @Test(expected = UnsatisfiedExpectationException.class)
+    public void testShouldFailWhenPostExpectationNotInvoqued() throws ClientProtocolException, IOException {
+        // Given a mock server configured to respond to a GET / with "OK"
+        responseProvider.expect(Method.POST, "/").respondWith(200, "text/plain", "OK");
+
+        server.verify();
+    }
+
+    @Test
+    public void testShouldNotFailWhenPostExpectationIsInvoqued() throws ClientProtocolException, IOException {
+        // Given a mock server configured to respond to a GET / with "OK"
+        responseProvider.expect(Method.POST, "/").respondWith(200, "text/plain", "OK");
+
+        final HttpPost req = new HttpPost(baseUrl + "/");
+        client.execute(req);
+
+        server.verify();
+    }
+
+    @Test(expected = UnsatisfiedExpectationException.class)
+    public void testShouldFailWhenOneOfSeveralGetExpectationsIsNotInvoqued() throws ClientProtocolException, IOException {
+        // Given a mock server configured to respond to a GET / with "OK"
+        responseProvider.expect(Method.GET, "/").respondWith(200, "text/plain", "OK");
+        responseProvider.expect(Method.GET, "/other").respondWith(200, "text/plain", "OK");
+
+        final HttpGet req = new HttpGet(baseUrl + "/");
+        client.execute(req);
+
+        server.verify();
+    }
+
+    @Test
+    public void testShouldRespondWith500OWhenNotMatchingAnyRequestExpectation() throws ClientProtocolException, IOException {
+        responseProvider.expect(Method.GET, "/foo").respondWith(200, "text/plain", "OK");
+
+        final HttpGet req = new HttpGet(baseUrl + "/bar");
+        final HttpResponse response = client.execute(req);
+
+        assertEquals(500, response.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testVerifyDoNothingWhenNoExceptations() {
+        server.verify();
+    }
 
 }
