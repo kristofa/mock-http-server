@@ -1,5 +1,13 @@
 package com.harlap.test.http;
 
+/**
+ * Provides responses for given {@link HttpRequest http requests}. Abstracts where the responses come from.
+ * <p>
+ * Used with {@link MockHttpServer}.
+ * 
+ * @see MockHttpServer
+ * @author kristof
+ */
 public interface ExpectedHttpResponseProvider {
 
     /**
