@@ -2,6 +2,8 @@ package com.harlap.test.http.client;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Response as being returned by {@link ApacheHttpClientImpl}. Provides the user with the HTTP response code, a response
@@ -114,13 +116,7 @@ public class ApacheHttpClientResponseImpl<T> implements HttpClientResponse<T> {
      */
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (contentType == null ? 0 : contentType.hashCode());
-        result = prime * result + (errorMessage == null ? 0 : errorMessage.hashCode());
-        result = prime * result + httpCode;
-        result = prime * result + (responseEntity == null ? 0 : responseEntity.hashCode());
-        return result;
+        return HashCodeBuilder.reflectionHashCode(this, false);
     }
 
     /*
@@ -129,41 +125,7 @@ public class ApacheHttpClientResponseImpl<T> implements HttpClientResponse<T> {
      */
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof ApacheHttpClientResponseImpl)) {
-            return false;
-        }
-        final ApacheHttpClientResponseImpl<?> other = (ApacheHttpClientResponseImpl<?>)obj;
-        if (contentType == null) {
-            if (other.contentType != null) {
-                return false;
-            }
-        } else if (!contentType.equals(other.contentType)) {
-            return false;
-        }
-        if (errorMessage == null) {
-            if (other.errorMessage != null) {
-                return false;
-            }
-        } else if (!errorMessage.equals(other.errorMessage)) {
-            return false;
-        }
-        if (httpCode != other.httpCode) {
-            return false;
-        }
-        if (responseEntity == null) {
-            if (other.responseEntity != null) {
-                return false;
-            }
-        } else if (!responseEntity.equals(other.responseEntity)) {
-            return false;
-        }
-        return true;
+        return EqualsBuilder.reflectionEquals(this, obj, false);
     }
 
 }
