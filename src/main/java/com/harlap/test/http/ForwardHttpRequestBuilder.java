@@ -2,7 +2,10 @@ package com.harlap.test.http;
 
 /**
  * Responsible for building forwarding http requests. Builds a new request based on input request.
+ * <p>
+ * Used with {@link LoggingHttpProxy}.
  * 
+ * @see LoggingHttpProxy
  * @author kristof
  */
 public interface ForwardHttpRequestBuilder {
