@@ -2,7 +2,10 @@ package com.harlap.test.http;
 
 /**
  * Logs a {@link HttpRequest} / {@link HttpResponse} combination.
+ * <p>
+ * Used with {@link LoggingHttpProxy}.
  * 
+ * @see LoggingHttpProxy
  * @author kristof
  */
 public interface HttpRequestResponseLogger {
