@@ -101,14 +101,14 @@ public class LoggingHttpProxy {
                         inputStream.close();
                         final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(responseEntity);
 
-                        IOUtils.copy(byteArrayInputStream, outputStream);
-                        byteArrayInputStream.close();
-                        outputStream.close();
-
                         final HttpResponse httpResponse =
                             new HttpResponseImpl(forwardResponse.getHttpCode(), forwardResponse.getContentType(),
                                 responseEntity);
                         logger.log(httpRequest, httpResponse);
+
+                        IOUtils.copy(byteArrayInputStream, outputStream);
+                        byteArrayInputStream.close();
+                        outputStream.close();
 
                     } catch (final IOException e) {
                         LOGGER.error("IOException when trying to copy response of forward request.", e);
@@ -129,10 +129,12 @@ public class LoggingHttpProxy {
 
         private FullHttpRequestImpl buildHttpRequest(final Request request) {
 
-            String data = null;
+            byte[] data = null;
             try {
                 if (request.getContentLength() > 0) {
-                    data = request.getContent();
+                    final InputStream inputStream = request.getInputStream();
+                    data = IOUtils.toByteArray(inputStream);
+                    inputStream.close();
                 }
             } catch (final IOException e) {
                 throw new IllegalStateException("Exception when getting request content.", e);
@@ -142,8 +144,13 @@ public class LoggingHttpProxy {
             httpRequestImpl.method(Method.valueOf(request.getMethod()));
             httpRequestImpl.path(request.getPath().getPath());
             httpRequestImpl.content(data);
-            if (request.getContentType() != null) {
-                httpRequestImpl.contentType(request.getContentType().toString());
+
+            for (final String headerField : request.getNames()) {
+                if (HttpMessageHeaderField.CONTENTTYPE.getValue().equals(headerField)) {
+                    for (final String headerFieldValue : request.getValues(headerField)) {
+                        httpRequestImpl.httpMessageHeader(headerField, headerFieldValue);
+                    }
+                }
             }
 
             // domain (host) and port are not important.
@@ -159,15 +166,7 @@ public class LoggingHttpProxy {
 
         private HttpClientResponse<InputStream> forward(final FullHttpRequest request) throws HttpRequestException {
             final HttpClient client = new ApacheHttpClientImpl();
-            HttpClientResponse<InputStream> response = null;
-            if (request.getMethod().equals(Method.GET)) {
-                response = client.get(request.getUrl(), request.getContentType());
-            } else if (request.getMethod().equals(Method.POST)) {
-                response = client.post(request.getUrl(), request.getContentType(), request.getContent());
-            } else if (request.getMethod().equals(Method.PUT)) {
-                response = client.put(request.getUrl(), request.getContentType(), request.getContent());
-            }
-            return response;
+            return client.execute(request);
         }
 
         private void errorResponse(final Response response, final int httpCode, final String message) {

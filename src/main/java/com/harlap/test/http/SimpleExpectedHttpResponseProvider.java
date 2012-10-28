@@ -32,7 +32,8 @@ public class SimpleExpectedHttpResponseProvider implements ExpectedHttpResponseP
     public SimpleExpectedHttpResponseProvider expect(final Method method, final String path, final String contentType,
         final String data) {
         latestRequest = new HttpRequestImpl();
-        latestRequest.method(method).path(path).content(data).contentType(contentType);
+        latestRequest.method(method).path(path).content(data.getBytes())
+            .httpMessageHeader(HttpMessageHeaderField.CONTENTTYPE.getValue(), contentType);
         return this;
     }
 

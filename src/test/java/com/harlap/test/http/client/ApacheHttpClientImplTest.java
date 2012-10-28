@@ -15,12 +15,15 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -28,19 +31,21 @@ import org.apache.http.conn.ClientConnectionManager;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.harlap.test.http.FullHttpRequest;
+import com.harlap.test.http.HttpMessageHeader;
+import com.harlap.test.http.HttpMessageHeaderField;
+import com.harlap.test.http.Method;
+
 public class ApacheHttpClientImplTest {
 
     private static final String RESPONSE_AS_STRING = "ResponseAsString";
     private final static String URL = "http://localhost:8080/myservice";
     private final static String CONTENT_TYPE = "application/json";
     private final static String ENTITY = "{}";
-    private final static String PARAMETER_NAME_1 = "Name 1";
-    private final static String PARAMETER_VALUE_1 = "Value 1";
-    private final static String PARAMETER_NAME_2 = "Name 2";
-    private final static String PARAMETER_VALUE_2 = "Value 2";
 
     private org.apache.http.client.HttpClient mockHttpClient;
     private ClientConnectionManager mockConnectionManager;
+    private FullHttpRequest mockRequest;
     private ApacheHttpClientImpl serviceInvoker;
 
     @Before
@@ -48,6 +53,12 @@ public class ApacheHttpClientImplTest {
         mockHttpClient = mock(org.apache.http.client.HttpClient.class);
         mockConnectionManager = mock(ClientConnectionManager.class);
         when(mockHttpClient.getConnectionManager()).thenReturn(mockConnectionManager);
+
+        mockRequest = mock(FullHttpRequest.class);
+        when(mockRequest.getUrl()).thenReturn(URL);
+        final Set<HttpMessageHeader> headers = new HashSet<HttpMessageHeader>();
+        headers.add(new HttpMessageHeader(HttpMessageHeaderField.CONTENTTYPE.getValue(), CONTENT_TYPE));
+        when(mockRequest.getHttpMessageHeaders()).thenReturn(headers);
 
         serviceInvoker = new ApacheHttpClientImpl() {
 
@@ -60,7 +71,7 @@ public class ApacheHttpClientImplTest {
     }
 
     @Test
-    public void testGetSuccess() throws ClientProtocolException, IOException, GetException {
+    public void testGetSuccess() throws ClientProtocolException, IOException, HttpRequestException {
         final HttpResponse mockHttpResponse = mock(HttpResponse.class);
         final HttpEntity mockHttpEntity = mock(HttpEntity.class);
         final StatusLine mockStatusLine = mock(StatusLine.class);
@@ -73,7 +84,9 @@ public class ApacheHttpClientImplTest {
         final ByteArrayInputStream responseStream = new ByteArrayInputStream(new String(RESPONSE_AS_STRING).getBytes());
         when(mockHttpEntity.getContent()).thenReturn(responseStream);
 
-        final HttpClientResponse<InputStream> responseObject = serviceInvoker.get(URL, CONTENT_TYPE);
+        when(mockRequest.getMethod()).thenReturn(Method.GET);
+
+        final HttpClientResponse<InputStream> responseObject = serviceInvoker.execute(mockRequest);
         assertNotNull(responseObject);
         assertNull(responseObject.getErrorMessage());
         assertEquals(responseStream, responseObject.getResponseEntity());
@@ -83,38 +96,14 @@ public class ApacheHttpClientImplTest {
     }
 
     @Test
-    public void testGetSuccessWithParameters() throws ClientProtocolException, IOException, GetException {
-        final HttpResponse mockHttpResponse = mock(HttpResponse.class);
-        final HttpEntity mockHttpEntity = mock(HttpEntity.class);
-        final StatusLine mockStatusLine = mock(StatusLine.class);
-
-        when(mockHttpClient.execute(any(HttpGet.class))).thenReturn(mockHttpResponse);
-        when(mockHttpResponse.getEntity()).thenReturn(mockHttpEntity);
-        when(mockHttpResponse.getStatusLine()).thenReturn(mockStatusLine);
-        when(mockStatusLine.getStatusCode()).thenReturn(HttpStatus.SC_OK);
-
-        final ByteArrayInputStream responseStream = new ByteArrayInputStream(new String(RESPONSE_AS_STRING).getBytes());
-        when(mockHttpEntity.getContent()).thenReturn(responseStream);
-
-        final HttpClientResponse<InputStream> responseObject =
-            serviceInvoker.get(URL, CONTENT_TYPE, new NameValuePair(PARAMETER_NAME_1, PARAMETER_VALUE_1), new NameValuePair(
-                PARAMETER_NAME_2, PARAMETER_VALUE_2));
-        assertNotNull(responseObject);
-        assertNull(responseObject.getErrorMessage());
-        assertEquals(responseStream, responseObject.getResponseEntity());
-        assertTrue(responseObject.success());
-
-        verifyNoMoreInteractions(mockConnectionManager);
-    }
-
-    @Test
-    public void testGetThrowsIOException() throws ClientProtocolException, IOException, GetException {
+    public void testGetThrowsIOException() throws ClientProtocolException, IOException, HttpRequestException {
 
         final IOException ioException = new IOException();
         when(mockHttpClient.execute(any(HttpGet.class))).thenThrow(ioException);
 
         try {
-            serviceInvoker.get(URL, CONTENT_TYPE);
+            when(mockRequest.getMethod()).thenReturn(Method.GET);
+            serviceInvoker.execute(mockRequest);
             fail("Expected exception.");
         } catch (final GetException e) {
             assertEquals(ioException, e.getCause());
@@ -127,7 +116,7 @@ public class ApacheHttpClientImplTest {
     }
 
     @Test
-    public void testPutSuccesWithNoEntity() throws ClientProtocolException, IOException, PutException {
+    public void testPutSuccesWithNoEntity() throws ClientProtocolException, IOException, HttpRequestException {
 
         final HttpResponse mockHttpResponse = mock(HttpResponse.class);
         final HttpEntity mockHttpEntity = mock(HttpEntity.class);
@@ -141,7 +130,9 @@ public class ApacheHttpClientImplTest {
         final ByteArrayInputStream responseStream = new ByteArrayInputStream(new String(RESPONSE_AS_STRING).getBytes());
         when(mockHttpEntity.getContent()).thenReturn(responseStream);
 
-        final HttpClientResponse<InputStream> responseObject = serviceInvoker.put(URL, CONTENT_TYPE, null);
+        when(mockRequest.getMethod()).thenReturn(Method.PUT);
+
+        final HttpClientResponse<InputStream> responseObject = serviceInvoker.execute(mockRequest);
         assertNotNull(responseObject);
         assertNull(responseObject.getErrorMessage());
         assertEquals(responseStream, responseObject.getResponseEntity());
@@ -151,7 +142,7 @@ public class ApacheHttpClientImplTest {
     }
 
     @Test
-    public void testPostSucces() throws PostException, ClientProtocolException, IOException {
+    public void testPostSucces() throws ClientProtocolException, IOException, HttpRequestException {
 
         final HttpResponse mockHttpResponse = mock(HttpResponse.class);
         final HttpEntity mockHttpEntity = mock(HttpEntity.class);
@@ -165,7 +156,9 @@ public class ApacheHttpClientImplTest {
         final ByteArrayInputStream responseStream = new ByteArrayInputStream(new String(RESPONSE_AS_STRING).getBytes());
         when(mockHttpEntity.getContent()).thenReturn(responseStream);
 
-        final HttpClientResponse<InputStream> responseObject = serviceInvoker.post(URL, CONTENT_TYPE, ENTITY);
+        when(mockRequest.getMethod()).thenReturn(Method.POST);
+        when(mockRequest.getContent()).thenReturn(ENTITY.getBytes());
+        final HttpClientResponse<InputStream> responseObject = serviceInvoker.execute(mockRequest);
         assertNotNull(responseObject);
         assertNull(responseObject.getErrorMessage());
         assertEquals(responseStream, responseObject.getResponseEntity());
@@ -175,13 +168,15 @@ public class ApacheHttpClientImplTest {
     }
 
     @Test
-    public void testPutThrowsIOException() throws PutException, ClientProtocolException, IOException {
+    public void testPutThrowsIOException() throws ClientProtocolException, IOException, HttpRequestException {
 
         final IOException ioException = new IOException();
         when(mockHttpClient.execute(any(HttpPut.class))).thenThrow(ioException);
 
         try {
-            serviceInvoker.put(URL, CONTENT_TYPE, ENTITY);
+            when(mockRequest.getMethod()).thenReturn(Method.PUT);
+            when(mockRequest.getContent()).thenReturn(ENTITY.getBytes());
+            serviceInvoker.execute(mockRequest);
             fail("Expected exception.");
         } catch (final PutException e) {
             assertEquals(ioException, e.getCause());
@@ -191,7 +186,7 @@ public class ApacheHttpClientImplTest {
     }
 
     @Test
-    public void testPostNonOkStatusCode() throws PostException, ClientProtocolException, IOException {
+    public void testPostNonOkStatusCode() throws ClientProtocolException, IOException, HttpRequestException {
 
         final HttpResponse mockHttpResponse = mock(HttpResponse.class);
         final HttpEntity mockHttpEntity = mock(HttpEntity.class);
@@ -204,7 +199,9 @@ public class ApacheHttpClientImplTest {
         final ByteArrayInputStream responseStream = new ByteArrayInputStream(new String(RESPONSE_AS_STRING).getBytes());
         when(mockHttpEntity.getContent()).thenReturn(responseStream);
 
-        final HttpClientResponse<InputStream> responseObject = serviceInvoker.post(URL, CONTENT_TYPE, ENTITY);
+        when(mockRequest.getMethod()).thenReturn(Method.POST);
+        when(mockRequest.getContent()).thenReturn(ENTITY.getBytes());
+        final HttpClientResponse<InputStream> responseObject = serviceInvoker.execute(mockRequest);
         assertNotNull(responseObject);
         assertFalse(responseObject.success());
         assertEquals("Got HTTP return code " + HttpStatus.SC_SERVICE_UNAVAILABLE, responseObject.getErrorMessage());
@@ -213,18 +210,42 @@ public class ApacheHttpClientImplTest {
     }
 
     @Test
-    public void testPostThrowsIOException() throws PostException, ClientProtocolException, IOException {
+    public void testPostThrowsIOException() throws ClientProtocolException, IOException, HttpRequestException {
 
         final IOException ioException = new IOException();
         when(mockHttpClient.execute(any(HttpPost.class))).thenThrow(ioException);
 
         try {
-            serviceInvoker.post(URL, CONTENT_TYPE, ENTITY);
+            when(mockRequest.getMethod()).thenReturn(Method.POST);
+            when(mockRequest.getContent()).thenReturn(ENTITY.getBytes());
+            serviceInvoker.execute(mockRequest);
             fail("Expected exception.");
         } catch (final PostException e) {
             assertEquals(ioException, e.getCause());
         }
         verify(mockConnectionManager).shutdown(); // In case of an exception we should shutdown the connection manager.
+        verifyNoMoreInteractions(mockConnectionManager);
+    }
+
+    @Test
+    public void testDeleteSuccess() throws ClientProtocolException, IOException, HttpRequestException {
+        final HttpResponse mockHttpResponse = mock(HttpResponse.class);
+        final HttpEntity mockHttpEntity = mock(HttpEntity.class);
+        final StatusLine mockStatusLine = mock(StatusLine.class);
+
+        when(mockHttpClient.execute(any(HttpDelete.class))).thenReturn(mockHttpResponse);
+        when(mockHttpResponse.getEntity()).thenReturn(mockHttpEntity);
+        when(mockHttpResponse.getStatusLine()).thenReturn(mockStatusLine);
+        when(mockStatusLine.getStatusCode()).thenReturn(HttpStatus.SC_OK);
+
+        when(mockRequest.getMethod()).thenReturn(Method.DELETE);
+
+        final HttpClientResponse<InputStream> responseObject = serviceInvoker.execute(mockRequest);
+        assertNotNull(responseObject);
+        assertNull(responseObject.getErrorMessage());
+        assertNull(responseObject.getResponseEntity());
+        assertTrue(responseObject.success());
+
         verifyNoMoreInteractions(mockConnectionManager);
     }
 

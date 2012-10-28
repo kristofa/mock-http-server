@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,8 +16,7 @@ import org.junit.Test;
 
 public class HttpRequestImplTest {
 
-    private final static String CONTENT_TYPE = "application/json";
-    private final static String CONTENT = "content";
+    private final static byte[] CONTENT = "content".getBytes();
     private final static String PATH = "/test/a";
     private static final String QUERY_PARAM_KEY = "key1";
     private static final String QUERY_PARAM_VALUE = "value1";
@@ -39,17 +39,10 @@ public class HttpRequestImplTest {
     }
 
     @Test
-    public void testContentType() {
-        assertNull(httpRequest.getContentType());
-        assertSame(httpRequest, httpRequest.contentType(CONTENT_TYPE));
-        assertEquals(CONTENT_TYPE, httpRequest.getContentType());
-    }
-
-    @Test
     public void testContent() {
         assertNull(httpRequest.getContent());
         assertSame(httpRequest, httpRequest.content(CONTENT));
-        assertEquals(CONTENT, httpRequest.getContent());
+        assertTrue(Arrays.equals(CONTENT, httpRequest.getContent()));
     }
 
     @Test
@@ -75,12 +68,14 @@ public class HttpRequestImplTest {
 
     @Test
     public void testToString() {
-        assertEquals("Method: null\nContent-Type: null\nPath: null\nQuery Parameters: \nContent:\nnull",
+        assertEquals("Method: null\nMessage Header: []\nPath: null\nQuery Parameters: []\nContent:\nnull",
             httpRequest.toString());
-        httpRequest.content(CONTENT).contentType(CONTENT_TYPE).method(Method.GET).path(PATH)
-            .queryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE).queryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2);
+        httpRequest.content(CONTENT)
+            .httpMessageHeader(HttpMessageHeaderField.CONTENTTYPE.getValue(), MediaType.APPLICATION_JSON_UTF8.getValue())
+            .method(Method.GET).path(PATH).queryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE)
+            .queryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2);
         assertEquals(
-            "Method: GET\nContent-Type: application/json\nPath: /test/a\nQuery Parameters: key1=value1&key2=value2\nContent:\ncontent",
+            "Method: GET\nMessage Header: [Content-Type: application/json; charset=UTF-8]\nPath: /test/a\nQuery Parameters: [key1=value1, key2=value2]\nContent:\ncontent",
             httpRequest.toString());
     }
 
@@ -92,8 +87,10 @@ public class HttpRequestImplTest {
         assertNotSame(httpRequest, copyNonInitializedRequest);
         assertEquals(copyNonInitializedRequest, httpRequest);
 
-        httpRequest.content(CONTENT).contentType(CONTENT_TYPE).method(Method.GET).path(PATH)
-            .queryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE).queryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2);
+        httpRequest.content(CONTENT)
+            .httpMessageHeader(HttpMessageHeaderField.CONTENTTYPE.getValue(), MediaType.APPLICATION_JSON_UTF8.getValue())
+            .method(Method.GET).path(PATH).queryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE)
+            .queryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2);
 
         assertFalse(httpRequest.equals(copyNonInitializedRequest));
 
@@ -102,5 +99,4 @@ public class HttpRequestImplTest {
         assertEquals(copyInitializedRequest, httpRequest);
 
     }
-
 }

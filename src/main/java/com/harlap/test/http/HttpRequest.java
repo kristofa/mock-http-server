@@ -12,18 +12,11 @@ public interface HttpRequest {
     Method getMethod();
 
     /**
-     * Gets content type for request.
-     * 
-     * @return Content type for request.
-     */
-    String getContentType();
-
-    /**
      * Get content for request.
      * 
      * @return Content for request.
      */
-    String getContent();
+    byte[] getContent();
 
     /**
      * Gets path for request without query parameters.
@@ -38,5 +31,12 @@ public interface HttpRequest {
      * @return Query parameters for request.
      */
     Set<QueryParameter> getQueryParameters();
+
+    /**
+     * Get http message headers.
+     * 
+     * @return Http message headers.
+     */
+    Set<HttpMessageHeader> getHttpMessageHeaders();
 
 }

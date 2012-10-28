@@ -8,4 +8,8 @@ public class HttpRequestException extends Exception {
         super(throwable);
     }
 
+    public HttpRequestException(final String message) {
+        super(message);
+    }
+
 }

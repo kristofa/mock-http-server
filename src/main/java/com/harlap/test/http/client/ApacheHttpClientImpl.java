@@ -3,97 +3,73 @@ package com.harlap.test.http.client;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HTTP;
+
+import com.harlap.test.http.FullHttpRequest;
+import com.harlap.test.http.HttpMessageHeader;
+import com.harlap.test.http.Method;
 
 /**
  * {@link HttpClient} implementation that uses <a href="http://hc.apache.org/httpcomponents-client-ga/">Apache HTTP
- * client</a> as 'lower level' library. For all requests 'Content-Encoding' header is added with value UTF-8.
+ * client</a> as 'lower level' library.
  * 
  * @author kristof
  */
 public class ApacheHttpClientImpl implements HttpClient {
 
-    private final UrlBuilder urlBuilder;
-
     public ApacheHttpClientImpl() {
-        this(new DefaultUrlBuilder());
-    }
-
-    public ApacheHttpClientImpl(final UrlBuilder urlBuilder) {
-        this.urlBuilder = urlBuilder;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public HttpClientResponse<InputStream> get(final String url, final String contentType,
-        final NameValuePair... queryParameters) throws GetException {
+    public HttpClientResponse<InputStream> execute(final FullHttpRequest request) throws HttpRequestException {
 
-        final String urlWithParameters = urlBuilder.buildAndEncodeUrl(url, queryParameters);
+        if (request.getMethod().equals(Method.GET)) {
+            final HttpGet httpGet = new HttpGet(request.getUrl());
+            populateHeader(request, httpGet);
 
-        final HttpGet httpGet = new HttpGet(urlWithParameters);
-        if (contentType != null) {
-            httpGet.addHeader(HTTP.CONTENT_TYPE, contentType);
+            try {
+                return execute(httpGet);
+            } catch (final IOException e1) {
+                throw new GetException(e1);
+            }
+        } else if (request.getMethod().equals(Method.PUT)) {
+            final HttpPut httpPut = new HttpPut(request.getUrl());
+            populateHeader(request, httpPut);
+            try {
+                return execute(httpPut, request.getContent());
+            } catch (final IOException e1) {
+                throw new PutException(e1);
+            }
+        } else if (request.getMethod().equals(Method.POST)) {
+            final HttpPost httpPost = new HttpPost(request.getUrl());
+            populateHeader(request, httpPost);
+            try {
+                return execute(httpPost, request.getContent());
+            } catch (final IOException e1) {
+                throw new PostException(e1);
+            }
+        } else if (request.getMethod().equals(Method.DELETE)) {
+            final HttpDelete httpDelete = new HttpDelete(request.getUrl());
+            populateHeader(request, httpDelete);
+            try {
+                return execute(httpDelete);
+            } catch (final IOException e1) {
+                throw new GetException(e1);
+            }
+
         }
-
-        try {
-            return execute(httpGet, contentType);
-        } catch (final IOException e1) {
-            throw new GetException(e1);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public HttpClientResponse<InputStream> put(final String url, final String contentType, final String entity,
-        final NameValuePair... queryParameters) throws PutException {
-
-        final String urlWithParameters = urlBuilder.buildAndEncodeUrl(url, queryParameters);
-
-        final HttpPut httpPut = new HttpPut(urlWithParameters);
-        if (contentType != null) {
-            httpPut.addHeader(HTTP.CONTENT_TYPE, contentType);
-        }
-
-        try {
-            return execute(httpPut, contentType, entity);
-        } catch (final IOException e) {
-            throw new PutException(e);
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public HttpClientResponse<InputStream> post(final String url, final String contentType, final String entity,
-        final NameValuePair... queryParameters) throws PostException {
-
-        final String urlWithParameters = urlBuilder.buildAndEncodeUrl(url, queryParameters);
-
-        final HttpPost httpPost = new HttpPost(urlWithParameters);
-        if (contentType != null) {
-            httpPost.addHeader(HTTP.CONTENT_TYPE, contentType);
-        }
-
-        try {
-            return execute(httpPost, contentType, entity);
-        } catch (final IOException e) {
-            throw new PostException(e);
-        }
+        throw new HttpRequestException("Unsupported operation: " + request.getMethod());
     }
 
     /**
@@ -105,18 +81,22 @@ public class ApacheHttpClientImpl implements HttpClient {
         return new DefaultHttpClient();
     }
 
-    private HttpClientResponse<InputStream> execute(final HttpEntityEnclosingRequestBase request, final String contentType,
-        final String entity) throws IOException {
-
-        if (!StringUtils.isBlank(entity)) {
-            final StringEntity stringEntity = new StringEntity(entity, contentType, HTTP.UTF_8);
-            request.setEntity(stringEntity);
+    private void populateHeader(final FullHttpRequest request, final HttpRequestBase apacheRequest) {
+        for (final HttpMessageHeader header : request.getHttpMessageHeaders()) {
+            apacheRequest.addHeader(header.getName(), header.getValue());
         }
-        return execute(request, contentType);
     }
 
-    private HttpClientResponse<InputStream> execute(final HttpRequestBase request, final String contentType)
+    private HttpClientResponse<InputStream> execute(final HttpEntityEnclosingRequestBase request, final byte[] content)
         throws IOException {
+
+        if (content != null) {
+            request.setEntity(new ByteArrayEntity(content));
+        }
+        return execute(request);
+    }
+
+    private HttpClientResponse<InputStream> execute(final HttpRequestBase request) throws IOException {
         final org.apache.http.client.HttpClient client = getClient();
         try {
             final HttpResponse httpResponse = client.execute(request);

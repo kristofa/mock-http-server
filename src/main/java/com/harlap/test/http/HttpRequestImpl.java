@@ -1,5 +1,6 @@
 package com.harlap.test.http;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,10 +14,10 @@ public class HttpRequestImpl implements HttpRequest {
     private static final String NOT_SPECIFIED = "null";
 
     private Method method;
-    private String contentType;
-    private String content;
+    private byte[] content;
     private String path;
     private final Set<QueryParameter> queryParameters = new HashSet<QueryParameter>();
+    private final Set<HttpMessageHeader> httpMessageHeaders = new HashSet<HttpMessageHeader>();
 
     public HttpRequestImpl() {
         // Default constructor.
@@ -24,9 +25,13 @@ public class HttpRequestImpl implements HttpRequest {
 
     public HttpRequestImpl(final HttpRequest request) {
         content = request.getContent();
-        contentType = request.getContentType();
         method = request.getMethod();
         path = request.getPath();
+
+        for (final HttpMessageHeader header : request.getHttpMessageHeaders()) {
+            httpMessageHeaders.add(new HttpMessageHeader(header.getName(), header.getValue()));
+        }
+
         for (final QueryParameter parameter : request.getQueryParameters()) {
             queryParameters.add(new QueryParameter(parameter.getKey(), parameter.getValue()));
         }
@@ -44,23 +49,12 @@ public class HttpRequestImpl implements HttpRequest {
     }
 
     /**
-     * Sets content type of message body for request.
-     * 
-     * @param contentType Content type of message body for request.
-     * @return This http request.
-     */
-    public HttpRequestImpl contentType(final String contentType) {
-        this.contentType = contentType;
-        return this;
-    }
-
-    /**
      * Sets content of message body for request.
      * 
      * @param content Message body for request.
      * @return This http request.
      */
-    public HttpRequestImpl content(final String content) {
+    public HttpRequestImpl content(final byte[] content) {
         this.content = content;
         return this;
     }
@@ -79,12 +73,24 @@ public class HttpRequestImpl implements HttpRequest {
     /**
      * Adds a query parameter for request.
      * 
-     * @param key Parameter key. Should not be empty or <code>null</code>.
-     * @param value Parameter value. Should not be empty or <code>null</code>
+     * @param key Parameter key. Should not be empty or <code>null</code> or blank.
+     * @param value Parameter value. Should not be empty or <code>null</code> or blank.
      * @return This http request.
      */
     public HttpRequestImpl queryParameter(final String key, final String value) {
         queryParameters.add(new QueryParameter(key, value));
+        return this;
+    }
+
+    /**
+     * Adds a Http message header.
+     * 
+     * @param name header name. Should not be <code>null</code> or blank.
+     * @param value header value. Should not be <code>null</code> or blank.
+     * @return The http request.
+     */
+    public HttpRequestImpl httpMessageHeader(final String name, final String value) {
+        httpMessageHeaders.add(new HttpMessageHeader(name, value));
         return this;
     }
 
@@ -100,16 +106,11 @@ public class HttpRequestImpl implements HttpRequest {
      * {@inheritDoc}
      */
     @Override
-    public String getContentType() {
-        return contentType;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getContent() {
-        return content;
+    public byte[] getContent() {
+        if (content == null) {
+            return null;
+        }
+        return Arrays.copyOf(content, content.length);
     }
 
     /**
@@ -126,6 +127,14 @@ public class HttpRequestImpl implements HttpRequest {
     @Override
     public Set<QueryParameter> getQueryParameters() {
         return Collections.unmodifiableSet(queryParameters);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<HttpMessageHeader> getHttpMessageHeaders() {
+        return Collections.unmodifiableSet(httpMessageHeaders);
     }
 
     /**
@@ -149,12 +158,17 @@ public class HttpRequestImpl implements HttpRequest {
     public String toString() {
 
         final String methodString = add("Method: ", getMethod());
-        final String contentTypeString = add("Content-Type: ", getContentType());
+        final String messageHeaderString = add("Message Header: ", getHttpMessageHeaders());
         final String pathString = add("Path: ", getPath());
-        final String queryParamsString = add("Query Parameters: ", getQueryParamsAsString());
-        final String contentString = add("Content:\n", getContent());
+        final String queryParamsString = add("Query Parameters: ", getQueryParameters());
+        String contentString = null;
+        if (getContent() == null) {
+            contentString = add("Content:\n", getContent());
+        } else {
+            contentString = add("Content:\n", new String(getContent()));
+        }
 
-        final String[] array = {methodString, contentTypeString, pathString, queryParamsString, contentString};
+        final String[] array = {methodString, messageHeaderString, pathString, queryParamsString, contentString};
 
         return StringUtils.join(array, "\n");
     }
@@ -166,18 +180,4 @@ public class HttpRequestImpl implements HttpRequest {
         return value + NOT_SPECIFIED;
     }
 
-    private String getQueryParamsAsString() {
-
-        String queryParamsAsString = "";
-        boolean first = true;
-        for (final QueryParameter parameter : getQueryParameters()) {
-            if (first) {
-                first = false;
-            } else {
-                queryParamsAsString += "&";
-            }
-            queryParamsAsString += parameter.toString();
-        }
-        return queryParamsAsString;
-    }
 }

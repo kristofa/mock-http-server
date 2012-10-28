@@ -8,11 +8,13 @@
 package com.harlap.test.http;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -34,22 +36,32 @@ public class MockHttpServer {
         @Override
         public void handle(final Request req, final Response response) {
 
-            String data = null;
+            byte[] data = null;
             try {
                 if (req.getContentLength() > 0) {
-                    data = req.getContent();
+                    final InputStream inputStream = req.getInputStream();
+                    try {
+                        data = IOUtils.toByteArray(inputStream);
+                    } finally {
+                        inputStream.close();
+                    }
                 }
             } catch (final IOException e) {
                 LOGGER.error("IOException when getting request content.", e);
             }
 
-            final HttpRequestImpl expectedRequeset = new HttpRequestImpl();
-            expectedRequeset.method(Method.valueOf(req.getMethod())).path(req.getTarget()).content(data);
-            if (req.getContentType() != null) {
-                expectedRequeset.contentType(req.getContentType().toString());
+            final HttpRequestImpl expectedRequest = new HttpRequestImpl();
+            expectedRequest.method(Method.valueOf(req.getMethod())).path(req.getTarget()).content(data);
+
+            for (final String headerField : req.getNames()) {
+                if (HttpMessageHeaderField.CONTENTTYPE.getValue().equals(headerField)) {
+                    for (final String headerFieldValue : req.getValues(headerField)) {
+                        expectedRequest.httpMessageHeader(headerField, headerFieldValue);
+                    }
+                }
             }
 
-            final HttpResponse expectedResponse = responseProvider.getResponse(expectedRequeset);
+            final HttpResponse expectedResponse = responseProvider.getResponse(expectedRequest);
 
             if (expectedResponse != null) {
                 response.setCode(expectedResponse.getHttpCode());

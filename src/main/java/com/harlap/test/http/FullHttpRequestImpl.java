@@ -66,13 +66,14 @@ public final class FullHttpRequestImpl implements FullHttpRequest {
     }
 
     /**
-     * Sets content type of message body for request.
+     * Adds a Http message header.
      * 
-     * @param contentType Content type of message body for request.
-     * @return This http request.
+     * @param name header name. Should not be <code>null</code> or blank.
+     * @param value header value. Should not be <code>null</code> or blank.
+     * @return The http request.
      */
-    public FullHttpRequestImpl contentType(final String contentType) {
-        httpRequest.contentType(contentType);
+    public FullHttpRequestImpl httpMessageHeader(final String name, final String value) {
+        httpRequest.httpMessageHeader(name, value);
         return this;
     }
 
@@ -82,7 +83,7 @@ public final class FullHttpRequestImpl implements FullHttpRequest {
      * @param content Message body for request.
      * @return This http request.
      */
-    public FullHttpRequestImpl content(final String content) {
+    public FullHttpRequestImpl content(final byte[] content) {
         httpRequest.content(content);
         return this;
     }
@@ -144,15 +145,7 @@ public final class FullHttpRequestImpl implements FullHttpRequest {
      * {@inheritDoc}
      */
     @Override
-    public String getContentType() {
-        return httpRequest.getContentType();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getContent() {
+    public byte[] getContent() {
         return httpRequest.getContent();
     }
 
@@ -186,6 +179,14 @@ public final class FullHttpRequestImpl implements FullHttpRequest {
     @Override
     public Set<QueryParameter> getQueryParameters() {
         return httpRequest.getQueryParameters();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<HttpMessageHeader> getHttpMessageHeaders() {
+        return httpRequest.getHttpMessageHeaders();
     }
 
     /**
