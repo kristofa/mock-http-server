@@ -10,6 +10,7 @@ import java.util.Set;
  * <p>
  * Simple to use for not too complex request/responses.
  * 
+ * @see MockHttpServer
  * @author kristof
  */
 public class SimpleExpectedHttpResponseProvider implements ExpectedHttpResponseProvider {
