@@ -27,7 +27,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MockHttpServerBehaviour {
+public class MockHttpServerTest {
 
     private static final int PORT = 51234;
     private static final String baseUrl = "http://localhost:" + PORT;
