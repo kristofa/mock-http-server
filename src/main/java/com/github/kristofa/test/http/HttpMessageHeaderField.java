@@ -20,6 +20,11 @@ public enum HttpMessageHeaderField {
         this.value = value;
     }
 
+    /**
+     * Gets text value of http message header field.
+     * 
+     * @return Text value of http message header field.
+     */
     public String getValue() {
         return value;
     }
