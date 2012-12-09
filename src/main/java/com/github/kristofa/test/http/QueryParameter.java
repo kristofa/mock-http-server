@@ -1,6 +1,8 @@
 package com.github.kristofa.test.http;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Defines a query parameter key/value.
@@ -10,7 +12,7 @@ import org.apache.commons.lang3.Validate;
  * 
  * @author kristof
  */
-public class QueryParameter {
+public class QueryParameter implements Comparable<QueryParameter> {
 
     private final String key;
     private final String value;
@@ -51,11 +53,7 @@ public class QueryParameter {
      */
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + key.hashCode();
-        result = prime * result + value.hashCode();
-        return result;
+        return HashCodeBuilder.reflectionHashCode(this, false);
     }
 
     /**
@@ -63,23 +61,7 @@ public class QueryParameter {
      */
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final QueryParameter other = (QueryParameter)obj;
-        if (!key.equals(other.key)) {
-            return false;
-        }
-        if (!value.equals(other.value)) {
-            return false;
-        }
-        return true;
+        return EqualsBuilder.reflectionEquals(this, obj, false);
     }
 
     /**
@@ -88,6 +70,18 @@ public class QueryParameter {
     @Override
     public String toString() {
         return key + "=" + value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo(final QueryParameter o) {
+        final int compareTo = getKey().compareTo(o.getKey());
+        if (compareTo != 0) {
+            return compareTo;
+        }
+        return getValue().compareTo(o.getValue());
     }
 
 }
