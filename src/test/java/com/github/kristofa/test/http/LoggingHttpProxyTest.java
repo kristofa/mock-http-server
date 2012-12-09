@@ -1,4 +1,4 @@
-package com.harlap.test.http;
+package com.github.kristofa.test.http;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -19,6 +19,16 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.github.kristofa.test.http.ForwardHttpRequestBuilder;
+import com.github.kristofa.test.http.FullHttpRequest;
+import com.github.kristofa.test.http.FullHttpRequestImpl;
+import com.github.kristofa.test.http.HttpRequestResponseLogger;
+import com.github.kristofa.test.http.HttpResponseImpl;
+import com.github.kristofa.test.http.LoggingHttpProxy;
+import com.github.kristofa.test.http.Method;
+import com.github.kristofa.test.http.MockHttpServer;
+import com.github.kristofa.test.http.SimpleExpectedHttpResponseProvider;
 
 public class LoggingHttpProxyTest {
 

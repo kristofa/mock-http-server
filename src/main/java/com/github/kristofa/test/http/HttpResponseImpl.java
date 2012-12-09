@@ -1,4 +1,4 @@
-package com.harlap.test.http;
+package com.github.kristofa.test.http;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;

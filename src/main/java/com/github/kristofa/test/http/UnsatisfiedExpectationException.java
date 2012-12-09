@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.harlap.test.http;
+package com.github.kristofa.test.http;
 
 public class UnsatisfiedExpectationException extends RuntimeException {
 	private static final long serialVersionUID = -6003072239642243697L;

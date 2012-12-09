@@ -1,4 +1,4 @@
-package com.harlap.test.http;
+package com.github.kristofa.test.http;
 
 import java.util.Set;
 

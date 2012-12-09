@@ -1,4 +1,4 @@
-package com.harlap.test.http;
+package com.github.kristofa.test.http;
 
 import java.util.HashMap;
 import java.util.HashSet;

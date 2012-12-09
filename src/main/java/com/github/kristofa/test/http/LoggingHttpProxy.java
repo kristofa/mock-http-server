@@ -1,4 +1,4 @@
-package com.harlap.test.http;
+package com.github.kristofa.test.http;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -21,10 +21,10 @@ import org.simpleframework.transport.connect.SocketConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.harlap.test.http.client.ApacheHttpClientImpl;
-import com.harlap.test.http.client.HttpClient;
-import com.harlap.test.http.client.HttpClientResponse;
-import com.harlap.test.http.client.HttpRequestException;
+import com.github.kristofa.test.http.client.ApacheHttpClientImpl;
+import com.github.kristofa.test.http.client.HttpClient;
+import com.github.kristofa.test.http.client.HttpClientResponse;
+import com.github.kristofa.test.http.client.HttpRequestException;
 
 /**
  * Http proxy that supports logging requests/reponses. Its purpose is to be a 'man in the middle' which can be used to

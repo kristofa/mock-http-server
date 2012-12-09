@@ -1,4 +1,4 @@
-package com.harlap.test.http;
+package com.github.kristofa.test.http;
 
 /**
  * Responsible for building forwarding http requests. Builds a new request based on input request.

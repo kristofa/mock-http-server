@@ -1,4 +1,4 @@
-package com.harlap.test.http;
+package com.github.kristofa.test.http;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -13,6 +13,12 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.github.kristofa.test.http.FullHttpRequestImpl;
+import com.github.kristofa.test.http.HttpMessageHeaderField;
+import com.github.kristofa.test.http.MediaType;
+import com.github.kristofa.test.http.Method;
+import com.github.kristofa.test.http.QueryParameter;
 
 public class FullHttpRequestImplTest {
 

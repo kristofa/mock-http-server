@@ -1,4 +1,4 @@
-package com.harlap.test.http.client;
+package com.github.kristofa.test.http.client;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -31,10 +31,16 @@ import org.apache.http.conn.ClientConnectionManager;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.harlap.test.http.FullHttpRequest;
-import com.harlap.test.http.HttpMessageHeader;
-import com.harlap.test.http.HttpMessageHeaderField;
-import com.harlap.test.http.Method;
+import com.github.kristofa.test.http.FullHttpRequest;
+import com.github.kristofa.test.http.HttpMessageHeader;
+import com.github.kristofa.test.http.HttpMessageHeaderField;
+import com.github.kristofa.test.http.Method;
+import com.github.kristofa.test.http.client.ApacheHttpClientImpl;
+import com.github.kristofa.test.http.client.GetException;
+import com.github.kristofa.test.http.client.HttpClientResponse;
+import com.github.kristofa.test.http.client.HttpRequestException;
+import com.github.kristofa.test.http.client.PostException;
+import com.github.kristofa.test.http.client.PutException;
 
 public class ApacheHttpClientImplTest {
 

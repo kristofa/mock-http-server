@@ -1,4 +1,4 @@
-package com.harlap.test.http.client;
+package com.github.kristofa.test.http.client;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -9,6 +9,9 @@ import static org.mockito.Mockito.mock;
 import org.apache.http.client.HttpClient;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.github.kristofa.test.http.client.ApacheHttpClientResponseImpl;
+import com.github.kristofa.test.http.client.HttpClientResponse;
 
 public class HttpClientResponseTest {
 

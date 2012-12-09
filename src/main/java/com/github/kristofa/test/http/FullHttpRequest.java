@@ -1,4 +1,4 @@
-package com.harlap.test.http;
+package com.github.kristofa.test.http;
 
 /**
  * A Full HTTP Request extends a {@link HttpRequest} with domain (host), port. We are interested in those properties when we

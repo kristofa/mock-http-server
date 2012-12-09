@@ -1,4 +1,4 @@
-package com.harlap.test.http.client;
+package com.github.kristofa.test.http.client;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,9 +13,9 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import com.harlap.test.http.FullHttpRequest;
-import com.harlap.test.http.HttpMessageHeader;
-import com.harlap.test.http.Method;
+import com.github.kristofa.test.http.FullHttpRequest;
+import com.github.kristofa.test.http.HttpMessageHeader;
+import com.github.kristofa.test.http.Method;
 
 /**
  * {@link HttpClient} implementation that uses <a href="http://hc.apache.org/httpcomponents-client-ga/">Apache HTTP

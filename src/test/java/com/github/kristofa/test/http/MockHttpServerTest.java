@@ -5,7 +5,7 @@
  * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
  * implied. See the License for the specific language governing permissions and limitations under the License.
  */
-package com.harlap.test.http;
+package com.github.kristofa.test.http;
 
 import static org.junit.Assert.assertEquals;
 
@@ -26,6 +26,11 @@ import org.apache.http.protocol.HTTP;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.github.kristofa.test.http.Method;
+import com.github.kristofa.test.http.MockHttpServer;
+import com.github.kristofa.test.http.SimpleExpectedHttpResponseProvider;
+import com.github.kristofa.test.http.UnsatisfiedExpectationException;
 
 public class MockHttpServerTest {
 

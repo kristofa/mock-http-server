@@ -1,4 +1,4 @@
-package com.harlap.test.http.client;
+package com.github.kristofa.test.http.client;
 
 /**
  * Exception that indicates that a HTTP POST request failed.

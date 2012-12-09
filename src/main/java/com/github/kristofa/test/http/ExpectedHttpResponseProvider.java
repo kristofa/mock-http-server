@@ -1,4 +1,4 @@
-package com.harlap.test.http;
+package com.github.kristofa.test.http;
 
 /**
  * Provides responses for given {@link HttpRequest http requests}. Abstracts where the responses come from.

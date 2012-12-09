@@ -1,4 +1,4 @@
-package com.harlap.test.http.client;
+package com.github.kristofa.test.http.client;
 
 /**
  * Http Response as being returned by a {@link HttpClient}. Provides the user with the HTTP response code, response entity

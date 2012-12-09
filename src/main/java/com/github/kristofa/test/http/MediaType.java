@@ -1,4 +1,4 @@
-package com.harlap.test.http;
+package com.github.kristofa.test.http;
 
 /**
  * The media type is the value of Content-Type http message header and is defined of 2 or more parts. A main type, sub type
