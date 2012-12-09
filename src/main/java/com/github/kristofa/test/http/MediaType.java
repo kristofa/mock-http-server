@@ -17,6 +17,11 @@ public enum MediaType {
         this.value = value;
     }
 
+    /**
+     * Get value of MediaType.
+     * 
+     * @return String value of MediaType.
+     */
     public String getValue() {
         return value;
     }
