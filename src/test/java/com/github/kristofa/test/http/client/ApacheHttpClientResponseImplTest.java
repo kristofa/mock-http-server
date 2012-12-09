@@ -13,7 +13,7 @@ import org.junit.Test;
 import com.github.kristofa.test.http.client.ApacheHttpClientResponseImpl;
 import com.github.kristofa.test.http.client.HttpClientResponse;
 
-public class HttpClientResponseTest {
+public class ApacheHttpClientResponseImplTest {
 
     private final static int HTTP_RESPONSE_CODE = 201;
     private final static int HTTP_RESPONSE_CODE_2 = 200;
