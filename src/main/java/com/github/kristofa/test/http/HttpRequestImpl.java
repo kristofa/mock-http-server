@@ -2,8 +2,8 @@ package com.github.kristofa.test.http;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -16,8 +16,8 @@ public class HttpRequestImpl implements HttpRequest {
     private Method method;
     private byte[] content;
     private String path;
-    private final Set<QueryParameter> queryParameters = new HashSet<QueryParameter>();
-    private final Set<HttpMessageHeader> httpMessageHeaders = new HashSet<HttpMessageHeader>();
+    private final Set<QueryParameter> queryParameters = new TreeSet<QueryParameter>();
+    private final Set<HttpMessageHeader> httpMessageHeaders = new TreeSet<HttpMessageHeader>();
 
     public HttpRequestImpl() {
         // Default constructor.
