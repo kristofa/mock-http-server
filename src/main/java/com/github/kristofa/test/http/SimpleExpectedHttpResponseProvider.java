@@ -1,5 +1,6 @@
 package com.github.kristofa.test.http;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -80,23 +81,23 @@ public class SimpleExpectedHttpResponseProvider implements ExpectedHttpResponseP
     public void verify() throws UnsatisfiedExpectationException {
 
         if (!expectedRequests.keySet().equals(receivedRequests)) {
-            String missingExpectedRequestsString = "Missing expected requests: ";
+
+            final Collection<HttpRequest> missing = new HashSet<HttpRequest>();
 
             for (final HttpRequest expectedRequest : expectedRequests.keySet()) {
                 if (!receivedRequests.contains(expectedRequest)) {
-                    missingExpectedRequestsString += expectedRequest.toString();
+                    missing.add(expectedRequest);
                 }
             }
 
-            String unexpectedReceivedRequestsString = "Unexpected received requests: ";
+            final Collection<HttpRequest> unexpected = new HashSet<HttpRequest>();
             for (final HttpRequest receivedRequest : receivedRequests) {
                 if (!expectedRequests.keySet().contains(receivedRequest)) {
-                    unexpectedReceivedRequestsString += receivedRequest.toString();
+                    unexpected.add(receivedRequest);
                 }
             }
 
-            throw new UnsatisfiedExpectationException(missingExpectedRequestsString + "\n"
-                + unexpectedReceivedRequestsString);
+            throw new UnsatisfiedExpectationException(missing, unexpected);
 
         }
 

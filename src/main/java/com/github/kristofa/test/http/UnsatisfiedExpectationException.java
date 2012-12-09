@@ -1,37 +1,70 @@
-/**
- *   Copyright 2011 <jharlap@gitub.com>
- *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
- */
 package com.github.kristofa.test.http;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.TreeSet;
+
+import org.apache.commons.lang3.Validate;
+
+/**
+ * Indicates there are {@link HttpRequest http requests} that we expected but did not get and/or that we got unexpected
+ * {@link HttpRequest http requests}.
+ * 
+ * @see ExpectedHttpResponseProvider
+ * @author kristof
+ */
 public class UnsatisfiedExpectationException extends RuntimeException {
-	private static final long serialVersionUID = -6003072239642243697L;
 
-	public UnsatisfiedExpectationException() {
-		super();
-	}
+    private static final long serialVersionUID = -6003072239642243697L;
 
-	public UnsatisfiedExpectationException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    private final TreeSet<HttpRequest> missingHttpRequests = new TreeSet<HttpRequest>();
+    private final TreeSet<HttpRequest> unexpectedHttpRequests = new TreeSet<HttpRequest>();
 
-	public UnsatisfiedExpectationException(String message) {
-		super(message);
-	}
+    /**
+     * Creates a new instance.
+     * <p>
+     * Both collections should not be <code>null</code>. One of both collections can be empty.
+     * 
+     * @param missingRequests Requests that we expected but did not get.
+     * @param unexpectedRequests Requests that we got but did not expect.
+     */
+    public UnsatisfiedExpectationException(final Collection<HttpRequest> missingRequests,
+        final Collection<HttpRequest> unexpectedRequests) {
+        super();
+        Validate.notNull(missingRequests);
+        Validate.notNull(unexpectedRequests);
+        Validate.isTrue(!missingRequests.isEmpty() || !unexpectedRequests.isEmpty());
+        missingHttpRequests.addAll(missingRequests);
+        unexpectedHttpRequests.addAll(unexpectedRequests);
+    }
 
-	public UnsatisfiedExpectationException(Throwable cause) {
-		super(cause);
-	}
+    /**
+     * Gets the http requests that we expected but did not get.
+     * 
+     * @return Collection of http requests that we expected but did not get.
+     */
+    public Collection<HttpRequest> getMissingHttpRequests() {
+        return Collections.unmodifiableCollection(missingHttpRequests);
+    }
+
+    /**
+     * Gets the http requests that we got but did not expect.
+     * 
+     * @return Collection of http requests that we got but did not expect.
+     */
+    public Collection<HttpRequest> getUnexpectedHttpRequests() {
+        return Collections.unmodifiableCollection(unexpectedHttpRequests);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        final String missingExpectedRequestsString = "Missing expected requests: " + getMissingHttpRequests();
+        final String unexpectedReceivedRequestsString = "Unexpected received requests: " + getUnexpectedHttpRequests();
+
+        return missingExpectedRequestsString + "\n" + unexpectedReceivedRequestsString;
+    }
 
 }

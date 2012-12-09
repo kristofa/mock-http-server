@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import java.util.Collection;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -82,25 +84,27 @@ public class SimpleExpectedHttpResponseProviderTest {
     public void testVerifyMissingAndExtra() {
         responseProvider.expect(Method.GET, PATH).respondWith(HTTP_CODE, CONTENT_TYPE, DATA);
 
-        final HttpRequestImpl httpRequestImpl = new HttpRequestImpl();
-        httpRequestImpl.method(Method.GET).path(PATH).content(CONTENT.getBytes())
+        final HttpRequestImpl unexpectedRequest = new HttpRequestImpl();
+        unexpectedRequest.method(Method.GET).path(PATH).content(CONTENT.getBytes())
             .httpMessageHeader(HttpMessageHeaderField.CONTENTTYPE.getValue(), CONTENT_TYPE);
 
-        final HttpResponse response = responseProvider.getResponse(httpRequestImpl);
+        final HttpResponse response = responseProvider.getResponse(unexpectedRequest);
         assertNull(response);
 
         try {
             responseProvider.verify();
             fail("Expected exception.");
         } catch (final UnsatisfiedExpectationException e) {
+            final Collection<HttpRequest> missingHttpRequests = e.getMissingHttpRequests();
+            assertEquals(1, missingHttpRequests.size());
+            final HttpRequestImpl expectedMissing = new HttpRequestImpl();
+            expectedMissing.method(Method.GET).path(PATH);
+            assertEquals(expectedMissing, missingHttpRequests.iterator().next());
 
-            final String expectedExceptionMessage =
-                "Missing expected requests: Method: GET\n" + "Message Header: []\n" + "Path: path\n"
-                    + "Query Parameters: []\n" + "Content:\n" + "null\n" + "Unexpected received requests: Method: GET\n"
-                    + "Message Header: [Content-Type: contenType]\n" + "Path: path\n" + "Query Parameters: []\n"
-                    + "Content:\n" + "content";
+            final Collection<HttpRequest> unexpectedHttpRequests = e.getUnexpectedHttpRequests();
+            assertEquals(1, unexpectedHttpRequests.size());
+            assertEquals(unexpectedRequest, unexpectedHttpRequests.iterator().next());
 
-            assertEquals(expectedExceptionMessage, e.getMessage());
         }
     }
 
