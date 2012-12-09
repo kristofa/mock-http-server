@@ -9,7 +9,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * 
  * @author kristof
  */
-public class HttpMessageHeader {
+public class HttpMessageHeader implements Comparable<HttpMessageHeader> {
 
     private final String name;
     private final String value;
@@ -68,6 +68,18 @@ public class HttpMessageHeader {
     @Override
     public String toString() {
         return getName() + ": " + getValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo(final HttpMessageHeader o) {
+        final int compareTo = getName().compareTo(o.getName());
+        if (compareTo != 0) {
+            return compareTo;
+        }
+        return getValue().compareTo(o.getValue());
     }
 
 }
