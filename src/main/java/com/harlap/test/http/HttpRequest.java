@@ -2,6 +2,11 @@ package com.harlap.test.http;
 
 import java.util.Set;
 
+/**
+ * Contains the HTTP request properties required to identify or compare a HTTP request.
+ * 
+ * @author kristof
+ */
 public interface HttpRequest {
 
     /**
