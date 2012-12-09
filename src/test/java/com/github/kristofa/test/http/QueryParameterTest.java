@@ -7,8 +7,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.github.kristofa.test.http.QueryParameter;
-
 public class QueryParameterTest {
 
     private static final String KEY = "key";
@@ -78,6 +76,20 @@ public class QueryParameterTest {
     public void testHashCode() {
         final QueryParameter equalParameter = new QueryParameter(KEY, VALUE);
         assertEquals("Equal objects should have equal hashcode.", parameter.hashCode(), equalParameter.hashCode());
+    }
+
+    @Test
+    public void testCompareTo() {
+        final QueryParameter queryParameter = new QueryParameter("a", "b");
+        final QueryParameter queryParameter2 = new QueryParameter("a", "c");
+        final QueryParameter queryParameter3 = new QueryParameter("b", "a");
+
+        assertEquals(0, queryParameter.compareTo(queryParameter));
+        assertTrue(queryParameter.compareTo(queryParameter2) < 0);
+        assertTrue(queryParameter2.compareTo(queryParameter) > 0);
+        assertTrue(queryParameter.compareTo(queryParameter3) < 0);
+        assertTrue(queryParameter3.compareTo(queryParameter) > 0);
+
     }
 
 }
