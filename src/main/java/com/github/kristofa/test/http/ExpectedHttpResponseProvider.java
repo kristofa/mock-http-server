@@ -21,7 +21,10 @@ public interface ExpectedHttpResponseProvider {
     /**
      * Should be executed when all requests have been submitted. Checks if all expected requests have been requested.
      * 
-     * @throws UnsatisfiedExpectationException In case expectation were not as expected.
+     * @throws UnsatisfiedExpectationException In case expectation were not as expected. See
+     *             {@link UnsatisfiedExpectationException#getMissingHttpRequests()} and
+     *             {@link UnsatisfiedExpectationException#getUnexpectedHttpRequests()} to get missing and unexpected
+     *             requests.
      */
     void verify() throws UnsatisfiedExpectationException;
 
