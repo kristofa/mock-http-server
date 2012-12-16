@@ -1,9 +1,10 @@
 package com.github.kristofa.test.http;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -19,16 +20,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.github.kristofa.test.http.ForwardHttpRequestBuilder;
-import com.github.kristofa.test.http.FullHttpRequest;
-import com.github.kristofa.test.http.FullHttpRequestImpl;
-import com.github.kristofa.test.http.HttpRequestResponseLogger;
-import com.github.kristofa.test.http.HttpResponseImpl;
-import com.github.kristofa.test.http.LoggingHttpProxy;
-import com.github.kristofa.test.http.Method;
-import com.github.kristofa.test.http.MockHttpServer;
-import com.github.kristofa.test.http.SimpleExpectedHttpResponseProvider;
+import org.mockito.InOrder;
 
 public class LoggingHttpProxyTest {
 
@@ -39,6 +31,7 @@ public class LoggingHttpProxyTest {
     private LoggingHttpProxy proxy;
     private MockHttpServer server;
     private HttpClient client;
+    private HttpRequestResponseLoggerFactory mockLoggerFactory;
     private HttpRequestResponseLogger mockLogger;
     private SimpleExpectedHttpResponseProvider responseProvider;
 
@@ -56,9 +49,11 @@ public class LoggingHttpProxyTest {
             }
         };
 
+        mockLoggerFactory = mock(HttpRequestResponseLoggerFactory.class);
         mockLogger = mock(HttpRequestResponseLogger.class);
+        when(mockLoggerFactory.getHttpRequestResponseLogger()).thenReturn(mockLogger);
 
-        proxy = new LoggingHttpProxy(PROXY_PORT, Arrays.asList(forwardHttpRequestBuilder), mockLogger);
+        proxy = new LoggingHttpProxy(PROXY_PORT, Arrays.asList(forwardHttpRequestBuilder), mockLoggerFactory);
         proxy.start();
 
         responseProvider = new SimpleExpectedHttpResponseProvider();
@@ -77,14 +72,14 @@ public class LoggingHttpProxyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void nullForwardRequestBuilder() {
-        new LoggingHttpProxy(PROXY_PORT, null, mockLogger);
+        new LoggingHttpProxy(PROXY_PORT, null, mockLoggerFactory);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void noForwardRequestBuilder() {
 
         final Collection<ForwardHttpRequestBuilder> emptyCollection = Collections.emptyList();
-        new LoggingHttpProxy(PROXY_PORT, emptyCollection, mockLogger);
+        new LoggingHttpProxy(PROXY_PORT, emptyCollection, mockLoggerFactory);
     }
 
     @Test(expected = NullPointerException.class)
@@ -116,8 +111,11 @@ public class LoggingHttpProxyTest {
 
         final HttpResponseImpl expectedResponse = new HttpResponseImpl(200, "text/plain", "OK".getBytes());
 
-        verify(mockLogger).log(expectedRequest, expectedResponse);
-        verifyNoMoreInteractions(mockLogger);
+        final InOrder inOrder = inOrder(mockLoggerFactory, mockLogger);
+        inOrder.verify(mockLoggerFactory).getHttpRequestResponseLogger();
+        inOrder.verify(mockLogger).log(expectedRequest);
+        inOrder.verify(mockLogger).log(expectedResponse);
+        verifyNoMoreInteractions(mockLogger, mockLoggerFactory, mockLogger);
 
     }
 

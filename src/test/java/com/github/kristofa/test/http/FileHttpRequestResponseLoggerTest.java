@@ -32,24 +32,23 @@ public class FileHttpRequestResponseLoggerTest {
     private static final String CONTENTTYPE = "contentType";
     private static final byte[] RESPONSE_CONTENT = new String("responseContent").getBytes();
 
+    private final static int SEQ_NR = 10;
+
     @Test(expected = NullPointerException.class)
     public void testFileHttpRequestResponseLogger() {
-        new FileHttpRequestResponseLogger(null, "test");
+        new FileHttpRequestResponseLogger(null, "test", SEQ_NR);
     }
 
     @Test
-    public void testLog() throws IOException {
-        final FileHttpRequestResponseLogger logger = new FileHttpRequestResponseLogger(TEMP_DIR, FILE_NAME);
+    public void testLogRequest() throws IOException {
+        final FileHttpRequestResponseLogger logger = new FileHttpRequestResponseLogger(TEMP_DIR, FILE_NAME, SEQ_NR);
 
         final HttpRequestImpl httpRequestImpl = new HttpRequestImpl();
         httpRequestImpl.method(METHOD).httpMessageHeader(HEADER_NAME_1, HEADER_VALUE_1)
             .httpMessageHeader(HEADER_NAME_2, HEADER_VALUE_2).path(PATH).queryParameter(PARAM_NAME_1, PARAM_VALUE_1)
             .queryParameter(PARAM_NAME_2, PARAM_VALUE_2).content(CONTENT);
 
-        final HttpResponseImpl httpResponseImpl = new HttpResponseImpl(HTTP_CODE, CONTENTTYPE, RESPONSE_CONTENT);
-
-        logger.log(httpRequestImpl, httpResponseImpl);
-        logger.log(httpRequestImpl, httpResponseImpl);
+        logger.log(httpRequestImpl);
 
         final String expectedRequestFileContent = "[Method]\n" + //
             METHOD + "\n" + //
@@ -62,31 +61,30 @@ public class FileHttpRequestResponseLoggerTest {
             PARAM_NAME_1 + "=" + PARAM_VALUE_1 + "\n" + //
             PARAM_NAME_2 + "=" + PARAM_VALUE_2 + "\n";
 
-        final File expectedRequestFile1 = new File(TEMP_DIR, FILE_NAME + "_request_00001.txt");
-        final File expectedRequestEntityFile1 = new File(TEMP_DIR, FILE_NAME + "_request_entity_00001.txt");
+        final File expectedRequestFile1 = new File(TEMP_DIR, FILE_NAME + "_request_00010.txt");
+        final File expectedRequestEntityFile1 = new File(TEMP_DIR, FILE_NAME + "_request_entity_00010.txt");
         assertEquals(expectedRequestFileContent, FileUtils.readFileToString(expectedRequestFile1, UTF8));
         assertArrayEquals(CONTENT, FileUtils.readFileToByteArray(expectedRequestEntityFile1));
+
+    }
+
+    @Test
+    public void testLogResponse() throws IOException {
+        final FileHttpRequestResponseLogger logger = new FileHttpRequestResponseLogger(TEMP_DIR, FILE_NAME, SEQ_NR);
+
+        final HttpResponseImpl httpResponseImpl = new HttpResponseImpl(HTTP_CODE, CONTENTTYPE, RESPONSE_CONTENT);
+
+        logger.log(httpResponseImpl);
 
         final String expectedResponseFileContent = "[HttpCode]\n" + //
             HTTP_CODE + "\n" + //
             "[ContentType]\n" + //
             CONTENTTYPE + "\n";
 
-        final File expectedResponseFile1 = new File(TEMP_DIR, FILE_NAME + "_response_00001.txt");
-        final File expectedResponseEntityFile1 = new File(TEMP_DIR, FILE_NAME + "_response_entity_00001.txt");
+        final File expectedResponseFile1 = new File(TEMP_DIR, FILE_NAME + "_response_00010.txt");
+        final File expectedResponseEntityFile1 = new File(TEMP_DIR, FILE_NAME + "_response_entity_00010.txt");
         assertEquals(expectedResponseFileContent, FileUtils.readFileToString(expectedResponseFile1, UTF8));
         assertArrayEquals(RESPONSE_CONTENT, FileUtils.readFileToByteArray(expectedResponseEntityFile1));
-
-        // Written out twice so we expect 2 sets of files...
-        final File expectedRequestFile2 = new File(TEMP_DIR, FILE_NAME + "_request_00002.txt");
-        final File expectedRequestEntityFile2 = new File(TEMP_DIR, FILE_NAME + "_request_entity_00002.txt");
-        assertEquals(expectedRequestFileContent, FileUtils.readFileToString(expectedRequestFile2, UTF8));
-        assertArrayEquals(CONTENT, FileUtils.readFileToByteArray(expectedRequestEntityFile2));
-
-        final File expectedResponseFile2 = new File(TEMP_DIR, FILE_NAME + "_response_00002.txt");
-        final File expectedResponseEntityFile2 = new File(TEMP_DIR, FILE_NAME + "_response_entity_00002.txt");
-        assertEquals(expectedResponseFileContent, FileUtils.readFileToString(expectedResponseFile2, UTF8));
-        assertArrayEquals(RESPONSE_CONTENT, FileUtils.readFileToByteArray(expectedResponseEntityFile2));
 
     }
 }

@@ -54,7 +54,7 @@ public class LoggingHttpProxy {
 
     private final int port;
     private final Collection<ForwardHttpRequestBuilder> requestBuilders = new HashSet<ForwardHttpRequestBuilder>();
-    private final HttpRequestResponseLogger logger;
+    private final HttpRequestResponseLoggerFactory loggerFactory;
     private Connection connection;
     private ProxyImplementation proxy;
 
@@ -87,25 +87,27 @@ public class LoggingHttpProxy {
                 errorResponse(response, NO_FORWARD_REQUEST_ERROR_HTTP_CODE,
                     "Received unexpected request:\n" + httpRequest.toString());
             } else {
+
+                final HttpRequestResponseLogger logger = loggerFactory.getHttpRequestResponseLogger();
+                logger.log(httpRequest);
                 try {
                     final HttpClientResponse<InputStream> forwardResponse = forward(forwardHttpRequest);
                     try {
-                        response.setCode(forwardResponse.getHttpCode());
-                        response.set(CONTENT_TYPE, forwardResponse.getContentType());
                         final InputStream inputStream = forwardResponse.getResponseEntity();
-                        final OutputStream outputStream = response.getOutputStream();
-
                         // This is tricky as we keep the full response in memory... reason is that we need to copy it twice.
                         // Once to return to response, another time to log.
                         final byte[] responseEntity = IOUtils.toByteArray(inputStream);
                         inputStream.close();
-                        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(responseEntity);
-
                         final HttpResponse httpResponse =
                             new HttpResponseImpl(forwardResponse.getHttpCode(), forwardResponse.getContentType(),
                                 responseEntity);
-                        logger.log(httpRequest, httpResponse);
+                        logger.log(httpResponse);
 
+                        response.setCode(forwardResponse.getHttpCode());
+                        response.set(CONTENT_TYPE, forwardResponse.getContentType());
+                        final OutputStream outputStream = response.getOutputStream();
+
+                        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(responseEntity);
                         IOUtils.copy(byteArrayInputStream, outputStream);
                         byteArrayInputStream.close();
                         outputStream.close();
@@ -189,16 +191,16 @@ public class LoggingHttpProxy {
      * 
      * @param port Port at which proxy will be running.
      * @param requestBuilders Forward request builders. Should not be <code>null</code> and at least 1 should be specified.
-     * @param logger Request/Response logger. Should not be <code>null</code>.
+     * @param loggerFactory Request/Response logger factory.. Should not be <code>null</code>.
      */
     public LoggingHttpProxy(final int port, final Collection<ForwardHttpRequestBuilder> requestBuilders,
-        final HttpRequestResponseLogger logger) {
+        final HttpRequestResponseLoggerFactory loggerFactory) {
         Validate.isTrue(requestBuilders != null && !requestBuilders.isEmpty(),
             "At least 1 ForwardHttpRequestBuilder should be provided.");
-        Validate.notNull(logger, "HttpRequestResponseLogger should not be null.");
+        Validate.notNull(loggerFactory, "HttpRequestResponseLoggerFactory should not be null.");
         this.port = port;
         this.requestBuilders.addAll(requestBuilders);
-        this.logger = logger;
+        this.loggerFactory = loggerFactory;
     }
 
     /**

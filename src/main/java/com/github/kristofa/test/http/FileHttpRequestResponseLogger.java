@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.Validate;
@@ -32,7 +31,7 @@ public class FileHttpRequestResponseLogger implements HttpRequestResponseLogger 
 
     private final String directory;
     private final String fileName;
-    private final AtomicInteger sequenceNumber = new AtomicInteger();
+    private final int seqNr;
 
     /**
      * Creates a new instance.
@@ -40,32 +39,43 @@ public class FileHttpRequestResponseLogger implements HttpRequestResponseLogger 
      * @param directory Target directory in which to store request/responses. Directory should already exist.
      * @param fileName Base file name. Should not contain extension. Will be suffixed with sequence number and .txt
      *            extension.
+     * @param seqNr Sequence number for request / response.
      */
-    public FileHttpRequestResponseLogger(final String directory, final String fileName) {
+    public FileHttpRequestResponseLogger(final String directory, final String fileName, final int seqNr) {
         Validate.notNull(directory);
         Validate.notBlank(fileName);
 
         this.directory = directory;
         this.fileName = fileName;
+        this.seqNr = seqNr;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void log(final HttpRequest request, final HttpResponse response) {
-
-        final int seqNr = sequenceNumber.incrementAndGet();
+    public void log(final HttpRequest request) {
 
         try {
             writeRequest(seqNr, request);
             writeRequestEntity(seqNr, request);
+
+        } catch (final IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void log(final HttpResponse response) {
+        try {
             writeResponse(seqNr, response);
             writeResponseEntity(seqNr, response);
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
-
     }
 
     private void writeRequest(final int seqNr, final HttpRequest request) throws IOException {
