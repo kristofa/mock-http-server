@@ -1,0 +1,9 @@
+[HttpMessageHeader]
+Content-Type=application/json
+Agent=Eclipse
+[Path]
+/a/b
+[QueryParameters]
+a=b
+a=c
+c=d
