@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 public class FileHttpRequestResponseLoggerTest {
@@ -34,14 +35,35 @@ public class FileHttpRequestResponseLoggerTest {
 
     private final static int SEQ_NR = 10;
 
+    private FileHttpRequestResponseLogger logger;
+
+    @Before
+    public void setup() {
+        logger = new FileHttpRequestResponseLogger(TEMP_DIR, FILE_NAME, SEQ_NR);
+    }
+
     @Test(expected = NullPointerException.class)
     public void testFileHttpRequestResponseLogger() {
         new FileHttpRequestResponseLogger(null, "test", SEQ_NR);
     }
 
     @Test
+    public void testGetDirectory() {
+        assertEquals(TEMP_DIR, logger.getDirectory());
+    }
+
+    @Test
+    public void testGetFileName() {
+        assertEquals(FILE_NAME, logger.getFileName());
+    }
+
+    @Test
+    public void testGetSeqNr() {
+        assertEquals(SEQ_NR, logger.getSeqNr());
+    }
+
+    @Test
     public void testLogRequest() throws IOException {
-        final FileHttpRequestResponseLogger logger = new FileHttpRequestResponseLogger(TEMP_DIR, FILE_NAME, SEQ_NR);
 
         final HttpRequestImpl httpRequestImpl = new HttpRequestImpl();
         httpRequestImpl.method(METHOD).httpMessageHeader(HEADER_NAME_1, HEADER_VALUE_1)
@@ -70,7 +92,6 @@ public class FileHttpRequestResponseLoggerTest {
 
     @Test
     public void testLogResponse() throws IOException {
-        final FileHttpRequestResponseLogger logger = new FileHttpRequestResponseLogger(TEMP_DIR, FILE_NAME, SEQ_NR);
 
         final HttpResponseImpl httpResponseImpl = new HttpResponseImpl(HTTP_CODE, CONTENTTYPE, RESPONSE_CONTENT);
 

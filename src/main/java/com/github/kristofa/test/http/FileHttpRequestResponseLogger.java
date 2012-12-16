@@ -51,6 +51,33 @@ public class FileHttpRequestResponseLogger implements HttpRequestResponseLogger 
     }
 
     /**
+     * Gets the target directory in which to store request/responses.
+     * 
+     * @return the target directory in which to store request/responses.
+     */
+    public String getDirectory() {
+        return directory;
+    }
+
+    /**
+     * Gets the base file name.
+     * 
+     * @return Base file name.
+     */
+    public String getFileName() {
+        return fileName;
+    }
+
+    /**
+     * Gets the seqnr for request/response.
+     * 
+     * @return Seqnr for request/response.
+     */
+    public int getSeqNr() {
+        return seqNr;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
