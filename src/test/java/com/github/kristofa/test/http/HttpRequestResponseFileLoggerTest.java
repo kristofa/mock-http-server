@@ -10,7 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FileHttpRequestResponseLoggerTest {
+public class HttpRequestResponseFileLoggerTest {
 
     private static final String UTF8 = "UTF8";
 
@@ -35,16 +35,16 @@ public class FileHttpRequestResponseLoggerTest {
 
     private final static int SEQ_NR = 10;
 
-    private FileHttpRequestResponseLogger logger;
+    private HttpRequestResponseFileLogger logger;
 
     @Before
     public void setup() {
-        logger = new FileHttpRequestResponseLogger(TEMP_DIR, FILE_NAME, SEQ_NR);
+        logger = new HttpRequestResponseFileLogger(TEMP_DIR, FILE_NAME, SEQ_NR);
     }
 
     @Test(expected = NullPointerException.class)
     public void testFileHttpRequestResponseLogger() {
-        new FileHttpRequestResponseLogger(null, "test", SEQ_NR);
+        new HttpRequestResponseFileLogger(null, "test", SEQ_NR);
     }
 
     @Test

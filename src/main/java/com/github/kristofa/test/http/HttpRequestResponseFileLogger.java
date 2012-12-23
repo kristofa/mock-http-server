@@ -27,7 +27,7 @@ import org.apache.commons.lang3.Validate;
  * @see FileNameBuilder
  * @author kristof
  */
-public class FileHttpRequestResponseLogger implements HttpRequestResponseLogger {
+public class HttpRequestResponseFileLogger implements HttpRequestResponseLogger {
 
     private final String directory;
     private final String fileName;
@@ -41,7 +41,7 @@ public class FileHttpRequestResponseLogger implements HttpRequestResponseLogger 
      *            extension.
      * @param seqNr Sequence number for request / response.
      */
-    public FileHttpRequestResponseLogger(final String directory, final String fileName, final int seqNr) {
+    public HttpRequestResponseFileLogger(final String directory, final String fileName, final int seqNr) {
         Validate.notNull(directory);
         Validate.notBlank(fileName);
 

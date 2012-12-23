@@ -1,7 +1,7 @@
 package com.github.kristofa.test.http;
 
 /**
- * File name builder which is used by {@link FileHttpRequestResponseLogger}.
+ * File name builder which is used by {@link HttpRequestResponseFileLogger}.
  * 
  * @author kristof
  */
