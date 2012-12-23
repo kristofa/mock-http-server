@@ -1,12 +1,7 @@
 package com.github.kristofa.test.http;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -32,6 +27,8 @@ public class HttpRequestResponseFileLogger implements HttpRequestResponseLogger 
     private final String directory;
     private final String fileName;
     private final int seqNr;
+    private final HttpRequestFileWriter requestWriter;
+    private final HttpResponseFileWriter responseWriter;
 
     /**
      * Creates a new instance.
@@ -40,14 +37,21 @@ public class HttpRequestResponseFileLogger implements HttpRequestResponseLogger 
      * @param fileName Base file name. Should not contain extension. Will be suffixed with sequence number and .txt
      *            extension.
      * @param seqNr Sequence number for request / response.
+     * @param requestWriter Responsible for writing http request to disk.
+     * @param responseWriter Responsible for writing http response to disk.
      */
-    public HttpRequestResponseFileLogger(final String directory, final String fileName, final int seqNr) {
+    public HttpRequestResponseFileLogger(final String directory, final String fileName, final int seqNr,
+        final HttpRequestFileWriter requestWriter, final HttpResponseFileWriter responseWriter) {
         Validate.notNull(directory);
         Validate.notBlank(fileName);
+        Validate.notNull(requestWriter);
+        Validate.notNull(responseWriter);
 
         this.directory = directory;
         this.fileName = fileName;
         this.seqNr = seqNr;
+        this.requestWriter = requestWriter;
+        this.responseWriter = responseWriter;
     }
 
     /**
@@ -78,18 +82,33 @@ public class HttpRequestResponseFileLogger implements HttpRequestResponseLogger 
     }
 
     /**
+     * Gets the {@link HttpRequestFileWriter} instance.
+     * 
+     * @return the {@link HttpRequestFileWriter} instance.
+     */
+    public HttpRequestFileWriter getRequestFileWriter() {
+        return requestWriter;
+    }
+
+    /**
+     * Gets the {@link HttpResponseFileWriter} instance.
+     * 
+     * @return the {@link HttpResponseFileWriter} instance.
+     */
+    public HttpResponseFileWriter getResponseFileWriter() {
+        return responseWriter;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public void log(final HttpRequest request) {
 
-        try {
-            writeRequest(seqNr, request);
-            writeRequestEntity(seqNr, request);
+        final String requestFileName = FileNameBuilder.REQUEST_FILE_NAME.getFileName(fileName, seqNr);
+        final String requestEntityFileName = FileNameBuilder.REQUEST_ENTITY_FILE_NAME.getFileName(fileName, seqNr);
 
-        } catch (final IOException e) {
-            throw new IllegalStateException(e);
-        }
+        requestWriter.write(request, new File(directory, requestFileName), new File(directory, requestEntityFileName));
     }
 
     /**
@@ -97,81 +116,11 @@ public class HttpRequestResponseFileLogger implements HttpRequestResponseLogger 
      */
     @Override
     public void log(final HttpResponse response) {
-        try {
-            writeResponse(seqNr, response);
-            writeResponseEntity(seqNr, response);
-        } catch (final IOException e) {
-            throw new IllegalStateException(e);
-        }
+
+        final String responseFileName = FileNameBuilder.RESPONSE_FILE_NAME.getFileName(fileName, seqNr);
+        final String responseEntityFileName = FileNameBuilder.RESPONSE_ENTITY_FILE_NAME.getFileName(fileName, seqNr);
+
+        responseWriter.write(response, new File(directory, responseFileName), new File(directory, responseEntityFileName));
     }
 
-    private void writeRequest(final int seqNr, final HttpRequest request) throws IOException {
-        final String fullFileName = FileNameBuilder.REQUEST_FILE_NAME.getFileName(fileName, seqNr);
-
-        final BufferedWriter writer =
-            new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(directory, fullFileName)), "UTF-8"));
-
-        try {
-            writer.write("[Method]");
-            writer.newLine();
-            writer.write(request.getMethod().toString());
-            writer.newLine();
-
-            writer.write("[HttpMessageHeader]");
-            writer.newLine();
-
-            for (final HttpMessageHeader header : request.getHttpMessageHeaders()) {
-                writer.write(header.getName() + "=" + header.getValue());
-                writer.newLine();
-            }
-
-            writer.write("[Path]");
-            writer.newLine();
-            writer.write(request.getPath());
-            writer.newLine();
-
-            writer.write("[QueryParameters]");
-            writer.newLine();
-
-            for (final QueryParameter parameter : request.getQueryParameters()) {
-                writer.write(parameter.getKey() + "=" + parameter.getValue());
-                writer.newLine();
-            }
-        } finally {
-            writer.close();
-        }
-    }
-
-    private void writeRequestEntity(final int seqNr, final HttpRequest request) throws IOException {
-        if (request.getContent() != null) {
-            final String fullFileName = FileNameBuilder.REQUEST_ENTITY_FILE_NAME.getFileName(fileName, seqNr);
-            FileUtils.writeByteArrayToFile(new File(directory, fullFileName), request.getContent());
-        }
-    }
-
-    private void writeResponse(final int seqNr, final HttpResponse response) throws IOException {
-        final String fullFileName = FileNameBuilder.RESPONSE_FILE_NAME.getFileName(fileName, seqNr);
-        final BufferedWriter writer =
-            new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(directory, fullFileName)), "UTF-8"));
-        try {
-            writer.write("[HttpCode]");
-            writer.newLine();
-            writer.write(String.valueOf(response.getHttpCode()));
-            writer.newLine();
-
-            writer.write("[ContentType]");
-            writer.newLine();
-            writer.write(response.getContentType());
-            writer.newLine();
-        } finally {
-            writer.close();
-        }
-    }
-
-    private void writeResponseEntity(final int seqNr, final HttpResponse response) throws IOException {
-        if (response.getContent() != null) {
-            final String fullFileName = FileNameBuilder.RESPONSE_ENTITY_FILE_NAME.getFileName(fileName, seqNr);
-            FileUtils.writeByteArrayToFile(new File(directory, fullFileName), response.getContent());
-        }
-    }
 }

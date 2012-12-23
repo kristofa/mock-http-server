@@ -3,6 +3,7 @@ package com.github.kristofa.test.http;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -29,6 +30,11 @@ public class HttpRequestResponseFileLoggerFactoryTest {
         assertEquals(DIRECTORY, fileLogger2.getDirectory());
         assertEquals(FILE_NAME, fileLogger2.getFileName());
         assertEquals("We expect seqnr to increment by 1.", 2, fileLogger2.getSeqNr());
+
+        assertSame("We expect that underlying request file writer is singleton.", fileLogger.getRequestFileWriter(),
+            fileLogger2.getRequestFileWriter());
+        assertSame("We expect that underlying response file writer is singleton.", fileLogger.getResponseFileWriter(),
+            fileLogger2.getResponseFileWriter());
 
     }
 

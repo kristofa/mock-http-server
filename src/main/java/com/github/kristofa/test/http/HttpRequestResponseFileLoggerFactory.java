@@ -16,6 +16,8 @@ public class HttpRequestResponseFileLoggerFactory implements HttpRequestResponse
     private final AtomicInteger atomicInteger = new AtomicInteger();
     private final String directory;
     private final String fileName;
+    private final HttpRequestFileWriter requestWriter;
+    private final HttpResponseFileWriter responseWriter;
 
     /**
      * Creates a new instance.
@@ -30,6 +32,8 @@ public class HttpRequestResponseFileLoggerFactory implements HttpRequestResponse
         Validate.notBlank(fileName);
         this.directory = directory;
         this.fileName = fileName;
+        requestWriter = new HttpRequestFileWriterImpl();
+        responseWriter = new HttpResponseFileWriterImpl();
     }
 
     /**
@@ -37,6 +41,7 @@ public class HttpRequestResponseFileLoggerFactory implements HttpRequestResponse
      */
     @Override
     public HttpRequestResponseLogger getHttpRequestResponseLogger() {
-        return new HttpRequestResponseFileLogger(directory, fileName, atomicInteger.incrementAndGet());
+        return new HttpRequestResponseFileLogger(directory, fileName, atomicInteger.incrementAndGet(), requestWriter,
+            responseWriter);
     }
 }
