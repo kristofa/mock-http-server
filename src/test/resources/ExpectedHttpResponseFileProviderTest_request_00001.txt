@@ -1,0 +1,8 @@
+[Method]
+GET
+[HttpMessageHeader]
+Content-Type=application/json
+[Path]
+/a/b
+[QueryParameters]
+a=b

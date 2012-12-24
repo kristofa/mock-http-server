@@ -1,8 +1,9 @@
 package com.github.kristofa.test.http;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.TreeSet;
+import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 
@@ -17,8 +18,8 @@ public class UnsatisfiedExpectationException extends RuntimeException {
 
     private static final long serialVersionUID = -6003072239642243697L;
 
-    private final TreeSet<HttpRequest> missingHttpRequests = new TreeSet<HttpRequest>();
-    private final TreeSet<HttpRequest> unexpectedHttpRequests = new TreeSet<HttpRequest>();
+    private final List<HttpRequest> missingHttpRequests = new ArrayList<HttpRequest>();
+    private final List<HttpRequest> unexpectedHttpRequests = new ArrayList<HttpRequest>();
 
     /**
      * Creates a new instance.
