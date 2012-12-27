@@ -11,7 +11,7 @@ import org.apache.commons.lang3.Validate;
  * Indicates there are {@link HttpRequest http requests} that we expected but did not get and/or that we got unexpected
  * {@link HttpRequest http requests}.
  * 
- * @see ExpectedHttpResponseProvider
+ * @see HttpResponseProvider
  * @author kristof
  */
 public class UnsatisfiedExpectationException extends RuntimeException {

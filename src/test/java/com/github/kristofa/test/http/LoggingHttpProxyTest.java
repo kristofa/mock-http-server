@@ -33,7 +33,7 @@ public class LoggingHttpProxyTest {
     private HttpClient client;
     private HttpRequestResponseLoggerFactory mockLoggerFactory;
     private HttpRequestResponseLogger mockLogger;
-    private SimpleExpectedHttpResponseProvider responseProvider;
+    private SimpleHttpResponseProvider responseProvider;
 
     @Before
     public void setup() throws Exception {
@@ -56,7 +56,7 @@ public class LoggingHttpProxyTest {
         proxy = new LoggingHttpProxy(PROXY_PORT, Arrays.asList(forwardHttpRequestBuilder), mockLoggerFactory);
         proxy.start();
 
-        responseProvider = new SimpleExpectedHttpResponseProvider();
+        responseProvider = new SimpleHttpResponseProvider();
         server = new MockHttpServer(PORT, responseProvider);
         server.start();
 

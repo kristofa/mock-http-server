@@ -11,7 +11,7 @@ import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SimpleExpectedHttpResponseProviderTest {
+public class SimpleHttpResponseProviderTest {
 
     private final static String PATH = "path";
     private final static String CONTENT_TYPE = "contenType";
@@ -20,11 +20,11 @@ public class SimpleExpectedHttpResponseProviderTest {
     private final static int HTTP_CODE = 200;
     private final static String DATA = "DATA";
 
-    private SimpleExpectedHttpResponseProvider responseProvider;
+    private SimpleHttpResponseProvider responseProvider;
 
     @Before
     public void setup() {
-        responseProvider = new SimpleExpectedHttpResponseProvider();
+        responseProvider = new SimpleHttpResponseProvider();
     }
 
     @Test

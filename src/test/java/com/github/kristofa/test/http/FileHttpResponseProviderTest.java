@@ -9,14 +9,14 @@ import java.util.Collection;
 
 import org.junit.Test;
 
-public class ExpectedHttpResponseFileProviderTest {
+public class FileHttpResponseProviderTest {
 
     private final static String TEST_FILE_DIRECTORY = "target/test-classes/";
 
     @Test
     public void testExpectedHttpResponseFileProviderConstructor_NoSingleFileFound() {
         try {
-            new ExpectedHttpResponseFileProvider(TEST_FILE_DIRECTORY, "unexisting");
+            new FileHttpResponseProvider(TEST_FILE_DIRECTORY, "unexisting");
             fail("Expected exception.");
         } catch (final IllegalStateException e) {
             assertEquals(
@@ -28,7 +28,7 @@ public class ExpectedHttpResponseFileProviderTest {
     @Test
     public void testExpectedHttpResponseFileProviderConstructor_NoResponseFileFound() {
         try {
-            new ExpectedHttpResponseFileProvider(TEST_FILE_DIRECTORY, "ExpectedHttpResponseFileProviderTest_No_Response");
+            new FileHttpResponseProvider(TEST_FILE_DIRECTORY, "ExpectedHttpResponseFileProviderTest_No_Response");
             fail("Expected exception.");
         } catch (final IllegalStateException e) {
             assertEquals(
@@ -39,8 +39,8 @@ public class ExpectedHttpResponseFileProviderTest {
 
     @Test
     public void testGetResponseSucces() {
-        final ExpectedHttpResponseFileProvider expectedHttpResponseFileProvider =
-            new ExpectedHttpResponseFileProvider(TEST_FILE_DIRECTORY, "ExpectedHttpResponseFileProviderTest");
+        final FileHttpResponseProvider expectedHttpResponseFileProvider =
+            new FileHttpResponseProvider(TEST_FILE_DIRECTORY, "ExpectedHttpResponseFileProviderTest");
 
         final HttpRequestImpl request1 = new HttpRequestImpl();
         request1.method(Method.GET).httpMessageHeader("Content-Type", "application/json").queryParameter("a", "b")
@@ -73,8 +73,8 @@ public class ExpectedHttpResponseFileProviderTest {
 
     @Test
     public void testGetResponseUnExpectedRequest() {
-        final ExpectedHttpResponseFileProvider expectedHttpResponseFileProvider =
-            new ExpectedHttpResponseFileProvider(TEST_FILE_DIRECTORY, "ExpectedHttpResponseFileProviderTest");
+        final FileHttpResponseProvider expectedHttpResponseFileProvider =
+            new FileHttpResponseProvider(TEST_FILE_DIRECTORY, "ExpectedHttpResponseFileProviderTest");
 
         final HttpRequestImpl request1 = new HttpRequestImpl();
         request1.method(Method.GET).httpMessageHeader("Content-Type", "application/json").queryParameter("b", "c")

@@ -89,7 +89,7 @@ public class MockHttpServer {
     }
 
     private ExpectationHandler handler;
-    private final ExpectedHttpResponseProvider responseProvider;
+    private final HttpResponseProvider responseProvider;
 
     private final int port;
 
@@ -104,9 +104,9 @@ public class MockHttpServer {
      * Creates a new instance.
      * 
      * @param port Port on which mock server should operate.
-     * @param responseProvider {@link ExpectedHttpResponseProvider}. Should not be <code>null</code>.
+     * @param responseProvider {@link HttpResponseProvider}. Should not be <code>null</code>.
      */
-    public MockHttpServer(final int port, final ExpectedHttpResponseProvider responseProvider) {
+    public MockHttpServer(final int port, final HttpResponseProvider responseProvider) {
         Validate.notNull(responseProvider);
         this.port = port;
         this.responseProvider = responseProvider;

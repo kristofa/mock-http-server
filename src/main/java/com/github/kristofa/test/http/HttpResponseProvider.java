@@ -8,7 +8,7 @@ package com.github.kristofa.test.http;
  * @see MockHttpServer
  * @author kristof
  */
-public interface ExpectedHttpResponseProvider {
+public interface HttpResponseProvider {
 
     /**
      * Gets expected response for given request.

@@ -7,14 +7,14 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * {@link ExpectedHttpResponseProvider} that keeps expected request/responses in memory.
+ * {@link HttpResponseProvider} that keeps expected request/responses in memory.
  * <p>
  * Simple to use for not too complex request/responses.
  * 
  * @see MockHttpServer
  * @author kristof
  */
-public class SimpleExpectedHttpResponseProvider implements ExpectedHttpResponseProvider {
+public class SimpleHttpResponseProvider implements HttpResponseProvider {
 
     private HttpRequestImpl latestRequest;
 
@@ -28,9 +28,9 @@ public class SimpleExpectedHttpResponseProvider implements ExpectedHttpResponseP
      * @param path Path.
      * @param contentType Content type.
      * @param data Data, content.
-     * @return current {@link SimpleExpectedHttpResponseProvider}. Allows chaining calls.
+     * @return current {@link SimpleHttpResponseProvider}. Allows chaining calls.
      */
-    public SimpleExpectedHttpResponseProvider expect(final Method method, final String path, final String contentType,
+    public SimpleHttpResponseProvider expect(final Method method, final String path, final String contentType,
         final String data) {
         latestRequest = new HttpRequestImpl();
         latestRequest.method(method).path(path).content(data.getBytes())
@@ -43,9 +43,9 @@ public class SimpleExpectedHttpResponseProvider implements ExpectedHttpResponseP
      * 
      * @param method HTTP method.
      * @param path Path.
-     * @return current {@link SimpleExpectedHttpResponseProvider}. Allows chaining calls.
+     * @return current {@link SimpleHttpResponseProvider}. Allows chaining calls.
      */
-    public SimpleExpectedHttpResponseProvider expect(final Method method, final String path) {
+    public SimpleHttpResponseProvider expect(final Method method, final String path) {
         latestRequest = new HttpRequestImpl();
         latestRequest.method(method).path(path);
         return this;
@@ -57,9 +57,9 @@ public class SimpleExpectedHttpResponseProvider implements ExpectedHttpResponseP
      * @param httpCode Http response code.
      * @param contentType Content type.
      * @param data Data.
-     * @return current {@link SimpleExpectedHttpResponseProvider}. Allows chaining calls.
+     * @return current {@link SimpleHttpResponseProvider}. Allows chaining calls.
      */
-    public SimpleExpectedHttpResponseProvider respondWith(final int httpCode, final String contentType, final String data) {
+    public SimpleHttpResponseProvider respondWith(final int httpCode, final String contentType, final String data) {
         final HttpResponseImpl response = new HttpResponseImpl(httpCode, contentType, data == null ? null : data.getBytes());
         expectedRequests.put(latestRequest, response);
         return this;

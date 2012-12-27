@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * {@link ExpectedHttpResponseProvider} that is able to serve responses for requests/responses previously saved by
+ * {@link HttpResponseProvider} that is able to serve responses for requests/responses previously saved by
  * {@link HttpRequestResponseFileLogger}.
  * <p>
  * It supports submitting same request multiple times with different return result.
@@ -20,7 +20,7 @@ import java.util.Map;
  * @see LoggingHttpProxy
  * @author kristof
  */
-public class ExpectedHttpResponseFileProvider implements ExpectedHttpResponseProvider {
+public class FileHttpResponseProvider implements HttpResponseProvider {
 
     private final String directory;
     private final String fileName;
@@ -40,7 +40,7 @@ public class ExpectedHttpResponseFileProvider implements ExpectedHttpResponsePro
      * @param fileName Base file name. Should not contain extension. Will be suffixed with sequence number and .txt
      *            extension. Should be same as used in {@link HttpRequestResponseFileLogger}.
      */
-    public ExpectedHttpResponseFileProvider(final String directory, final String fileName) {
+    public FileHttpResponseProvider(final String directory, final String fileName) {
         this(directory, fileName, new HttpRequestFileReaderImpl(), new HttpResponseFileReaderImpl());
     }
 
@@ -57,7 +57,7 @@ public class ExpectedHttpResponseFileProvider implements ExpectedHttpResponsePro
      * @param requestFileReader HTTP request file reader.
      * @param responseFileReader HTTP response file reader.
      */
-    public ExpectedHttpResponseFileProvider(final String directory, final String fileName,
+    public FileHttpResponseProvider(final String directory, final String fileName,
         final HttpRequestFileReader requestFileReader, final HttpResponseFileReader responseFileReader) {
         this.directory = directory;
         this.fileName = fileName;
@@ -146,7 +146,7 @@ public class ExpectedHttpResponseFileProvider implements ExpectedHttpResponsePro
         responseProxy.requested = false;
         final List<ResponseProxy> responseProxies = requestResponses.get(request);
         if (responseProxies == null) {
-            final List<ResponseProxy> newResponseProxyList = new ArrayList<ExpectedHttpResponseFileProvider.ResponseProxy>();
+            final List<ResponseProxy> newResponseProxyList = new ArrayList<FileHttpResponseProvider.ResponseProxy>();
             newResponseProxyList.add(responseProxy);
             requestResponses.put(request, newResponseProxyList);
         } else {

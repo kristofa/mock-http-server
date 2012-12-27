@@ -29,7 +29,7 @@ import org.junit.Test;
 
 import com.github.kristofa.test.http.Method;
 import com.github.kristofa.test.http.MockHttpServer;
-import com.github.kristofa.test.http.SimpleExpectedHttpResponseProvider;
+import com.github.kristofa.test.http.SimpleHttpResponseProvider;
 import com.github.kristofa.test.http.UnsatisfiedExpectationException;
 
 public class MockHttpServerTest {
@@ -37,12 +37,12 @@ public class MockHttpServerTest {
     private static final int PORT = 51234;
     private static final String baseUrl = "http://localhost:" + PORT;
     private MockHttpServer server;
-    private SimpleExpectedHttpResponseProvider responseProvider;
+    private SimpleHttpResponseProvider responseProvider;
     private HttpClient client;
 
     @Before
     public void setUp() throws Exception {
-        responseProvider = new SimpleExpectedHttpResponseProvider();
+        responseProvider = new SimpleHttpResponseProvider();
         server = new MockHttpServer(PORT, responseProvider);
         server.start();
         client = new DefaultHttpClient();
