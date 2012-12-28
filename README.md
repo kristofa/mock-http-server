@@ -12,7 +12,8 @@ Test' does not know it is accessing a mock service.
 +   MockHttpServer is configured and started in the JVM that runs the tests so you 
 don't have to set up complex systems and external services.
 
-[[https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver_classdiagram.png]]
+![MockHttpServer class diagram](https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver_classdiagram.png)
+
 
 ## Dealing with simple requests/responses
 
@@ -68,7 +69,7 @@ MockHttpServer is started by calling `start()` and is stopped by calling `stop()
 
 ## Complex request/responses: use LoggingHttpProxy
 
-[[https://raw.github.com/wiki/kristofa/mock-http-server/logginghttpproxy_classdiagram.png]]
+![LoggingHttpProxy class diagram](https://raw.github.com/wiki/kristofa/mock-http-server/logginghttpproxy_classdiagram.png)
 
 We have software that interacts with multiple external services and several of these services
 return complex entities as part of their responses. Building those responses by hand in the source files
@@ -82,13 +83,14 @@ will return it to the 'system under test'.
 What is special is that the LoggingHttpProxy can log and persist all the requests/responses.
 These persisted requests/responses can be replayed by MockHttpServer. 
 
-[[https://raw.github.com/wiki/kristofa/mock-http-server/logginghttpproxy.png]]
+![LoggingHttpProxy](https://raw.github.com/wiki/kristofa/mock-http-server/logginghttpproxy.png)
 
 When you configure LoggingHttpProxy to use `HttpRequestResponseFileLoggerFactory` the
 requests/responses will be persisted to file. These requests/responses can be replayed
 by MockHttpServer by using `FileHttpResponseProvider`.
 
-[[https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver.png]]
+![MockHttpServer](https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver.png)
+
 
 
 
