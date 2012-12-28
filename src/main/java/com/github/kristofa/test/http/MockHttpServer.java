@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
@@ -44,7 +45,9 @@ public class MockHttpServer {
             }
 
             final HttpRequestImpl expectedRequest = new HttpRequestImpl();
-            expectedRequest.method(Method.valueOf(req.getMethod())).path(req.getTarget()).content(data);
+            expectedRequest.method(Method.valueOf(req.getMethod()));
+            expectedRequest.path(req.getPath().getPath());
+            expectedRequest.content(data);
 
             for (final String headerField : req.getNames()) {
                 if (HttpMessageHeaderField.CONTENTTYPE.getValue().equals(headerField)) {
@@ -52,6 +55,10 @@ public class MockHttpServer {
                         expectedRequest.httpMessageHeader(headerField, headerFieldValue);
                     }
                 }
+            }
+
+            for (final Entry<String, String> entry : req.getQuery().entrySet()) {
+                expectedRequest.queryParameter(entry.getKey(), entry.getValue());
             }
 
             final HttpResponse expectedResponse = responseProvider.getResponse(expectedRequest);
