@@ -43,6 +43,7 @@ import com.github.kristofa.test.http.client.HttpRequestException;
  * <li>570: We could not build a forward request for input request. Missing of faulty {@link ForwardHttpRequestBuilder}.
  * <li>571: Forward request failed. Forward URL invalid?
  * <li>572: Copying response of forwarding request failed.
+ * <li>573: Unknown exception.
  * </ul>
  * The body of the response will contain the error message.
  * 
@@ -60,6 +61,7 @@ public class LoggingHttpProxy {
 
     private class ProxyImplementation implements Container {
 
+        private static final int UNKNOWN_EXCEPTION_HTTP_CODE = 573;
         private static final int FORWARD_REQUEST_FAILED_HTTP_CODE = 571;
         private static final int COPY_RESPONSE_FAILED_ERROR_HTTP_CODE = 572;
         private static final int NO_FORWARD_REQUEST_ERROR_HTTP_CODE = 570;
@@ -74,57 +76,64 @@ public class LoggingHttpProxy {
          */
         @Override
         public void handle(final Request request, final Response response) {
-            final FullHttpRequestImpl httpRequest = buildHttpRequest(request);
-            FullHttpRequest forwardHttpRequest = null;
-            for (final ForwardHttpRequestBuilder forwardRequestBuilder : requestBuilders) {
-                forwardHttpRequest = forwardRequestBuilder.getForwardRequest(httpRequest);
-                if (forwardHttpRequest != null) {
-                    break;
-                }
-            }
 
-            if (forwardHttpRequest == null) {
-                errorResponse(response, NO_FORWARD_REQUEST_ERROR_HTTP_CODE,
-                    "Received unexpected request:\n" + httpRequest.toString());
-            } else {
-
-                final HttpRequestResponseLogger logger = loggerFactory.getHttpRequestResponseLogger();
-                logger.log(httpRequest);
-                try {
-                    final HttpClientResponse<InputStream> forwardResponse = forward(forwardHttpRequest);
-                    try {
-                        final InputStream inputStream = forwardResponse.getResponseEntity();
-                        // This is tricky as we keep the full response in memory... reason is that we need to copy it twice.
-                        // Once to return to response, another time to log.
-                        final byte[] responseEntity = IOUtils.toByteArray(inputStream);
-                        inputStream.close();
-                        final HttpResponse httpResponse =
-                            new HttpResponseImpl(forwardResponse.getHttpCode(), forwardResponse.getContentType(),
-                                responseEntity);
-                        logger.log(httpResponse);
-
-                        response.setCode(forwardResponse.getHttpCode());
-                        response.set(CONTENT_TYPE, forwardResponse.getContentType());
-                        final OutputStream outputStream = response.getOutputStream();
-
-                        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(responseEntity);
-                        IOUtils.copy(byteArrayInputStream, outputStream);
-                        byteArrayInputStream.close();
-                        outputStream.close();
-
-                    } catch (final IOException e) {
-                        LOGGER.error("IOException when trying to copy response of forward request.", e);
-                        errorResponse(response, COPY_RESPONSE_FAILED_ERROR_HTTP_CODE,
-                            "Exception when copying streams." + e.getMessage());
-                    } finally {
-                        forwardResponse.close();
+            try {
+                final FullHttpRequestImpl httpRequest = buildHttpRequest(request);
+                FullHttpRequest forwardHttpRequest = null;
+                for (final ForwardHttpRequestBuilder forwardRequestBuilder : requestBuilders) {
+                    forwardHttpRequest = forwardRequestBuilder.getForwardRequest(httpRequest);
+                    if (forwardHttpRequest != null) {
+                        break;
                     }
-
-                } catch (final HttpRequestException e) {
-                    LOGGER.error("HttpRequestException when forwarding request.", e);
-                    errorResponse(response, FORWARD_REQUEST_FAILED_HTTP_CODE,
-                        "Exception when forwarding request." + e.getMessage());
                 }
+
+                if (forwardHttpRequest == null) {
+                    errorResponse(response, NO_FORWARD_REQUEST_ERROR_HTTP_CODE, "Received unexpected request:\n"
+                        + httpRequest.toString());
+                } else {
+
+                    final HttpRequestResponseLogger logger = loggerFactory.getHttpRequestResponseLogger();
+                    logger.log(httpRequest);
+                    try {
+                        final HttpClientResponse<InputStream> forwardResponse = forward(forwardHttpRequest);
+                        try {
+                            final InputStream inputStream = forwardResponse.getResponseEntity();
+                            // This is tricky as we keep the full response in memory... reason is that we need to copy it
+                            // twice.
+                            // Once to return to response, another time to log.
+                            final byte[] responseEntity = IOUtils.toByteArray(inputStream);
+                            inputStream.close();
+                            final HttpResponse httpResponse =
+                                new HttpResponseImpl(forwardResponse.getHttpCode(), forwardResponse.getContentType(),
+                                    responseEntity);
+                            logger.log(httpResponse);
+
+                            response.setCode(forwardResponse.getHttpCode());
+                            response.set(CONTENT_TYPE, forwardResponse.getContentType());
+                            final OutputStream outputStream = response.getOutputStream();
+
+                            final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(responseEntity);
+                            IOUtils.copy(byteArrayInputStream, outputStream);
+                            byteArrayInputStream.close();
+                            outputStream.close();
+
+                        } catch (final IOException e) {
+                            LOGGER.error("IOException when trying to copy response of forward request.", e);
+                            errorResponse(response, COPY_RESPONSE_FAILED_ERROR_HTTP_CODE, "Exception when copying streams."
+                                + e.getMessage());
+                        } finally {
+                            forwardResponse.close();
+                        }
+
+                    } catch (final HttpRequestException e) {
+                        LOGGER.error("HttpRequestException when forwarding request.", e);
+                        errorResponse(response, FORWARD_REQUEST_FAILED_HTTP_CODE,
+                            "Exception when forwarding request." + e.getMessage());
+                    }
+                }
+            } catch (final Exception e) {
+                LOGGER.error("Exception.", e);
+                errorResponse(response, UNKNOWN_EXCEPTION_HTTP_CODE, "Exception: " + e.getMessage());
             }
 
         }
