@@ -11,6 +11,8 @@ The advantages of using MockHttpServer are:
 Test' does not know it is accessing a mock service.
 +   MockHttpServer is configured and started in the JVM that runs the tests so you 
 don't have to set up complex systems and external services.
++   Integration tests typically run faster as MockHttpServer logic is very simple and no
+network traffic is needed (MockHttpServer runs on localhost)
 
 ![MockHttpServer class diagram](https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver_classdiagram.png)
 
