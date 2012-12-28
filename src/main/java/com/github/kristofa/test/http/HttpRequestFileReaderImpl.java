@@ -91,8 +91,14 @@ class HttpRequestFileReaderImpl implements HttpRequestFileReader {
             if (newLine.indexOf("=") != -1) {
                 final String[] split = newLine.split("=");
                 final KeyValuePair pair = new KeyValuePair();
-                pair.key = split[0];
-                pair.value = split[1];
+                if (split.length == 2) {
+                    pair.key = split[0];
+                    pair.value = split[1];
+                } else {
+                    // Expect length to be 1. Key with empty value.
+                    pair.key = split[0];
+                    pair.value = "";
+                }
                 properties.add(pair);
             } else {
                 return newLine;

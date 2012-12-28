@@ -64,6 +64,26 @@ public class HttpRequestFileReaderTest {
     }
 
     @Test
+    public void testReadValidRequestWithQueryParamWithEmptyValue() {
+        final HttpRequest request =
+            reader.read(new File(TEST_FILE_DIRECTORY, "HttpRequestFileReaderTest_empty_query_param_value.txt"), new File(
+                TEST_FILE_DIRECTORY, "HttpRequestFileReaderTest_entity_valid_file.txt"));
+        assertEquals(Method.POST, request.getMethod());
+        assertEquals("/a/b", request.getPath());
+        final Set<HttpMessageHeader> httpMessageHeaders = request.getHttpMessageHeaders();
+        assertEquals(2, httpMessageHeaders.size());
+        assertTrue(httpMessageHeaders.contains(new HttpMessageHeader("Content-Type", "application/json")));
+        assertTrue(httpMessageHeaders.contains(new HttpMessageHeader("Agent", "Eclipse")));
+        final Set<QueryParameter> queryParameters = request.getQueryParameters();
+        assertEquals(3, queryParameters.size());
+        assertTrue(queryParameters.contains(new QueryParameter("a", "b")));
+        assertTrue(queryParameters.contains(new QueryParameter("a", "c")));
+        assertTrue(queryParameters.contains(new QueryParameter("c", "")));
+        assertNotNull(request.getContent());
+
+    }
+
+    @Test
     public void testReadInvalidFile_NotStartWithMethod() {
         try {
             reader.read(new File(TEST_FILE_DIRECTORY, "HttpRequestFileReaderTest_invalidFile1.txt"), new File(
