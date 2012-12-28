@@ -14,12 +14,6 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.github.kristofa.test.http.FullHttpRequestImpl;
-import com.github.kristofa.test.http.HttpMessageHeaderField;
-import com.github.kristofa.test.http.MediaType;
-import com.github.kristofa.test.http.Method;
-import com.github.kristofa.test.http.QueryParameter;
-
 public class FullHttpRequestImplTest {
 
     private final static byte[] CONTENT = "content".getBytes();
@@ -89,14 +83,35 @@ public class FullHttpRequestImplTest {
         assertEquals(expectedParameters, httpRequest.getQueryParameters());
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testGetInvalidUrl() {
+        httpRequest.getUrl();
+    }
+
     @Test
     public void testGetUrl() {
-        assertEquals("http:///", httpRequest.getUrl());
         httpRequest.content(CONTENT)
             .httpMessageHeader(HttpMessageHeaderField.CONTENTTYPE.getValue(), MediaType.APPLICATION_JSON_UTF8.getValue())
             .domain(DOMAIN).method(Method.GET).path(PATH).port(PORT).queryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE)
             .queryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2);
         assertEquals("http://localhost:8080/test/a?key1=value1&key2=value2", httpRequest.getUrl());
+    }
+
+    @Test
+    public void testGetUrlSpecialCharacters() {
+
+        httpRequest
+            .content(CONTENT)
+            .httpMessageHeader(HttpMessageHeaderField.CONTENTTYPE.getValue(), MediaType.APPLICATION_JSON_UTF8.getValue())
+            .domain(DOMAIN)
+            .method(Method.GET)
+            .path(
+                "/rms-webservice/rules/ids/[50791]/[\"RELEASED\",\"OPERATIONAL\"]/HIGHEST/[\"TTOM_CORE\",\"TTOM_POI\",\"TTOM_ADA\",\"TTOM_TOPOLOGY\",\"TTOM_APT\",\"COMPOSITE_TTOM_POI\",\"TTOM\"]")
+            .port(PORT).queryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE)
+            .queryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2);
+        assertEquals(
+            "http://localhost:8080/rms-webservice/rules/ids/%5B50791%5D/%5B%22RELEASED%22,%22OPERATIONAL%22%5D/HIGHEST/%5B%22TTOM_CORE%22,%22TTOM_POI%22,%22TTOM_ADA%22,%22TTOM_TOPOLOGY%22,%22TTOM_APT%22,%22COMPOSITE_TTOM_POI%22,%22TTOM%22%5D?key1=value1&key2=value2",
+            httpRequest.getUrl());
     }
 
     @Test

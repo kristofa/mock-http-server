@@ -27,7 +27,7 @@ public interface FullHttpRequest extends HttpRequest {
     /**
      * Gets the url for the http request, including query parameters if defined.
      * 
-     * @return Url for http request.
+     * @return Url for http request. The URL should be encoded so it can be submitted to a http server.
      */
     String getUrl();
 

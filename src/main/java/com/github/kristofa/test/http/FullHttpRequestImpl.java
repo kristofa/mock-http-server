@@ -1,5 +1,7 @@
 package com.github.kristofa.test.http;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -194,28 +196,20 @@ public final class FullHttpRequestImpl implements FullHttpRequest {
      */
     @Override
     public String getUrl() {
-        String httpRequestUrl = "";
+        try {
+            final String queryParamsAsString = getQueryParamsAsString();
+            String host = domain == null ? "" : domain;
+            if (port != null) {
+                host += PORT_SEPARATOR + port;
+            }
 
-        if (domain != null) {
-            httpRequestUrl += HTTP_SCHEME + "://" + domain;
-        } else {
-            httpRequestUrl += HTTP_SCHEME + "://";
+            final URI uri =
+                new URI("http", host, httpRequest.getPath(), queryParamsAsString.isEmpty() ? null : queryParamsAsString,
+                    null);
+            return uri.toASCIIString();
+        } catch (final URISyntaxException e) {
+            throw new IllegalStateException(e);
         }
-
-        if (port != null) {
-            httpRequestUrl += PORT_SEPARATOR + port;
-        }
-
-        if (httpRequest.getPath() != null) {
-            httpRequestUrl += httpRequest.getPath();
-        } else {
-            httpRequestUrl += "/";
-        }
-
-        if (!httpRequest.getQueryParameters().isEmpty()) {
-            httpRequestUrl += QUERY_SEPARATOR + getQueryParamsAsString();
-        }
-        return httpRequestUrl;
     }
 
     /**
