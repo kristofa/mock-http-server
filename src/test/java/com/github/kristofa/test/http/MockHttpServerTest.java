@@ -27,11 +27,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.github.kristofa.test.http.Method;
-import com.github.kristofa.test.http.MockHttpServer;
-import com.github.kristofa.test.http.SimpleHttpResponseProvider;
-import com.github.kristofa.test.http.UnsatisfiedExpectationException;
-
 public class MockHttpServerTest {
 
     private static final int PORT = 51234;
@@ -145,7 +140,8 @@ public class MockHttpServerTest {
     }
 
     @Test(expected = UnsatisfiedExpectationException.class)
-    public void testShouldFailWhenGetExpectationNotInvoqued() throws ClientProtocolException, IOException {
+    public void testShouldFailWhenGetExpectationNotInvoqued() throws ClientProtocolException, IOException,
+        UnsatisfiedExpectationException {
         // Given a mock server configured to respond to a GET / with "OK"
         responseProvider.expect(Method.GET, "/").respondWith(200, "text/plain", "OK");
 
@@ -153,7 +149,8 @@ public class MockHttpServerTest {
     }
 
     @Test
-    public void testShouldNotFailWhenGetExpectationIsInvoqued() throws ClientProtocolException, IOException {
+    public void testShouldNotFailWhenGetExpectationIsInvoqued() throws ClientProtocolException, IOException,
+        UnsatisfiedExpectationException {
         // Given a mock server configured to respond to a GET / with "OK"
         responseProvider.expect(Method.GET, "/").respondWith(200, "text/plain", "OK");
 
@@ -164,7 +161,8 @@ public class MockHttpServerTest {
     }
 
     @Test(expected = UnsatisfiedExpectationException.class)
-    public void testShouldFailWhenPostExpectationNotInvoqued() throws ClientProtocolException, IOException {
+    public void testShouldFailWhenPostExpectationNotInvoqued() throws ClientProtocolException, IOException,
+        UnsatisfiedExpectationException {
         // Given a mock server configured to respond to a GET / with "OK"
         responseProvider.expect(Method.POST, "/").respondWith(200, "text/plain", "OK");
 
@@ -172,7 +170,8 @@ public class MockHttpServerTest {
     }
 
     @Test
-    public void testShouldNotFailWhenPostExpectationIsInvoqued() throws ClientProtocolException, IOException {
+    public void testShouldNotFailWhenPostExpectationIsInvoqued() throws ClientProtocolException, IOException,
+        UnsatisfiedExpectationException {
         // Given a mock server configured to respond to a GET / with "OK"
         responseProvider.expect(Method.POST, "/").respondWith(200, "text/plain", "OK");
 
@@ -183,7 +182,8 @@ public class MockHttpServerTest {
     }
 
     @Test(expected = UnsatisfiedExpectationException.class)
-    public void testShouldFailWhenOneOfSeveralGetExpectationsIsNotInvoqued() throws ClientProtocolException, IOException {
+    public void testShouldFailWhenOneOfSeveralGetExpectationsIsNotInvoqued() throws ClientProtocolException, IOException,
+        UnsatisfiedExpectationException {
         // Given a mock server configured to respond to a GET / with "OK"
         responseProvider.expect(Method.GET, "/").respondWith(200, "text/plain", "OK");
         responseProvider.expect(Method.GET, "/other").respondWith(200, "text/plain", "OK");
@@ -205,7 +205,7 @@ public class MockHttpServerTest {
     }
 
     @Test
-    public void testVerifyDoNothingWhenNoExceptations() {
+    public void testVerifyDoNothingWhenNoExceptations() throws UnsatisfiedExpectationException {
         server.verify();
     }
 

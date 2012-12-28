@@ -82,7 +82,7 @@ public class MockHttpServer {
             }
         }
 
-        public void verify() {
+        public void verify() throws UnsatisfiedExpectationException {
             responseProvider.verify();
 
         }
@@ -135,8 +135,10 @@ public class MockHttpServer {
 
     /**
      * Verify if we got all requests as expected.
+     * 
+     * @throws UnsatisfiedExpectationException In case we got unexpected requests or we did not get all requests we expected.
      */
-    public void verify() {
+    public void verify() throws UnsatisfiedExpectationException {
         handler.verify();
     }
 

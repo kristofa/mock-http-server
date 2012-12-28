@@ -38,7 +38,7 @@ public class FileHttpResponseProviderTest {
     }
 
     @Test
-    public void testGetResponseSucces() {
+    public void testGetResponseSucces() throws UnsatisfiedExpectationException {
         final FileHttpResponseProvider expectedHttpResponseFileProvider =
             new FileHttpResponseProvider(TEST_FILE_DIRECTORY, "ExpectedHttpResponseFileProviderTest");
 

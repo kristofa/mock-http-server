@@ -68,7 +68,7 @@ public class SimpleHttpResponseProviderTest {
     }
 
     @Test
-    public void testVerifySucces() {
+    public void testVerifySucces() throws UnsatisfiedExpectationException {
         responseProvider.expect(Method.GET, PATH).respondWith(HTTP_CODE, CONTENT_TYPE, DATA);
 
         final HttpRequestImpl httpRequestImpl = new HttpRequestImpl();

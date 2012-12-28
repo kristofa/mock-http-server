@@ -14,7 +14,7 @@ import org.apache.commons.lang3.Validate;
  * @see HttpResponseProvider
  * @author kristof
  */
-public class UnsatisfiedExpectationException extends RuntimeException {
+public class UnsatisfiedExpectationException extends Exception {
 
     private static final long serialVersionUID = -6003072239642243697L;
 
