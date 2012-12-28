@@ -34,11 +34,6 @@ public class QueryParameterTest {
         new QueryParameter("", "value");
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructorEmptyValue() {
-        new QueryParameter("key", "");
-    }
-
     @Test
     public void testGetKey() {
         assertEquals(KEY, parameter.getKey());

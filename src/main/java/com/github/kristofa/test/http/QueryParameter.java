@@ -25,7 +25,7 @@ public class QueryParameter implements Comparable<QueryParameter> {
      */
     public QueryParameter(final String key, final String value) {
         Validate.notBlank(key);
-        Validate.notBlank(value);
+        Validate.notNull(value);
         this.key = key;
         this.value = value;
     }
