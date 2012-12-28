@@ -91,6 +91,91 @@ by MockHttpServer by using `FileHttpResponseProvider`.
 
 ![MockHttpServer](https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver.png)
 
+The test code below shows how we use `LoggingHttpProxy` to sit between the client and
+`MockHttpServer`. The client accesses LoggingHttpProxy which forwards the request to 
+MockHttpServer and returns the response to the client. In this example code the request/responses
+are not persisted to disk. Instead it uses a mock `HttpRequestResponseLogger` which is used to
+check that requests/responses are submitted to HttpRequestResponseLogger.
+
+    public class LoggingHttpProxyTest {
+
+      private final static int PROXY_PORT = 51234;
+      private final String PROXY_URL = "http://localhost:" + PROXY_PORT;
+      private final static int PORT = 51233;
+
+      private LoggingHttpProxy proxy;
+      private MockHttpServer server;
+      private HttpClient client;
+      private HttpRequestResponseLoggerFactory mockLoggerFactory;
+      private HttpRequestResponseLogger mockLogger;
+      private SimpleHttpResponseProvider responseProvider;
+
+      @Before
+      public void setup() throws Exception {
+
+        final ForwardHttpRequestBuilder forwardHttpRequestBuilder = new ForwardHttpRequestBuilder() {
+
+            @Override
+            public FullHttpRequest getForwardRequest(final FullHttpRequest request) {
+                final FullHttpRequestImpl forwardRequest = new FullHttpRequestImpl(request);
+                forwardRequest.port(PORT);
+                forwardRequest.domain("localhost");
+                return forwardRequest;
+            }
+        };
+
+        mockLoggerFactory = mock(HttpRequestResponseLoggerFactory.class);
+        mockLogger = mock(HttpRequestResponseLogger.class);
+        when(mockLoggerFactory.getHttpRequestResponseLogger()).thenReturn(mockLogger);
+
+        proxy = new LoggingHttpProxy(PROXY_PORT, Arrays.asList(forwardHttpRequestBuilder), mockLoggerFactory);
+        proxy.start();
+
+        responseProvider = new SimpleHttpResponseProvider();
+        server = new MockHttpServer(PORT, responseProvider);
+        server.start();
+
+        client = new DefaultHttpClient();
+      }
+
+      @After
+      public void tearDown() throws Exception {
+        proxy.stop();
+        server.stop();
+        client.getConnectionManager().shutdown();
+      }
+     
+      @Test
+      public void successfulForwardRequestTest() throws ClientProtocolException, IOException {
+
+        // Given a mock server configured to respond to a GET / with "OK"
+        responseProvider.expect(Method.GET, "/").respondWith(200, "text/plain", "OK");
+
+        final HttpGet req = new HttpGet(PROXY_URL + "/");
+        final HttpResponse response = client.execute(req);
+        final String responseBody = IOUtils.toString(response.getEntity().getContent());
+        final int statusCode = response.getStatusLine().getStatusCode();
+
+        // Then the response is "OK"
+        assertEquals("OK", responseBody);
+        // And the status code is 200
+        assertEquals(200, statusCode);
+
+        final FullHttpRequestImpl expectedRequest = new FullHttpRequestImpl();
+        expectedRequest.method(Method.GET);
+        expectedRequest.path("/");
+
+        final HttpResponseImpl expectedResponse = new HttpResponseImpl(200, "text/plain", "OK".getBytes());
+
+        final InOrder inOrder = inOrder(mockLoggerFactory, mockLogger);
+        inOrder.verify(mockLoggerFactory).getHttpRequestResponseLogger();
+        inOrder.verify(mockLogger).log(expectedRequest);
+        inOrder.verify(mockLogger).log(expectedResponse);
+        verifyNoMoreInteractions(mockLogger, mockLoggerFactory, mockLogger);
+
+      }
+
+    }
 
 
 
