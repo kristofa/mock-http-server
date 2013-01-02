@@ -8,11 +8,13 @@ for given requests.
 The advantages of using MockHttpServer are:
 
 +   Software that is being integration tested does not need to change. The 'System Under
-Test' does not know it is accessing a mock service.
+Test' (*) does not know it is accessing a mock service.
 +   MockHttpServer is configured and started in the JVM that runs the tests so you 
 don't have to set up complex systems and external services.
 +   Integration tests typically run faster as MockHttpServer logic is very simple and no
 network traffic is needed (MockHttpServer runs on localhost)
+
+* I got the term System Under Test from [following post](http://delicious.com/redirect?url=http%3A//feedproxy.google.com/%7Er/blogspot/RLXA/%7E3/J9QTHN7BtEw/hermetic-servers.html).
 
 ![MockHttpServer class diagram](https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver_classdiagram.png)
 
@@ -93,94 +95,103 @@ by MockHttpServer by using `FileHttpResponseProvider`.
 
 ![MockHttpServer](https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver.png)
 
-The test code below shows how we use `LoggingHttpProxy` to sit between the client and
-`MockHttpServer`. The client accesses LoggingHttpProxy which forwards the request to 
-MockHttpServer and returns the response to the client. In this example code the request/responses
-are not persisted to disk. Instead it uses a mock `HttpRequestResponseLogger` which is used to
-check that requests/responses are submitted to HttpRequestResponseLogger.
+### Reworking existing integration tests to use MockHttpServer
 
-    public class LoggingHttpProxyTest {
+We assume that you start from an integration test where the software you want to test 
+actually communicates with an external service and the test runs green.
 
-      private final static int PROXY_PORT = 51234;
-      private final String PROXY_URL = "http://localhost:" + PROXY_PORT;
-      private final static int PORT = 51233;
+First thing to do is configure `LoggingHttpProxy` to sit in between the software you test
+and the external services. See following code example:
 
-      private LoggingHttpProxy proxy;
-      private MockHttpServer server;
-      private HttpClient client;
-      private HttpRequestResponseLoggerFactory mockLoggerFactory;
-      private HttpRequestResponseLogger mockLogger;
-      private SimpleHttpResponseProvider responseProvider;
-
-      @Before
-      public void setup() throws Exception {
+    @Test
+    public void testValidRequest() {
 
         final ForwardHttpRequestBuilder forwardHttpRequestBuilder = new ForwardHttpRequestBuilder() {
 
             @Override
             public FullHttpRequest getForwardRequest(final FullHttpRequest request) {
                 final FullHttpRequestImpl forwardRequest = new FullHttpRequestImpl(request);
-                forwardRequest.port(PORT);
-                forwardRequest.domain("localhost");
+                if (request.getPath().contains("service1")) {
+                    // Sets host and port for service 1.
+                    forwardRequest.domain("host1"); 
+                    forwardRequest.port(8080);
+                } else {
+                    // service 2, service 3
+                    forwardRequest.domain("host2");
+                    forwardRequest.port(8080);
+                }
+
                 return forwardRequest;
             }
         };
 
-        mockLoggerFactory = mock(HttpRequestResponseLoggerFactory.class);
-        mockLogger = mock(HttpRequestResponseLogger.class);
-        when(mockLoggerFactory.getHttpRequestResponseLogger()).thenReturn(mockLogger);
+        proxy =
+            new LoggingHttpProxy(PROXY_PORT, Arrays.asList(forwardHttpRequestBuilder),
+                new HttpRequestResponseFileLoggerFactory("src/test/resources/",
+                    "ITService_testValidRequest"));
+        proxy.start();        
+        try
+        {
+        	// Execute test specific code.
+        	// The test code should be configured to have http requests submitted to our 
+        	// proxy implementation.
+        	// Request / responses will be persisted into src/test/resources/
+        }
+        finally
+        {
+          proxy.stop();
+        }
+        
+    } 
 
-        proxy = new LoggingHttpProxy(PROXY_PORT, Arrays.asList(forwardHttpRequestBuilder), mockLoggerFactory);
-        proxy.start();
+    
+The code above shows that `LoggingHttpProxy` is configured and started before the actual
+test code is executed. What is not visible in the code is that the test code should get
+configured to submit http requests to our proxy instead of to the original services.
 
-        responseProvider = new SimpleHttpResponseProvider();
-        server = new MockHttpServer(PORT, responseProvider);
-        server.start();
+`LoggingHttpProxy` will forward the requests to the different services (see the creation 
+of the `ForwardHttpRequestBuilder`) and log the request/responses in src/test/resources in
+files that include the name of the test (see the creation of `HttpResponseFileLoggerFactory`).
 
-        client = new DefaultHttpClient();
-      }
+When you run the test it is expected to still run green but the different request/responses
+should be persisted in src/test/resources.
 
-      @After
-      public void tearDown() throws Exception {
-        proxy.stop();
-        server.stop();
-        client.getConnectionManager().shutdown();
-      }
-     
-      @Test
-      public void successfulForwardRequestTest() throws ClientProtocolException, IOException {
+Next you can update the code to look like this:
 
-        // Given a mock server configured to respond to a GET / with "OK"
-        responseProvider.expect(Method.GET, "/").respondWith(200, "text/plain", "OK");
+    @Test
+    public void testValidRequest() {
 
-        final HttpGet req = new HttpGet(PROXY_URL + "/");
-        final HttpResponse response = client.execute(req);
-        final String responseBody = IOUtils.toString(response.getEntity().getContent());
-        final int statusCode = response.getStatusLine().getStatusCode();
+        mockServer =
+            new MockHttpServer(PROXY_PORT, new FileHttpResponseProvider("src/test/resources/",
+                "ITService_testValidRequest"));
+        mockServer.start();
+        try
+        {
+        	// Execute test specific code.
+        	// The test code should be configured to have http requests submitted to our 
+        	// mock implementation. Requests/Responses previously persisted 
+        	// using LoggingHttpProxy in src/test/resources will be served up. 
+        	
+        }
+        finally
+        {
+          mockServer.stop();
+        }
+        
+    } 
 
-        // Then the response is "OK"
-        assertEquals("OK", responseBody);
-        // And the status code is 200
-        assertEquals(200, statusCode);
+By configuring `MockHttpServer` to use `FileHttpResponseProvider` we can replay the
+requests/responses previously persisted using `LoggingHttpProxy`. Notice that we configure
+`FileHttpResponseProvider` in the same way as `HttpRequestResponseFileLoggerFactory` 
+before (same directory, same file name). Both use the same naming convention and format
+for reading/writing http requests/responses.
 
-        final FullHttpRequestImpl expectedRequest = new FullHttpRequestImpl();
-        expectedRequest.method(Method.GET);
-        expectedRequest.path("/");
+Advantages of this approach:
 
-        final HttpResponseImpl expectedResponse = new HttpResponseImpl(200, "text/plain", "OK".getBytes());
-
-        final InOrder inOrder = inOrder(mockLoggerFactory, mockLogger);
-        inOrder.verify(mockLoggerFactory).getHttpRequestResponseLogger();
-        inOrder.verify(mockLogger).log(expectedRequest);
-        inOrder.verify(mockLogger).log(expectedResponse);
-        verifyNoMoreInteractions(mockLogger, mockLoggerFactory, mockLogger);
-
-      }
-
-    }
-
-
-
-
++   By having the requests/responses of external services persisted and versioned
+with the code our tests keep on functioning also if the external services change.
++   Decoupling of our code from externally deployed services.
++   The tests typically should run faster as the logic of MockHttpServer to serve up 
+responses is easy and typically faster then the real services.
 
 
