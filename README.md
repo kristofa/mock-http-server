@@ -1,5 +1,16 @@
 # MockHttpServer
 
+MockHttpServer 1.0 is available through Maven Central so you can get it by including
+following dependency in your pom.xml:
+
+    <dependency>
+        <groupId>com.github.kristofa</groupId>
+        <artifactId>mock-http-server</artifactId>
+        <version>1.0</version>
+        <scope>test</scope>
+    </dependency>
+
+
 MockHttpServer is used to facilitate integration testing of Java applications
 that rely on external http services (eg REST services).  MockHttpServer acts as a 
 replacement for the external services and is configured to return specific responses 
