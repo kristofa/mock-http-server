@@ -28,8 +28,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 public final class FullHttpRequestImpl implements FullHttpRequest {
 
-    private static final String QUERY_SEPARATOR = "?";
-    private static final String HTTP_SCHEME = "http";
     private static final String PORT_SEPARATOR = ":";
     private static final String NOT_SPECIFIED = "null";
     private final HttpRequestImpl httpRequest;
