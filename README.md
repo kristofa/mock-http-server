@@ -14,7 +14,7 @@ don't have to set up complex systems and external services.
 +   Integration tests typically run faster as MockHttpServer logic is very simple and no
 network traffic is needed (MockHttpServer runs on localhost)
 
-* I got the term System Under Test from [following post](http://delicious.com/redirect?url=http%3A//feedproxy.google.com/%7Er/blogspot/RLXA/%7E3/J9QTHN7BtEw/hermetic-servers.html).
+(*) I got the term System Under Test from [following post](http://delicious.com/redirect?url=http%3A//feedproxy.google.com/%7Er/blogspot/RLXA/%7E3/J9QTHN7BtEw/hermetic-servers.html).
 
 ![MockHttpServer class diagram](https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver_classdiagram.png)
 
@@ -97,7 +97,7 @@ by MockHttpServer by using `FileHttpResponseProvider`.
 
 ### Reworking existing integration tests to use MockHttpServer
 
-We assume that you start from an integration test where the software you want to test 
+We assume that you start from an integration test in which case the software you want to test 
 actually communicates with an external service and the test runs green.
 
 First thing to do is configure `LoggingHttpProxy` to sit in between the software you test
@@ -184,13 +184,15 @@ By configuring `MockHttpServer` to use `FileHttpResponseProvider` we can replay 
 requests/responses previously persisted using `LoggingHttpProxy`. Notice that we configure
 `FileHttpResponseProvider` in the same way as `HttpRequestResponseFileLoggerFactory` 
 before (same directory, same file name). Both use the same naming convention and format
-for reading/writing http requests/responses.
+for reading/writing http requests/responses.  You can check in your test code like this
+and from that moment on you don't rely on external services anymore.
 
 Advantages of this approach:
 
 +   By having the requests/responses of external services persisted and versioned
-with the code our tests keep on functioning also if the external services change.
-+   Decoupling of our code from externally deployed services.
+with the code our tests keep on functioning also if the external services change over 
+time.
++   Decoupling our code from externally deployed services.
 +   The tests typically should run faster as the logic of MockHttpServer to serve up 
 responses is easy and typically faster then the real services.
 
