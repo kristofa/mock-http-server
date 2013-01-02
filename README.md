@@ -195,5 +195,6 @@ time.
 +   Decoupling our code from externally deployed services.
 +   The tests typically should run faster as the logic of MockHttpServer to serve up 
 responses is easy and typically faster then the real services.
-
++   Persisted requests/responses are copies from the requests/responses with the real
+services so no change of mistakes by manually creating requests/responses.
 
