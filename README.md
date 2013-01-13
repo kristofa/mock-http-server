@@ -27,6 +27,9 @@ network traffic is needed (MockHttpServer runs on localhost)
 
 (*) I got the term System Under Test from [following post](http://delicious.com/redirect?url=http%3A//feedproxy.google.com/%7Er/blogspot/RLXA/%7E3/J9QTHN7BtEw/hermetic-servers.html).
 
+See also following posts by Martin Fowler: [Self Initializing Fake](http://martinfowler.com/bliki/SelfInitializingFake.html) and
+[Integration Contract Test](http://martinfowler.com/bliki/IntegrationContractTest.html).
+
 ![MockHttpServer class diagram](https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver_classdiagram.png)
 
 
