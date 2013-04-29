@@ -100,17 +100,13 @@ public class FullHttpRequestImplTest {
     @Test
     public void testGetUrlSpecialCharacters() {
 
-        httpRequest
-            .content(CONTENT)
+        httpRequest.content(CONTENT)
             .httpMessageHeader(HttpMessageHeaderField.CONTENTTYPE.getValue(), MediaType.APPLICATION_JSON_UTF8.getValue())
-            .domain(DOMAIN)
-            .method(Method.GET)
-            .path(
-                "/rms-webservice/rules/ids/[50791]/[\"RELEASED\",\"OPERATIONAL\"]/HIGHEST/[\"TTOM_CORE\",\"TTOM_POI\",\"TTOM_ADA\",\"TTOM_TOPOLOGY\",\"TTOM_APT\",\"COMPOSITE_TTOM_POI\",\"TTOM\"]")
-            .port(PORT).queryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE)
-            .queryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2);
+            .domain(DOMAIN).method(Method.GET)
+            .path("/webservice/x/y/[50791]/[\"RELEASED\",\"OPERATIONAL\"]/HIGHEST/[\"A\",\"B\",\"C\"]").port(PORT)
+            .queryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE).queryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2);
         assertEquals(
-            "http://localhost:8080/rms-webservice/rules/ids/%5B50791%5D/%5B%22RELEASED%22,%22OPERATIONAL%22%5D/HIGHEST/%5B%22TTOM_CORE%22,%22TTOM_POI%22,%22TTOM_ADA%22,%22TTOM_TOPOLOGY%22,%22TTOM_APT%22,%22COMPOSITE_TTOM_POI%22,%22TTOM%22%5D?key1=value1&key2=value2",
+            "http://localhost:8080/webservice/x/y/%5B50791%5D/%5B%22RELEASED%22,%22OPERATIONAL%22%5D/HIGHEST/%5B%22A%22,%22B%22,%22C%22%5D?key1=value1&key2=value2",
             httpRequest.getUrl());
     }
 
