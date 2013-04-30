@@ -50,10 +50,8 @@ public class MockHttpServer {
             expectedRequest.content(data);
 
             for (final String headerField : req.getNames()) {
-                if (HttpMessageHeaderField.CONTENTTYPE.getValue().equals(headerField)) {
-                    for (final String headerFieldValue : req.getValues(headerField)) {
-                        expectedRequest.httpMessageHeader(headerField, headerFieldValue);
-                    }
+                for (final String headerFieldValue : req.getValues(headerField)) {
+                    expectedRequest.httpMessageHeader(headerField, headerFieldValue);
                 }
             }
 
