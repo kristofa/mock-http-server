@@ -1,12 +1,12 @@
 # MockHttpServer
 
-MockHttpServer 1.0 is available through Maven Central so you can get it by including
+MockHttpServer is available through Maven Central so you can get it by including
 following dependency in your pom.xml:
 
     <dependency>
         <groupId>com.github.kristofa</groupId>
         <artifactId>mock-http-server</artifactId>
-        <version>1.0</version>
+        <version>1.1</version>
         <scope>test</scope>
     </dependency>
 
@@ -212,3 +212,14 @@ responses is easy and typically faster then the real services.
 +   Persisted requests/responses are copies from the requests/responses with the real
 services so no chance of mistakes by manually creating requests/responses.
 
+## Changelog ##
+
+### 1.1 - 4th of May 2013 ###
+
++   Introduce PassthroughLoggingHttpProxy by [Dominique Dierickx](https://github.com/ddierickx)
++   In version 1.0 MockHttpServer filtered all http headers except Content-Type. This filter is removed now but SimpleHttpResponseProvider is adapted
+so it only cares about Content-Type so behaviour is same as before. There is a new implementation, DefaultHttpResponseProvider, which matches all headers of your choice.
+
+### 1.0 - 2nd of January 2013 ###
+
+First release
