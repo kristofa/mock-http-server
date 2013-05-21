@@ -195,13 +195,24 @@ public class MockHttpServerTest {
     }
 
     @Test
-    public void testShouldRespondWith500OWhenNotMatchingAnyRequestExpectation() throws ClientProtocolException, IOException {
+    public void testShouldRespondWith500WhenNotMatchingAnyRequestExpectation() throws ClientProtocolException, IOException {
         responseProvider.expect(Method.GET, "/foo").respondWith(200, "text/plain", "OK");
 
         final HttpGet req = new HttpGet(baseUrl + "/bar");
         final HttpResponse response = client.execute(req);
 
         assertEquals(500, response.getStatusLine().getStatusCode());
+    }
+    
+    @Test
+    public void testShouldRespondWithCustomResponseCodeWhenNotMatchingAnyRequestExpectation() throws ClientProtocolException, IOException {
+        server.setNoMatchFoundResponseCode(200);
+        responseProvider.expect(Method.GET, "/foo").respondWith(200, "text/plain", "OK");
+
+        final HttpGet req = new HttpGet(baseUrl + "/bar");
+        final HttpResponse response = client.execute(req);
+
+        assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
     @Test
