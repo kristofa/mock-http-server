@@ -130,6 +130,15 @@ public class SimpleHttpResponseProvider implements HttpResponseProvider {
 
     }
 
+    /**
+     * Reset the response provider to its original state
+     */
+    public void reset() {
+        expectedRequests.clear();
+        receivedRequests.clear();
+        latestRequest = new LimitedHttpRequestData();
+    }
+
     private HttpRequest httpRequestFor(final LimitedHttpRequestData requestData) {
         final HttpRequestImpl httpRequestImpl = new HttpRequestImpl();
         httpRequestImpl.method(requestData.getMethod()).path(requestData.getPath()).content(requestData.getContent());
