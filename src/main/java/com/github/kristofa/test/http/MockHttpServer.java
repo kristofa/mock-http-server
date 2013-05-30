@@ -73,7 +73,7 @@ public class MockHttpServer {
                     LOGGER.error("IOException when getting response content.", e);
                 }
             } else {
-                response.setCode(500);
+                response.setCode(noMatchFoundResponseCode);
                 response.set("Content-Type", "text/plain;charset=utf-8");
                 PrintStream body;
                 try {
@@ -89,7 +89,6 @@ public class MockHttpServer {
 
         public void verify() throws UnsatisfiedExpectationException {
             responseProvider.verify();
-
         }
     }
 
@@ -104,6 +103,8 @@ public class MockHttpServer {
     public static final String DELETE = "DELETE";
 
     private Connection connection;
+    
+    private int noMatchFoundResponseCode = 500;
 
     /**
      * Creates a new instance.
@@ -145,6 +146,15 @@ public class MockHttpServer {
      */
     public void verify() throws UnsatisfiedExpectationException {
         handler.verify();
+    }
+    
+    /**
+     * Allows you to set a custom response code to be returned when no matching response is found.
+     *
+     * @param code HTTP response code to return when no matching response is found.
+     */
+    public void setNoMatchFoundResponseCode(int code) {
+        this.noMatchFoundResponseCode = code;
     }
 
 }
