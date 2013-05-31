@@ -68,7 +68,7 @@ public class SimpleHttpResponseProviderTest {
     }
 
     @Test
-    public void testVerifySucces() throws UnsatisfiedExpectationException {
+    public void testVerifySuccess() throws UnsatisfiedExpectationException {
         responseProvider.expect(Method.GET, PATH).respondWith(HTTP_CODE, CONTENT_TYPE, DATA);
 
         final HttpRequestImpl httpRequestImpl = new HttpRequestImpl();
@@ -78,6 +78,19 @@ public class SimpleHttpResponseProviderTest {
         assertNotNull(response);
 
         responseProvider.verify();
+    }
+    
+    @Test
+    public void testResetResponses() {
+      responseProvider.expect(Method.GET, PATH).respondWith(HTTP_CODE, CONTENT_TYPE, DATA);
+
+      final HttpRequestImpl httpRequestImpl = new HttpRequestImpl();
+      httpRequestImpl.method(Method.GET).path(PATH);
+      
+      responseProvider.reset();
+
+      final HttpResponse response = responseProvider.getResponse(httpRequestImpl);
+      assertNull(response);
     }
 
     @Test
