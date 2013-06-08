@@ -24,29 +24,42 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class MockHttpServerTest {
 
     private static final int PORT = 51234;
     private static final String baseUrl = "http://localhost:" + PORT;
-    private MockHttpServer server;
-    private SimpleHttpResponseProvider responseProvider;
+    private static MockHttpServer server;
+    private static SimpleHttpResponseProvider responseProvider;
     private HttpClient client;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
         responseProvider = new SimpleHttpResponseProvider();
         server = new MockHttpServer(PORT, responseProvider);
         server.start();
+
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+
+        server.stop();
+    }
+
+    @Before
+    public void setUp() throws Exception {
         client = new DefaultHttpClient();
+        responseProvider.reset();
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         client.getConnectionManager().shutdown();
-        server.stop();
     }
 
     @Test
@@ -203,9 +216,10 @@ public class MockHttpServerTest {
 
         assertEquals(500, response.getStatusLine().getStatusCode());
     }
-    
+
     @Test
-    public void testShouldRespondWithCustomResponseCodeWhenNotMatchingAnyRequestExpectation() throws ClientProtocolException, IOException {
+    public void testShouldRespondWithCustomResponseCodeWhenNotMatchingAnyRequestExpectation()
+        throws ClientProtocolException, IOException {
         server.setNoMatchFoundResponseCode(403);
         responseProvider.expect(Method.GET, "/foo").respondWith(200, "text/plain", "OK");
 
