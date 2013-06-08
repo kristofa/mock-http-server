@@ -6,7 +6,7 @@ following dependency in your pom.xml:
     <dependency>
         <groupId>com.github.kristofa</groupId>
         <artifactId>mock-http-server</artifactId>
-        <version>1.1</version>
+        <version>1.2</version>
         <scope>test</scope>
     </dependency>
 
@@ -208,15 +208,26 @@ with the code our tests keep on functioning also if the external services change
 time.
 +   Decoupling our code from externally deployed services.
 +   The tests typically should run faster as the logic of MockHttpServer to serve up 
-responses is easy and typically faster then the real services.
+responses is easy and typically faster than the real services.
 +   Persisted requests/responses are copies from the requests/responses with the real
 services so no chance of mistakes by manually creating requests/responses.
 
 ## Changelog ##
 
+### 1.2 - 8th of June 2013 ###
+
++   [Sam Starling](https://github.com/samstarling) : Make it possible to specify custom 
+HTTP code when no matching response is found. Before 500 was returned but it you want
+to build a test and you expect 500 to be returned you can change it now.
++   [Sam Starling](https://github.com/samstarling) : Support reseting 
+SimpleHttpResponseProvider. This allows you to set up MockHttpServer only once for a set
+of tests instead of setting it up for each test. This makes tests run faster.
++   When Content-Type is not set in response also don't add header with empty value 
+in MockHttpServer.
+
 ### 1.1 - 4th of May 2013 ###
 
-+   Introduce PassthroughLoggingHttpProxy by [Dominique Dierickx](https://github.com/ddierickx)
++   [Dominique Dierickx](https://github.com/ddierickx) : Introduce PassthroughLoggingHttpProxy.
 +   In version 1.0 MockHttpServer filtered all http headers except Content-Type. This filter is removed now but SimpleHttpResponseProvider is adapted
 so it only cares about Content-Type so behaviour is same as before. There is a new implementation, DefaultHttpResponseProvider, which matches all headers of your choice.
 
