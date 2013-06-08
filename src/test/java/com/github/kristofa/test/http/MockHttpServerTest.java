@@ -221,9 +221,18 @@ public class MockHttpServerTest {
     public void testShouldRespondWithCustomResponseCodeWhenNotMatchingAnyRequestExpectation()
         throws ClientProtocolException, IOException {
         server.setNoMatchFoundResponseCode(403);
-        responseProvider.expect(Method.GET, "/foo").respondWith(200, "text/plain", "OK");
+        try {
+            responseProvider.expect(Method.GET, "/foo").respondWith(200, "text/plain", "OK");
 
-        final HttpGet req = new HttpGet(baseUrl + "/bar");
+            final HttpGet req = new HttpGet(baseUrl + "/bar");
+            final HttpResponse response = client.execute(req);
+
+            assertEquals(403, response.getStatusLine().getStatusCode());
+        } finally {
+            // Set to default value again to make sure potential other tests succeed.
+            server.setNoMatchFoundResponseCode(500);
+        }
+    }
         final HttpResponse response = client.execute(req);
 
         assertEquals(403, response.getStatusLine().getStatusCode());
