@@ -22,7 +22,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HTTP;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -31,6 +30,7 @@ import org.junit.Test;
 
 public class MockHttpServerTest {
 
+    private static final String UTF_8 = "UTF-8";
     private static final int PORT = 51234;
     private static final String baseUrl = "http://localhost:" + PORT;
     private static MockHttpServer server;
@@ -89,7 +89,7 @@ public class MockHttpServerTest {
 
         // When a request for POST / arrives
         final HttpPost req = new HttpPost(baseUrl + "/");
-        req.setEntity(new StringEntity("Hello World", HTTP.UTF_8));
+        req.setEntity(new StringEntity("Hello World", UTF_8));
         final ResponseHandler<String> handler = new BasicResponseHandler();
         final String responseBody = client.execute(req, handler);
 
@@ -117,7 +117,7 @@ public class MockHttpServerTest {
 
         // When a request for POST /test arrives with parameters
         final HttpPost req = new HttpPost(baseUrl + "/test");
-        req.setEntity(new StringEntity("Hello World", HTTP.UTF_8));
+        req.setEntity(new StringEntity("Hello World", UTF_8));
 
         final HttpResponse response = client.execute(req);
 
@@ -136,7 +136,7 @@ public class MockHttpServerTest {
 
         // When a request for POST / arrives
         final HttpPost req = new HttpPost(baseUrl + "/");
-        req.setEntity(new StringEntity("Hello World", HTTP.UTF_8));
+        req.setEntity(new StringEntity("Hello World", UTF_8));
         ResponseHandler<String> handler = new BasicResponseHandler();
         String responseBody = client.execute(req, handler);
 
