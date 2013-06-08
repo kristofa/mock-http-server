@@ -9,6 +9,7 @@ import java.net.SocketAddress;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;
@@ -63,11 +64,15 @@ public class MockHttpServer {
 
             if (expectedResponse != null) {
                 response.setCode(expectedResponse.getHttpCode());
-                response.set("Content-Type", expectedResponse.getContentType());
+                if (!StringUtils.isEmpty(expectedResponse.getContentType())) {
+                    response.set("Content-Type", expectedResponse.getContentType());
+                }
                 OutputStream body = null;
                 try {
                     body = response.getOutputStream();
-                    body.write(expectedResponse.getContent());
+                    if (expectedResponse.getContent() != null) {
+                        body.write(expectedResponse.getContent());
+                    }
                     body.close();
                 } catch (final IOException e) {
                     LOGGER.error("IOException when getting response content.", e);
@@ -103,7 +108,7 @@ public class MockHttpServer {
     public static final String DELETE = "DELETE";
 
     private Connection connection;
-    
+
     private int noMatchFoundResponseCode = 500;
 
     /**
@@ -147,14 +152,14 @@ public class MockHttpServer {
     public void verify() throws UnsatisfiedExpectationException {
         handler.verify();
     }
-    
+
     /**
      * Allows you to set a custom response code to be returned when no matching response is found.
-     *
+     * 
      * @param code HTTP response code to return when no matching response is found.
      */
-    public void setNoMatchFoundResponseCode(int code) {
-        this.noMatchFoundResponseCode = code;
+    public void setNoMatchFoundResponseCode(final int code) {
+        noMatchFoundResponseCode = code;
     }
 
 }
