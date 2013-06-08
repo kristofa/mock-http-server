@@ -233,9 +233,16 @@ public class MockHttpServerTest {
             server.setNoMatchFoundResponseCode(500);
         }
     }
+
+    @Test
+    public void testResponseWithNullContentTypeAndContent() throws ClientProtocolException, IOException {
+        responseProvider.expect(Method.GET, "/foo").respondWith(200, null, null);
+        final HttpGet req = new HttpGet(baseUrl + "/foo");
         final HttpResponse response = client.execute(req);
 
-        assertEquals(403, response.getStatusLine().getStatusCode());
+        assertEquals(200, response.getStatusLine().getStatusCode());
+        assertEquals("", IOUtils.toString(response.getEntity().getContent()));
+
     }
 
     @Test
