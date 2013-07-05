@@ -33,14 +33,14 @@ public class MockHttpServer {
 
             byte[] data = null;
             try {
-                if (req.getContentLength() > 0) {
-                    final InputStream inputStream = req.getInputStream();
-                    try {
-                        data = IOUtils.toByteArray(inputStream);
-                    } finally {
-                        inputStream.close();
-                    }
+
+                final InputStream inputStream = req.getInputStream();
+                try {
+                    data = IOUtils.toByteArray(inputStream);
+                } finally {
+                    inputStream.close();
                 }
+
             } catch (final IOException e) {
                 LOGGER.error("IOException when getting request content.", e);
             }
@@ -48,7 +48,9 @@ public class MockHttpServer {
             final HttpRequestImpl expectedRequest = new HttpRequestImpl();
             expectedRequest.method(Method.valueOf(req.getMethod()));
             expectedRequest.path(req.getPath().getPath());
-            expectedRequest.content(data);
+            if (data.length > 0) {
+                expectedRequest.content(data);
+            }
 
             for (final String headerField : req.getNames()) {
                 for (final String headerFieldValue : req.getValues(headerField)) {
