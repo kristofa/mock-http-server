@@ -10,7 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.kristofa</groupId>
 	<artifactId>mock-http-server</artifactId>
-	<version>1.3</version>
+	<version>1.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Mock and Proxy Http Server</name>
 	<description>Mock and Proxy HTTP Server for testing purposes. Forked from https://github.com/jharlap/mock-http-server</description>
