@@ -1,13 +1,18 @@
 package com.github.kristofa.test.http;
 
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 
 /**
  * {@link HttpResponseProvider} that keeps expected request/responses in memory. Its purpose is to match simple requests that
@@ -17,7 +22,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * <li>HTTP Method (GET, PUT, POST, DELETE)</li>
  * <li>Path</li>
  * <li>Content-Type http header</li>
- * <li>Entity</li>
+ * <li>Request Entity</li>
  * </ul>
  * 
  * @see MockHttpServer
@@ -35,17 +40,17 @@ public class SimpleHttpResponseProvider implements HttpResponseProvider {
      * Provide an expected request with content.
      * 
      * @param method HTTP method.
-     * @param path Path.
+     * @param path Path. Path can contain query parameters, eg: path?a=b&b=c
      * @param contentType Content type.
-     * @param data Data, content.
+     * @param requestEntity Request entity as string.
      * @return current {@link SimpleHttpResponseProvider}. Allows chaining calls.
      */
     public SimpleHttpResponseProvider expect(final Method method, final String path, final String contentType,
-        final String data) {
+        final String requestEntity) {
         latestRequest = new LimitedHttpRequestData();
         latestRequest.setMethod(method);
         latestRequest.setPath(path);
-        latestRequest.setContent(data.getBytes());
+        latestRequest.setContent(requestEntity.getBytes());
         latestRequest.setContentType(contentType);
 
         return this;
@@ -55,7 +60,7 @@ public class SimpleHttpResponseProvider implements HttpResponseProvider {
      * Provide an expected request without content.
      * 
      * @param method HTTP method.
-     * @param path Path.
+     * @param path Path. Path can contain query parameters, eg: path?a=b&b=c
      * @return current {@link SimpleHttpResponseProvider}. Allows chaining calls.
      */
     public SimpleHttpResponseProvider expect(final Method method, final String path) {
@@ -70,11 +75,12 @@ public class SimpleHttpResponseProvider implements HttpResponseProvider {
      * 
      * @param httpCode Http response code.
      * @param contentType Content type.
-     * @param data Data.
+     * @param requestEntity Data.
      * @return current {@link SimpleHttpResponseProvider}. Allows chaining calls.
      */
-    public SimpleHttpResponseProvider respondWith(final int httpCode, final String contentType, final String data) {
-        final HttpResponseImpl response = new HttpResponseImpl(httpCode, contentType, data == null ? null : data.getBytes());
+    public SimpleHttpResponseProvider respondWith(final int httpCode, final String contentType, final String requestEntity) {
+        final HttpResponseImpl response =
+            new HttpResponseImpl(httpCode, contentType, requestEntity == null ? null : requestEntity.getBytes());
         expectedRequests.put(latestRequest, response);
         return this;
     }
@@ -89,6 +95,10 @@ public class SimpleHttpResponseProvider implements HttpResponseProvider {
         limitedRequest.setMethod(request.getMethod());
         limitedRequest.setPath(request.getPath());
         limitedRequest.setContent(request.getContent());
+
+        for (final QueryParameter qp : request.getQueryParameters()) {
+            limitedRequest.addQueryParam(qp.getKey(), qp.getValue());
+        }
 
         for (final HttpMessageHeader header : request.getHttpMessageHeaders()) {
             if (HttpMessageHeaderField.CONTENTTYPE.getValue().equals(header.getName())) {
@@ -154,6 +164,7 @@ public class SimpleHttpResponseProvider implements HttpResponseProvider {
         private String path;
         private String contentType;
         private byte[] content;
+        private final Set<QueryParameter> queryParameters = new TreeSet<QueryParameter>();
 
         public Method getMethod() {
             return method;
@@ -176,7 +187,12 @@ public class SimpleHttpResponseProvider implements HttpResponseProvider {
         }
 
         public void setPath(final String path) {
-            this.path = path;
+
+            this.path = extractQueryParams(path);
+        }
+
+        public void addQueryParam(final String name, final String value) {
+            queryParameters.add(new QueryParameter(name, value));
         }
 
         public void setContentType(final String contentType) {
@@ -195,6 +211,22 @@ public class SimpleHttpResponseProvider implements HttpResponseProvider {
         @Override
         public boolean equals(final Object obj) {
             return EqualsBuilder.reflectionEquals(this, obj, false);
+        }
+
+        private String extractQueryParams(final String path) {
+
+            final int indexOfQuestionMark = path.indexOf("?");
+            if (indexOfQuestionMark >= 0) {
+                final String newPath = path.substring(0, indexOfQuestionMark);
+                final String queryParams = path.substring(indexOfQuestionMark + 1);
+                final List<NameValuePair> parameters = URLEncodedUtils.parse(queryParams, Charset.forName("UTF-8"));
+                for (final NameValuePair parameter : parameters) {
+                    queryParameters.add(new QueryParameter(parameter.getName(), parameter.getValue()));
+                }
+
+                return newPath;
+            }
+            return path;
         }
 
     }

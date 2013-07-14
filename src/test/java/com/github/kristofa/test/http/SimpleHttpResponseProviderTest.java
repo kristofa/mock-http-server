@@ -14,6 +14,7 @@ import org.junit.Test;
 public class SimpleHttpResponseProviderTest {
 
     private final static String PATH = "path";
+    private final static String PATH_WITH_PARAMS = "path?a=b&b=c";
     private final static String CONTENT_TYPE = "contenType";
     private final static String CONTENT = "content";
 
@@ -79,18 +80,33 @@ public class SimpleHttpResponseProviderTest {
 
         responseProvider.verify();
     }
-    
+
+    @Test
+    public void testExpectPathWithQueryParams() throws UnsatisfiedExpectationException {
+        responseProvider.expect(Method.GET, PATH_WITH_PARAMS).respondWith(HTTP_CODE, CONTENT_TYPE, DATA);
+
+        final HttpRequestImpl httpRequestImpl = new HttpRequestImpl();
+        httpRequestImpl.method(Method.GET).path(PATH).queryParameter("a", "b").queryParameter("b", "c");
+
+        final HttpResponse response = responseProvider.getResponse(httpRequestImpl);
+        assertNotNull(response);
+        assertEquals(HTTP_CODE, response.getHttpCode());
+        assertArrayEquals(DATA.getBytes(), response.getContent());
+        assertEquals(CONTENT_TYPE, response.getContentType());
+        responseProvider.verify();
+    }
+
     @Test
     public void testResetResponses() {
-      responseProvider.expect(Method.GET, PATH).respondWith(HTTP_CODE, CONTENT_TYPE, DATA);
+        responseProvider.expect(Method.GET, PATH).respondWith(HTTP_CODE, CONTENT_TYPE, DATA);
 
-      final HttpRequestImpl httpRequestImpl = new HttpRequestImpl();
-      httpRequestImpl.method(Method.GET).path(PATH);
-      
-      responseProvider.reset();
+        final HttpRequestImpl httpRequestImpl = new HttpRequestImpl();
+        httpRequestImpl.method(Method.GET).path(PATH);
 
-      final HttpResponse response = responseProvider.getResponse(httpRequestImpl);
-      assertNull(response);
+        responseProvider.reset();
+
+        final HttpResponse response = responseProvider.getResponse(httpRequestImpl);
+        assertNull(response);
     }
 
     @Test
