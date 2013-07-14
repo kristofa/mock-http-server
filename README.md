@@ -6,7 +6,7 @@ following dependency in your pom.xml:
     <dependency>
         <groupId>com.github.kristofa</groupId>
         <artifactId>mock-http-server</artifactId>
-        <version>1.2</version>
+        <version>1.3</version>
         <scope>test</scope>
     </dependency>
 
@@ -214,7 +214,7 @@ services so no chance of mistakes by manually creating requests/responses.
 
 ## Changelog ##
 
-### 1.3-SNAPSHOT ###
+### 1.3 - 14th of July 2013 ###
 
 +   Adapt MockHttpServer to Support request entities for which content length is not provided.
 +   Update SimpleHttpResponseProvider so it supports specifying query parameters as part of path.
