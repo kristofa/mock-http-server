@@ -214,6 +214,11 @@ services so no chance of mistakes by manually creating requests/responses.
 
 ## Changelog ##
 
+### 1.3-SNAPSHOT ###
+
++   Adapt MockHttpServer to Support request entities for which content length is not provided.
++   Update SimpleHttpResponseProvider so it supports specifying query parameters as part of path.
+
 ### 1.2 - 8th of June 2013 ###
 
 +   [Sam Starling](https://github.com/samstarling) : Make it possible to specify custom 
