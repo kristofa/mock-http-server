@@ -214,6 +214,18 @@ services so no chance of mistakes by manually creating requests/responses.
 
 ## Changelog ##
 
+### 2.0-SNAPSHOT ###
+
+Version bump because the changes explained in first bullet point can lead to failing tests that worked with 1.3 or earlier.
+The api is still the same but the behaviour is different.
+
++   Bring `MockHttpServer` and `LoggingHttpProxy` in line (by sharing code and removing some code duplication).
+      +   Do not filter http headers anymore in LoggingHttpProxy.
+      +   Support request entities for which content length is not provided in LoggingHttpProxy.
++   Add some error and debug log messages in both MockHttpSever and LoggingHttpProxy. This should improve debugging of unexpected requests.
++   TODO: Integration tests between MockHttpServer and LoggingHttpProxy.
++   TODO: Api that makes it easier to switch between logging of requests and run in 'mock mode'.
+
 ### 1.3 - 14th of July 2013 ###
 
 +   Adapt MockHttpServer to Support request entities for which content length is not provided.
