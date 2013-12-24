@@ -78,6 +78,10 @@ public class LoggingHttpProxy {
 
             try {
                 final FullHttpRequest httpRequest = FullHttpRequestBuilder.build(request);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Received request: " + httpRequest);
+                }
+
                 FullHttpRequest forwardHttpRequest = null;
                 for (final ForwardHttpRequestBuilder forwardRequestBuilder : requestBuilders) {
                     forwardHttpRequest = forwardRequestBuilder.getForwardRequest(httpRequest);
@@ -87,34 +91,46 @@ public class LoggingHttpProxy {
                 }
 
                 if (forwardHttpRequest == null) {
+                    LOGGER.debug("Got unexpected request!");
                     errorResponse(response, NO_FORWARD_REQUEST_ERROR_HTTP_CODE, "Received unexpected request:\n"
                         + httpRequest.toString());
                 } else {
 
+                    LOGGER.debug("Logging request.");
+
                     final HttpRequestResponseLogger logger = loggerFactory.getHttpRequestResponseLogger();
                     logger.log(httpRequest);
                     try {
+                        LOGGER.debug("Forward request.");
                         final HttpClientResponse<InputStream> forwardResponse = forward(forwardHttpRequest);
+                        LOGGER.debug("Got response.");
                         try {
                             final InputStream inputStream = forwardResponse.getResponseEntity();
-                            // This is tricky as we keep the full response in memory... reason is that we need to copy it
-                            // twice.
-                            // Once to return to response, another time to log.
-                            final byte[] responseEntity = IOUtils.toByteArray(inputStream);
-                            inputStream.close();
+                            byte[] responseEntity;
+                            try {
+                                // This is tricky as we keep the full response in memory... reason is that we need to copy it
+                                // twice.
+                                // Once to return to response, another time to log.
+                                responseEntity = IOUtils.toByteArray(inputStream);
+                            } finally {
+                                inputStream.close();
+                            }
                             final HttpResponse httpResponse =
                                 new HttpResponseImpl(forwardResponse.getHttpCode(), forwardResponse.getContentType(),
                                     responseEntity);
+                            LOGGER.debug("Logging response");
                             logger.log(httpResponse);
 
                             response.setCode(forwardResponse.getHttpCode());
                             response.set(CONTENT_TYPE, forwardResponse.getContentType());
                             final OutputStream outputStream = response.getOutputStream();
-
-                            final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(responseEntity);
-                            IOUtils.copy(byteArrayInputStream, outputStream);
-                            byteArrayInputStream.close();
-                            outputStream.close();
+                            try {
+                                final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(responseEntity);
+                                IOUtils.copy(byteArrayInputStream, outputStream);
+                                byteArrayInputStream.close();
+                            } finally {
+                                outputStream.close();
+                            }
 
                         } catch (final IOException e) {
                             LOGGER.error("IOException when trying to copy response of forward request.", e);
