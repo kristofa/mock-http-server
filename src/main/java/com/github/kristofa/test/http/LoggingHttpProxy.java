@@ -91,7 +91,7 @@ public class LoggingHttpProxy {
                 }
 
                 if (forwardHttpRequest == null) {
-                    LOGGER.debug("Got unexpected request!");
+                    LOGGER.error("Got unexpected request: " + httpRequest);
                     errorResponse(response, NO_FORWARD_REQUEST_ERROR_HTTP_CODE, "Received unexpected request:\n"
                         + httpRequest.toString());
                 } else {
