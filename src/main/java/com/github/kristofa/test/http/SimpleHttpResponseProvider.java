@@ -20,10 +20,12 @@ import org.apache.http.client.utils.URLEncodedUtils;
  * <p/>
  * <ul>
  * <li>HTTP Method (GET, PUT, POST, DELETE)</li>
- * <li>Path</li>
+ * <li>Path (including query parmeters)</li>
  * <li>Content-Type http header</li>
  * <li>Request Entity</li>
  * </ul>
+ * It does not support other http headers than Content-Type. If other http header parameters are present in HttpRequest they
+ * will be ignored.
  * 
  * @see MockHttpServer
  * @author kristof
