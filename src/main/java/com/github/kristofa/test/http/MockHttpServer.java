@@ -1,14 +1,11 @@
 package com.github.kristofa.test.http;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Map.Entry;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.simpleframework.http.Request;
@@ -31,37 +28,7 @@ public class MockHttpServer {
         @Override
         public void handle(final Request req, final Response response) {
 
-            byte[] data = null;
-            try {
-
-                final InputStream inputStream = req.getInputStream();
-                try {
-                    data = IOUtils.toByteArray(inputStream);
-                } finally {
-                    inputStream.close();
-                }
-
-            } catch (final IOException e) {
-                LOGGER.error("IOException when getting request content.", e);
-            }
-
-            final HttpRequestImpl expectedRequest = new HttpRequestImpl();
-            expectedRequest.method(Method.valueOf(req.getMethod()));
-            expectedRequest.path(req.getPath().getPath());
-            if (data.length > 0) {
-                expectedRequest.content(data);
-            }
-
-            for (final String headerField : req.getNames()) {
-                for (final String headerFieldValue : req.getValues(headerField)) {
-                    expectedRequest.httpMessageHeader(headerField, headerFieldValue);
-                }
-            }
-
-            for (final Entry<String, String> entry : req.getQuery().entrySet()) {
-                expectedRequest.queryParameter(entry.getKey(), entry.getValue());
-            }
-
+            final HttpRequest expectedRequest = FullHttpRequestBuilder.build(req);
             final HttpResponse expectedResponse = responseProvider.getResponse(expectedRequest);
 
             if (expectedResponse != null) {
@@ -85,8 +52,7 @@ public class MockHttpServer {
                 PrintStream body;
                 try {
                     body = response.getPrintStream();
-                    body.print("Received unexpected request " + req.getMethod() + ":" + req.getTarget() + " with data: "
-                        + data);
+                    body.print("Received unexpected request " + expectedRequest);
                     body.close();
                 } catch (final IOException e) {
                     LOGGER.error("IOException when writing response content.", e);

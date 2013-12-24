@@ -108,6 +108,10 @@ public class LoggingHttpProxyTest {
         final FullHttpRequestImpl expectedRequest = new FullHttpRequestImpl();
         expectedRequest.method(Method.GET);
         expectedRequest.path("/");
+        expectedRequest.httpMessageHeader("Connection", "Keep-Alive");
+        expectedRequest.httpMessageHeader("Host", "localhost:51234");
+        expectedRequest.httpMessageHeader("User-Agent", "Apache-HttpClient/4.2.5 (java 1.5)");
+        expectedRequest.port(-1);
 
         final HttpResponseImpl expectedResponse = new HttpResponseImpl(200, "text/plain", "OK".getBytes());
 

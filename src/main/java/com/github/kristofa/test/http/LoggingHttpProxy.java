@@ -9,7 +9,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
@@ -78,7 +77,7 @@ public class LoggingHttpProxy {
         public void handle(final Request request, final Response response) {
 
             try {
-                final FullHttpRequestImpl httpRequest = buildHttpRequest(request);
+                final FullHttpRequest httpRequest = FullHttpRequestBuilder.build(request);
                 FullHttpRequest forwardHttpRequest = null;
                 for (final ForwardHttpRequestBuilder forwardRequestBuilder : requestBuilders) {
                     forwardHttpRequest = forwardRequestBuilder.getForwardRequest(httpRequest);
@@ -136,43 +135,6 @@ public class LoggingHttpProxy {
                 errorResponse(response, UNKNOWN_EXCEPTION_HTTP_CODE, "Exception: " + e.getMessage());
             }
 
-        }
-
-        private FullHttpRequestImpl buildHttpRequest(final Request request) {
-
-            byte[] data = null;
-            try {
-                if (request.getContentLength() > 0) {
-                    final InputStream inputStream = request.getInputStream();
-                    data = IOUtils.toByteArray(inputStream);
-                    inputStream.close();
-                }
-            } catch (final IOException e) {
-                throw new IllegalStateException("Exception when getting request content.", e);
-            }
-
-            final FullHttpRequestImpl httpRequestImpl = new FullHttpRequestImpl();
-            httpRequestImpl.method(Method.valueOf(request.getMethod()));
-            httpRequestImpl.path(request.getPath().getPath());
-            httpRequestImpl.content(data);
-
-            for (final String headerField : request.getNames()) {
-                if (HttpMessageHeaderField.CONTENTTYPE.getValue().equals(headerField)) {
-                    for (final String headerFieldValue : request.getValues(headerField)) {
-                        httpRequestImpl.httpMessageHeader(headerField, headerFieldValue);
-                    }
-                }
-            }
-
-            // domain (host) and port are not important.
-            httpRequestImpl.domain(null);
-            httpRequestImpl.port(null);
-
-            for (final Entry<String, String> entry : request.getQuery().entrySet()) {
-                httpRequestImpl.queryParameter(entry.getKey(), entry.getValue());
-            }
-
-            return httpRequestImpl;
         }
 
         private HttpClientResponse<InputStream> forward(final FullHttpRequest request) throws HttpRequestException {
