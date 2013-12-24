@@ -28,13 +28,19 @@ public class MockHttpServer {
         @Override
         public void handle(final Request req, final Response response) {
 
-            final FullHttpRequest expectedFullRequest = FullHttpRequestBuilder.build(req);
+            final FullHttpRequest receivedFullRequest = FullHttpRequestBuilder.build(req);
             // We need to copy it because HttpResponseProvider works with HttpRequest, not with FullHttpRequest.
             // If we did not copy matching would fail.
-            final HttpRequest expectedRequest = new HttpRequestImpl(expectedFullRequest);
-            final HttpResponse expectedResponse = responseProvider.getResponse(expectedRequest);
+            final HttpRequest receivedRequest = new HttpRequestImpl(receivedFullRequest);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Got request: " + receivedRequest);
+            }
+            final HttpResponse expectedResponse = responseProvider.getResponse(receivedRequest);
 
             if (expectedResponse != null) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Got response for request: " + expectedResponse);
+                }
                 response.setCode(expectedResponse.getHttpCode());
                 if (!StringUtils.isEmpty(expectedResponse.getContentType())) {
                     response.set("Content-Type", expectedResponse.getContentType());
@@ -50,12 +56,13 @@ public class MockHttpServer {
                     LOGGER.error("IOException when getting response content.", e);
                 }
             } else {
+                LOGGER.error("Did receive an unexpected request:" + receivedRequest);
                 response.setCode(noMatchFoundResponseCode);
                 response.set("Content-Type", "text/plain;charset=utf-8");
                 PrintStream body;
                 try {
                     body = response.getPrintStream();
-                    body.print("Received unexpected request " + expectedRequest);
+                    body.print("Received unexpected request " + receivedRequest);
                     body.close();
                 } catch (final IOException e) {
                     LOGGER.error("IOException when writing response content.", e);
