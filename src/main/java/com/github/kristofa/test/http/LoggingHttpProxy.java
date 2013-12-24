@@ -103,7 +103,7 @@ public class LoggingHttpProxy {
                     try {
                         LOGGER.debug("Forward request.");
                         final HttpClientResponse<InputStream> forwardResponse = forward(forwardHttpRequest);
-                        LOGGER.debug("Got response.");
+                        LOGGER.debug("Got response for forward request.");
                         try {
                             final InputStream inputStream = forwardResponse.getResponseEntity();
                             byte[] responseEntity;
