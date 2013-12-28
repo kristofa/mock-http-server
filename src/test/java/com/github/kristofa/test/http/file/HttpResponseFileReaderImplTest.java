@@ -1,4 +1,4 @@
-package com.github.kristofa.test.http;
+package com.github.kristofa.test.http.file;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -9,6 +9,9 @@ import java.io.File;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.github.kristofa.test.http.HttpResponse;
+import com.github.kristofa.test.http.file.HttpResponseFileReaderImpl;
 
 public class HttpResponseFileReaderImplTest {
 

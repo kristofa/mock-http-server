@@ -1,4 +1,4 @@
-package com.github.kristofa.test.http;
+package com.github.kristofa.test.http.file;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -11,6 +11,12 @@ import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.github.kristofa.test.http.HttpRequestImpl;
+import com.github.kristofa.test.http.HttpResponseImpl;
+import com.github.kristofa.test.http.file.HttpRequestFileWriter;
+import com.github.kristofa.test.http.file.HttpRequestResponseFileLogger;
+import com.github.kristofa.test.http.file.HttpResponseFileWriter;
 
 public class HttpRequestResponseFileLoggerTest {
 

@@ -1,8 +1,12 @@
-package com.github.kristofa.test.http;
+package com.github.kristofa.test.http.file;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.Validate;
+
+import com.github.kristofa.test.http.HttpRequestResponseLogger;
+import com.github.kristofa.test.http.HttpRequestResponseLoggerFactory;
+import com.github.kristofa.test.http.LoggingHttpProxy;
 
 /**
  * Factory that creates {@link HttpRequestResponseFileLogger} instances.

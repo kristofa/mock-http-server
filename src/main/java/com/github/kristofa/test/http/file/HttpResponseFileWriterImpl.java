@@ -1,4 +1,4 @@
-package com.github.kristofa.test.http;
+package com.github.kristofa.test.http.file;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import org.apache.commons.io.FileUtils;
+
+import com.github.kristofa.test.http.HttpResponse;
 
 class HttpResponseFileWriterImpl implements HttpResponseFileWriter {
 

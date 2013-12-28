@@ -1,4 +1,4 @@
-package com.github.kristofa.test.http;
+package com.github.kristofa.test.http.file;
 
 /**
  * File name builder which is used by {@link HttpRequestResponseFileLogger}.

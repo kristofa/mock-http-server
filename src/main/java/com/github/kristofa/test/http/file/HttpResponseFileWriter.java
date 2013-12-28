@@ -1,6 +1,8 @@
-package com.github.kristofa.test.http;
+package com.github.kristofa.test.http.file;
 
 import java.io.File;
+
+import com.github.kristofa.test.http.HttpResponse;
 
 /**
  * Writes a {@link HttpResponse} to file.

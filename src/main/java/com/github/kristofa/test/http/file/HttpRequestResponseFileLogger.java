@@ -1,8 +1,12 @@
-package com.github.kristofa.test.http;
+package com.github.kristofa.test.http.file;
 
 import java.io.File;
 
 import org.apache.commons.lang3.Validate;
+
+import com.github.kristofa.test.http.HttpRequest;
+import com.github.kristofa.test.http.HttpRequestResponseLogger;
+import com.github.kristofa.test.http.HttpResponse;
 
 /**
  * {@link HttpRequestResponseLogger} that logs requests/responses to file. For each request/response that is logged it will

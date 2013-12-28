@@ -1,4 +1,4 @@
-package com.github.kristofa.test.http;
+package com.github.kristofa.test.http.file;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -8,6 +8,9 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+
+import com.github.kristofa.test.http.HttpResponseImpl;
+import com.github.kristofa.test.http.file.HttpResponseFileWriterImpl;
 
 public class HttpResponseFileWriterImplTest {
 

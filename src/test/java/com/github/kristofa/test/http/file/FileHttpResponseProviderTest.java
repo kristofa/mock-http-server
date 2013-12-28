@@ -1,4 +1,4 @@
-package com.github.kristofa.test.http;
+package com.github.kristofa.test.http.file;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -8,6 +8,13 @@ import static org.junit.Assert.fail;
 import java.util.Collection;
 
 import org.junit.Test;
+
+import com.github.kristofa.test.http.HttpRequest;
+import com.github.kristofa.test.http.HttpRequestImpl;
+import com.github.kristofa.test.http.HttpResponse;
+import com.github.kristofa.test.http.Method;
+import com.github.kristofa.test.http.UnsatisfiedExpectationException;
+import com.github.kristofa.test.http.file.FileHttpResponseProvider;
 
 public class FileHttpResponseProviderTest {
 

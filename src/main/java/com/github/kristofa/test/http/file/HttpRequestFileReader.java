@@ -1,6 +1,8 @@
-package com.github.kristofa.test.http;
+package com.github.kristofa.test.http.file;
 
 import java.io.File;
+
+import com.github.kristofa.test.http.HttpRequest;
 
 /**
  * Reads a {@link HttpRequest} from file and reconstructs it.

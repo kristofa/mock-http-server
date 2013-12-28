@@ -1,4 +1,4 @@
-package com.github.kristofa.test.http;
+package com.github.kristofa.test.http.file;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -6,6 +6,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.github.kristofa.test.http.HttpRequest;
+import com.github.kristofa.test.http.HttpResponse;
+import com.github.kristofa.test.http.HttpResponseProvider;
+import com.github.kristofa.test.http.LoggingHttpProxy;
+import com.github.kristofa.test.http.UnsatisfiedExpectationException;
 
 /**
  * {@link HttpResponseProvider} that is able to serve responses for requests/responses previously saved by

@@ -1,4 +1,4 @@
-package com.github.kristofa.test.http;
+package com.github.kristofa.test.http.file;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -11,6 +11,12 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.github.kristofa.test.http.HttpMessageHeader;
+import com.github.kristofa.test.http.HttpRequest;
+import com.github.kristofa.test.http.Method;
+import com.github.kristofa.test.http.QueryParameter;
+import com.github.kristofa.test.http.file.HttpRequestFileReaderImpl;
 
 public class HttpRequestFileReaderTest {
 

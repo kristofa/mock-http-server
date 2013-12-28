@@ -1,4 +1,4 @@
-package com.github.kristofa.test.http;
+package com.github.kristofa.test.http.file;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+
+import com.github.kristofa.test.http.HttpRequest;
+import com.github.kristofa.test.http.HttpRequestImpl;
+import com.github.kristofa.test.http.Method;
 
 /**
  * Builds a HttpRequest for which the content is stored on disk. It can reconstruct a HttpRequest which was previously stored

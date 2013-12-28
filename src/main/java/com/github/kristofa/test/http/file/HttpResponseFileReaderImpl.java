@@ -1,4 +1,4 @@
-package com.github.kristofa.test.http;
+package com.github.kristofa.test.http.file;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.commons.io.FileUtils;
+
+import com.github.kristofa.test.http.HttpResponse;
+import com.github.kristofa.test.http.HttpResponseImpl;
 
 /**
  * Builds a {@link HttpResponse} for which the content is stored on disk. It can reconstruct a {@link HttpResponse} which was
