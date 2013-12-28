@@ -26,7 +26,7 @@ import com.github.kristofa.test.http.HttpResponse;
  * @see FileNameBuilder
  * @author kristof
  */
-public class HttpRequestResponseFileLogger implements HttpRequestResponseLogger {
+class HttpRequestResponseFileLogger implements HttpRequestResponseLogger {
 
     private final String directory;
     private final String fileName;
