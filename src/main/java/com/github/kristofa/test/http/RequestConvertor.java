@@ -10,15 +10,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Builds a {@link FullHttpRequest} from a Simple framework {@link Request}.
+ * Converts a Simple framerwork {@link Request} into a {@link FullHttpRequest}.
  * 
  * @author kristof
  */
-class FullHttpRequestBuilder {
+class RequestConvertor {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(FullHttpRequestBuilder.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(RequestConvertor.class);
 
-    public static FullHttpRequest build(final Request request) {
+    public static FullHttpRequest convert(final Request request) {
         byte[] data = null;
         try {
 

@@ -77,7 +77,7 @@ public class LoggingHttpProxy {
         public void handle(final Request request, final Response response) {
 
             try {
-                final FullHttpRequest httpRequest = FullHttpRequestBuilder.build(request);
+                final FullHttpRequest httpRequest = RequestConvertor.convert(request);
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Received request: " + httpRequest);
                 }

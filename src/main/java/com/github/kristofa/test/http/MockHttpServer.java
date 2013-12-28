@@ -28,7 +28,7 @@ public class MockHttpServer {
         @Override
         public void handle(final Request req, final Response response) {
 
-            final FullHttpRequest receivedFullRequest = FullHttpRequestBuilder.build(req);
+            final FullHttpRequest receivedFullRequest = RequestConvertor.convert(req);
             // We need to copy it because HttpResponseProvider works with HttpRequest, not with FullHttpRequest.
             // If we did not copy matching would fail.
             final HttpRequest receivedRequest = new HttpRequestImpl(receivedFullRequest);
