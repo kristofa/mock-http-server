@@ -15,7 +15,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * @author kristof
  * @param <T> Type for response entity.
  */
-public class ApacheHttpClientResponseImpl<T> implements HttpClientResponse<T> {
+class ApacheHttpClientResponseImpl<T> implements HttpClientResponse<T> {
 
     private final int httpCode;
     private final org.apache.http.client.HttpClient httpClient;
