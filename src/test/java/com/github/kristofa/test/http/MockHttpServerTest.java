@@ -270,4 +270,24 @@ public class MockHttpServerTest {
         server.verify();
     }
 
+    @Test
+    public void testQueryParameters() throws ClientProtocolException, IOException {
+        responseProvider.expect(Method.GET, "/query?a=b&b=c").respondWith(200, null, null);
+        final HttpGet req = new HttpGet(baseUrl + "/query?a=b&b=c");
+        final HttpResponse response = client.execute(req);
+
+        assertEquals(200, response.getStatusLine().getStatusCode());
+        assertEquals("", IOUtils.toString(response.getEntity().getContent()));
+    }
+
+    @Test
+    public void testQueryParametersDifferentOrder() throws ClientProtocolException, IOException {
+        responseProvider.expect(Method.GET, "/query?a=b&b=c").respondWith(200, null, null);
+        final HttpGet req = new HttpGet(baseUrl + "/query?b=c&a=b");
+        final HttpResponse response = client.execute(req);
+
+        assertEquals(200, response.getStatusLine().getStatusCode());
+        assertEquals("", IOUtils.toString(response.getEntity().getContent()));
+    }
+
 }
