@@ -19,6 +19,7 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -108,6 +109,25 @@ public class MockHttpServerTest {
 
         // Then the response status is 204
         assertEquals(204, response.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testShouldHandlePutRequests() throws ClientProtocolException, IOException {
+        // Given a mock server configured to respond to a DELETE /test
+        responseProvider.expect(Method.PUT, "/test", "text/plain; charset=UTF-8", "Hello World").respondWith(200,
+            "text/plain", "Welcome");
+
+        // When a request for DELETE /test arrives
+        final HttpPut req = new HttpPut(baseUrl + "/test");
+        req.setEntity(new StringEntity("Hello World", UTF_8));
+        final HttpResponse response = client.execute(req);
+
+        final String responseBody = IOUtils.toString(response.getEntity().getContent());
+        final int statusCode = response.getStatusLine().getStatusCode();
+
+        // Then the response status is 204
+        assertEquals(200, statusCode);
+        assertEquals("Welcome", responseBody);
     }
 
     @Test
