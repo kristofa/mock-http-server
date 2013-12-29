@@ -28,44 +28,54 @@ public class MockHttpServer {
         @Override
         public void handle(final Request req, final Response response) {
 
-            final FullHttpRequest receivedFullRequest = RequestConvertor.convert(req);
-            // We need to copy it because HttpResponseProvider works with HttpRequest, not with FullHttpRequest.
-            // If we did not copy matching would fail.
-            final HttpRequest receivedRequest = new HttpRequestImpl(receivedFullRequest);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Got request: " + receivedRequest);
-            }
-            final HttpResponse expectedResponse = responseProvider.getResponse(receivedRequest);
-
-            if (expectedResponse != null) {
+            try {
+                final FullHttpRequest receivedFullRequest = RequestConvertor.convert(req);
+                // We need to copy it because HttpResponseProvider works with HttpRequest, not with FullHttpRequest.
+                // If we did not copy matching would fail.
+                final HttpRequest receivedRequest = new HttpRequestImpl(receivedFullRequest);
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Got response for request: " + expectedResponse);
+                    LOGGER.debug("Got request: " + receivedRequest);
                 }
-                response.setCode(expectedResponse.getHttpCode());
-                if (!StringUtils.isEmpty(expectedResponse.getContentType())) {
-                    response.set("Content-Type", expectedResponse.getContentType());
-                }
-                OutputStream body = null;
-                try {
-                    body = response.getOutputStream();
-                    if (expectedResponse.getContent() != null) {
-                        body.write(expectedResponse.getContent());
+                final HttpResponse expectedResponse = responseProvider.getResponse(receivedRequest);
+
+                if (expectedResponse != null) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Got response for request: " + expectedResponse);
                     }
-                    body.close();
-                } catch (final IOException e) {
-                    LOGGER.error("IOException when getting response content.", e);
+                    response.setCode(expectedResponse.getHttpCode());
+                    if (!StringUtils.isEmpty(expectedResponse.getContentType())) {
+                        response.set("Content-Type", expectedResponse.getContentType());
+                    }
+                    OutputStream body = null;
+                    try {
+                        body = response.getOutputStream();
+                        if (expectedResponse.getContent() != null) {
+                            body.write(expectedResponse.getContent());
+                        }
+                        body.close();
+                    } catch (final IOException e) {
+                        LOGGER.error("IOException when getting response content.", e);
+                    }
+                } else {
+                    LOGGER.error("Did receive an unexpected request:" + receivedRequest);
+                    response.setCode(noMatchFoundResponseCode);
+                    response.set("Content-Type", "text/plain;charset=utf-8");
+                    PrintStream body;
+                    try {
+                        body = response.getPrintStream();
+                        body.print("Received unexpected request " + receivedRequest);
+                        body.close();
+                    } catch (final IOException e) {
+                        LOGGER.error("IOException when writing response content.", e);
+                    }
                 }
-            } else {
-                LOGGER.error("Did receive an unexpected request:" + receivedRequest);
-                response.setCode(noMatchFoundResponseCode);
-                response.set("Content-Type", "text/plain;charset=utf-8");
-                PrintStream body;
+            } catch (final Exception e) {
+                LOGGER.error("Unexpected exception.", e);
+                response.setCode(exceptionResponseCode);
                 try {
-                    body = response.getPrintStream();
-                    body.print("Received unexpected request " + receivedRequest);
-                    body.close();
-                } catch (final IOException e) {
-                    LOGGER.error("IOException when writing response content.", e);
+                    response.getPrintStream().close();
+                } catch (final IOException e2) {
+                    LOGGER.error("IOException when writing response content.", e2);
                 }
             }
         }
@@ -87,7 +97,8 @@ public class MockHttpServer {
 
     private Connection connection;
 
-    private int noMatchFoundResponseCode = 500;
+    private int noMatchFoundResponseCode = 598;
+    private int exceptionResponseCode = 599;
 
     /**
      * Creates a new instance.
@@ -138,6 +149,15 @@ public class MockHttpServer {
      */
     public void setNoMatchFoundResponseCode(final int code) {
         noMatchFoundResponseCode = code;
+    }
+
+    /**
+     * Allows to set a custom response code to be returned when an unexpected exception happens.
+     * 
+     * @param code HTTP response code to return when an unexpected exception happens.
+     */
+    public void setExceptionResponseCode(final int code) {
+        exceptionResponseCode = code;
     }
 
 }

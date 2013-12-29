@@ -141,8 +141,8 @@ public class MockHttpServerTest {
 
         final HttpResponse response = client.execute(req);
 
-        // Then the response status is 500
-        assertEquals(500, response.getStatusLine().getStatusCode());
+        // Then the response status is 598
+        assertEquals(598, response.getStatusLine().getStatusCode());
     }
 
     @Test
@@ -228,13 +228,13 @@ public class MockHttpServerTest {
     }
 
     @Test
-    public void testShouldRespondWith500WhenNotMatchingAnyRequestExpectation() throws ClientProtocolException, IOException {
+    public void testShouldRespondWith598WhenNotMatchingAnyRequestExpectation() throws ClientProtocolException, IOException {
         responseProvider.expect(Method.GET, "/foo").respondWith(200, "text/plain", "OK");
 
         final HttpGet req = new HttpGet(baseUrl + "/bar");
         final HttpResponse response = client.execute(req);
 
-        assertEquals(500, response.getStatusLine().getStatusCode());
+        assertEquals(598, response.getStatusLine().getStatusCode());
     }
 
     @Test
@@ -250,7 +250,7 @@ public class MockHttpServerTest {
             assertEquals(403, response.getStatusLine().getStatusCode());
         } finally {
             // Set to default value again to make sure potential other tests succeed.
-            server.setNoMatchFoundResponseCode(500);
+            server.setNoMatchFoundResponseCode(598);
         }
     }
 
