@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.github.kristofa.test.http.HttpResponse;
 import com.github.kristofa.test.http.HttpResponseImpl;
@@ -44,7 +45,10 @@ class HttpResponseFileReaderImpl implements HttpResponseFileReader {
             readNextLine(reader, HTTPCODE);
             final int httpCode = Integer.valueOf(reader.readLine());
             readNextLine(reader, CONTENTTYPE);
-            final String contentType = reader.readLine();
+            String contentType = reader.readLine();
+            if (StringUtils.isBlank(contentType)) {
+                contentType = null;
+            }
             byte[] entity = null;
             if (httpResponseEntityFile.exists()) {
                 entity = FileUtils.readFileToByteArray(httpResponseEntityFile);

@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.github.kristofa.test.http.HttpResponse;
-import com.github.kristofa.test.http.file.HttpResponseFileReaderImpl;
 
 public class HttpResponseFileReaderImplTest {
 
@@ -35,12 +34,12 @@ public class HttpResponseFileReaderImplTest {
     }
 
     @Test
-    public void testReadValidFileNoEntity() {
+    public void testReadValidFileNoEntityAndNoContentType() {
         final HttpResponse response =
-            reader.read(new File(TEST_FILE_DIRECTORY, "HttpResponseFileReaderImplTest_valid_file.txt"), new File(
-                TEST_FILE_DIRECTORY, "HttpResponseFileReaderImplTest_no_entity.txt"));
+            reader.read(new File(TEST_FILE_DIRECTORY, "HttpResponseFileReaderImplTest_valid_file_no_contenttype.txt"),
+                new File(TEST_FILE_DIRECTORY, "HttpResponseFileReaderImplTest_no_entity.txt"));
         assertEquals(200, response.getHttpCode());
-        assertEquals("application/json", response.getContentType());
+        assertNull(response.getContentType());
         assertNull(response.getContent());
     }
 
