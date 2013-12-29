@@ -34,6 +34,7 @@ public class FileHttpResponseProvider implements HttpResponseProvider {
     private final HttpRequestFileReader httpRequestFileReader;
     private final HttpResponseFileReader httpResponseFileReader;
     private final List<HttpRequest> unexpectedRequests = new ArrayList<HttpRequest>();
+    private boolean initialized = false;
 
     /**
      * Creates a new instance. Will try to find request/response files and will throw unchecked exception in case:
@@ -69,7 +70,6 @@ public class FileHttpResponseProvider implements HttpResponseProvider {
         this.fileName = fileName;
         httpRequestFileReader = requestFileReader;
         httpResponseFileReader = responseFileReader;
-        init();
     }
 
     /**
@@ -77,6 +77,11 @@ public class FileHttpResponseProvider implements HttpResponseProvider {
      */
     @Override
     public synchronized HttpResponse getResponse(final HttpRequest request) {
+        if (!initialized) {
+            init();
+            initialized = true;
+        }
+
         final List<ResponseProxy> proxyList = requestResponses.get(request);
         if (proxyList != null) {
             final int size = proxyList.size();

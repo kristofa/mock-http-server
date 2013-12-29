@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 import java.util.Collection;
 
@@ -14,16 +15,18 @@ import com.github.kristofa.test.http.HttpRequestImpl;
 import com.github.kristofa.test.http.HttpResponse;
 import com.github.kristofa.test.http.Method;
 import com.github.kristofa.test.http.UnsatisfiedExpectationException;
-import com.github.kristofa.test.http.file.FileHttpResponseProvider;
 
 public class FileHttpResponseProviderTest {
 
     private final static String TEST_FILE_DIRECTORY = "target/test-classes/";
 
     @Test
-    public void testExpectedHttpResponseFileProviderConstructor_NoSingleFileFound() {
+    public void testFileHttpResponseProvider_NoSingleFileFound() {
         try {
-            new FileHttpResponseProvider(TEST_FILE_DIRECTORY, "unexisting");
+            final FileHttpResponseProvider fileHttpResponseProvider =
+                new FileHttpResponseProvider(TEST_FILE_DIRECTORY, "unexisting");
+            final HttpRequest mockRequest = mock(HttpRequest.class);
+            fileHttpResponseProvider.getResponse(mockRequest);
             fail("Expected exception.");
         } catch (final IllegalStateException e) {
             assertEquals(
@@ -33,9 +36,12 @@ public class FileHttpResponseProviderTest {
     }
 
     @Test
-    public void testExpectedHttpResponseFileProviderConstructor_NoResponseFileFound() {
+    public void testFileHttpResponseProvider_NoResponseFileFound() {
         try {
-            new FileHttpResponseProvider(TEST_FILE_DIRECTORY, "ExpectedHttpResponseFileProviderTest_No_Response");
+            final FileHttpResponseProvider fileHttpResponseProvider =
+                new FileHttpResponseProvider(TEST_FILE_DIRECTORY, "ExpectedHttpResponseFileProviderTest_No_Response");
+            final HttpRequest mockRequest = mock(HttpRequest.class);
+            fileHttpResponseProvider.getResponse(mockRequest);
             fail("Expected exception.");
         } catch (final IllegalStateException e) {
             assertEquals(
