@@ -21,8 +21,8 @@ public class HttpMessageHeader implements Comparable<HttpMessageHeader> {
      * @param value Header entry value. Should not be <code>null</code> or blank.
      */
     public HttpMessageHeader(final String name, final String value) {
-        Validate.notBlank(name);
-        Validate.notBlank(value);
+        Validate.notBlank(name, "HttpHeader name is blank.");
+        Validate.notBlank(value, "HttpHeader value for name " + name + " is blank");
 
         this.name = name;
         this.value = value;
