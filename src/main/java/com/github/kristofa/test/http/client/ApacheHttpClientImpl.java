@@ -11,7 +11,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.github.kristofa.test.http.FullHttpRequest;
 import com.github.kristofa.test.http.HttpMessageHeader;
@@ -78,7 +77,8 @@ public class ApacheHttpClientImpl implements HttpClient {
      * @return A new HTTPClient instance.
      */
     /* package */org.apache.http.client.HttpClient getClient() {
-        return new DefaultHttpClient();
+        // We use a Custom implementation because we don't want to modify the requests/responses.
+        return new CustomHttpClient();
     }
 
     private void populateHeader(final FullHttpRequest request, final HttpRequestBase apacheRequest) {
