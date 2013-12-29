@@ -82,7 +82,8 @@ When you want to configure rather simple requests/responses you can use `SimpleH
 as shown in above piece of code. 
 
 MockHttpServer is started by calling `start()` and is stopped by calling `stop()`. 
-
+You can execute `verify()` when your test completed to make sure you got all and only your 
+expected requests. `verify()` will throw an exception when this is not the case.
 
 
 ## Complex request/responses: use LoggingHttpProxy
@@ -93,7 +94,7 @@ We have software that interacts with multiple external services and several of t
 return complex entities as part of their responses. Building those responses by hand in the source files
 might not be the best solution. Also in some cases binary entities are returned.
 
-LoggingHttpProxy is a proxy server that can be configured to sit in between our 'system under test' and
+`LoggingHttpProxy` is a proxy server that can be configured to sit in between our 'system under test' and
 the external services. LoggingHttpProxy is configured to know how to forward requests it receives from
 the 'system under test' to the external services. When it received the answer from the external services it
 will return it to the 'system under test'.
@@ -109,104 +110,122 @@ by MockHttpServer by using `FileHttpResponseProvider`.
 
 ![MockHttpServer](https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver.png)
 
-### Reworking existing integration tests to use MockHttpServer
+### Reworking existing integration tests to persist and replay http requests
 
 We assume that you start from an integration test in which case the software you want to test 
-actually communicates with an external service and the test runs green.
+communicates with an external service and the test runs green. You want to mock the communication
+with the external service as it might be unreliable or even disappear.
 
-First thing to do is configure `LoggingHttpProxy` to sit in between the software you test
-and the external services. See following code example:
+You can use `MockHttpServer` or `LoggingHttpProxy` directly but since 2.0-SNAPSHOT it is advised to
+use `MockAndProxyFacade` which will make it a lot easier. See following code
+example:
 
-    @Test
-    public void testValidRequest() {
+    import static org.junit.Assert.assertEquals;
 
-        final ForwardHttpRequestBuilder forwardHttpRequestBuilder = new ForwardHttpRequestBuilder() {
+    import java.io.IOException;
 
-            @Override
-            public FullHttpRequest getForwardRequest(final FullHttpRequest request) {
-                final FullHttpRequestImpl forwardRequest = new FullHttpRequestImpl(request);
-                if (request.getPath().contains("service1")) {
-                    // Sets host and port for service 1.
-                    forwardRequest.domain("host1"); 
-                    forwardRequest.port(8080);
-                } else {
-                    // service 2, service 3
-                    forwardRequest.domain("host2");
-                    forwardRequest.port(8080);
-                }
+	import org.apache.http.HttpResponse;
+	import org.apache.http.client.HttpClient;
+	import org.apache.http.client.methods.HttpGet;
+	import org.apache.http.impl.client.DefaultHttpClient;
+	import org.junit.Test;
 
-                return forwardRequest;
-            }
-        };
+	import com.github.kristofa.test.http.MockAndProxyFacade.Builder;
+	import com.github.kristofa.test.http.MockAndProxyFacade.Mode;
+	import com.github.kristofa.test.http.file.FileHttpResponseProvider;
+	import com.github.kristofa.test.http.file.HttpRequestResponseFileLoggerFactory;
 
-        proxy =
-            new LoggingHttpProxy(PROXY_PORT, Arrays.asList(forwardHttpRequestBuilder),
-                new HttpRequestResponseFileLoggerFactory("src/test/resources/",
-                    "ITService_testValidRequest"));
-        proxy.start();        
-        try
-        {
-        	// Execute test specific code.
-        	// The test code should be configured to have http requests submitted to our 
-        	// proxy implementation.
-        	// Request / responses will be persisted into src/test/resources/
-        }
-        finally
-        {
-          proxy.stop();
-        }
-        
-    } 
+	public class MockHttpRequestTest {
 
-    
-The code above shows that `LoggingHttpProxy` is configured and started before the actual
-test code is executed. What is not visible in the code is that the test code should get
-configured to submit http requests to our proxy instead of to the original services.
+		// Host of original service. Service which we in the end want to replace with our mock implementation.
+		private final static String SERVICE_HOST = "host.domain";
+		// Port for host.
+		private final static int SERVICE_PORT = 8080;
+		// The port at which our mock or proxy will be running.
+		private final static int MOCK_AND_PROXY_PORT = 51235;
+		private final static String MOCK_PROXY_URL = "http://localhost:" + MOCK_AND_PROXY_PORT;
 
-`LoggingHttpProxy` will forward the requests to the different services (see the creation 
-of the `ForwardHttpRequestBuilder`) and log the request/responses in src/test/resources in
-files that include the name of the test (see the creation of `HttpResponseFileLoggerFactory`).
+		// Requests and responses will be logged to src/test/resources.
+		// This is what you typically want to do and check them in with your source code.
+		private final static String REQUEST_LOG_DIR = "src/test/resources/";
+		// We make sure our persisted request/responses have a unique name. Name of test class
+		// is probably a good choice.
+		private final static String REQUEST_LOG_FILE_NAME = "MockHttpRequestTest";
 
-When you run the test it is expected to still run green but the different request/responses
-should be persisted in src/test/resources.
+		@Test
+		public void test() throws IOException, UnsatisfiedExpectationException {
+			// Initially you will want to log your existing requests. So you can put it to Mode.LOGGING.
+			// Once they are logged you can switch to MOCKING to replay persisted requests/responses.
+			// Changing this mode is the only thing you need to do. Your remaining test code stays the same.
+			final MockAndProxyFacade facade = buildFacade(Mode.LOGGING);
+			facade.start();
+			try {
+				// Execute your test code that will exercise mock or proxy depending on mode of operation for our facade.
 
-Next you can update the code to look like this:
+				final HttpClient httpClient = new DefaultHttpClient();
+				try {
+					final HttpGet req1 = new HttpGet(MOCK_PROXY_URL + "/service/a");
+					final HttpResponse response1 = httpClient.execute(req1);
+					assertEquals(200, response1.getStatusLine().getStatusCode());
+				} finally {
+					httpClient.getConnectionManager().shutdown();
+				}
 
-    @Test
-    public void testValidRequest() {
+				// Verify that we got all and only the requests we expected.
+				facade.verify();
+			} finally {
+				facade.stop();
+			}
 
-        mockServer =
-            new MockHttpServer(PROXY_PORT, new FileHttpResponseProvider("src/test/resources/",
-                "ITService_testValidRequest"));
-        mockServer.start();
-        try
-        {
-        	// Execute test specific code.
-        	// The test code should be configured to have http requests submitted to our 
-        	// mock implementation. Requests/Responses previously persisted 
-        	// using LoggingHttpProxy in src/test/resources will be served up. 
-        	
-        }
-        finally
-        {
-          mockServer.stop();
-        }
-        
-    } 
+		}
 
-By configuring `MockHttpServer` to use `FileHttpResponseProvider` we can replay the
-requests/responses previously persisted using `LoggingHttpProxy`. Notice that we configure
-`FileHttpResponseProvider` in the same way as `HttpRequestResponseFileLoggerFactory` 
-before (same directory, same file name). Both use the same naming convention and format
-for reading/writing http requests/responses.  You can check in your test code like this
-and from that moment on you don't rely on external services anymore.
+		private MockAndProxyFacade buildFacade(final Mode mode) {
+			final Builder builder = new Builder();
+			return builder
+				.mode(mode)
+				.addForwardHttpRequestBuilder(new PassthroughForwardHttpRequestBuilder(SERVICE_HOST, SERVICE_PORT))
+				.httpRequestResponseLoggerFactory(
+					new HttpRequestResponseFileLoggerFactory(REQUEST_LOG_DIR, REQUEST_LOG_FILE_NAME)).port(MOCK_AND_PROXY_PORT)
+				.httpResponseProvider(new FileHttpResponseProvider(REQUEST_LOG_DIR, REQUEST_LOG_FILE_NAME)).build();
+		}
+
+	}
+
+Important: You can't copy and run this code as is. It compiles and is valid but the http request will fail as there is no service at http://host.domain:8080. It is just an example
+for you to reuse.
+
+This code example shows the usage of `MockAndProxyFacade`. This is a facade around `MockHttpServer` and `LoggingHttpProxy` and has as
+purpose to switch between both with as least impact on test code as possible.
+
+As you can see in the `buildFade(Mode)` method the MockAndProxyFacade is created using a Builder. The Builder handles configuration for both Logging as Mocking mode.
+
+Mandatory Builder parameters (required for both mocking and logging modes):
+
++   Mode: The mode needs to be defined and is either Mode.LOGGING or Mode.MOCKING
++   Port: The port at which the mock or proxy will listen.
+
+Builder parameters mandatory for LOGGING mode:
+
++   ForwardHttpRequestBuilder: Is responsible for creating a forward request for incoming requests in LoggingHttpProxy. In our example we use `PassthroughForwardHttpRequestBuilder` which
+simply adapts the host and port to the service we want to mock. This is what we want to typically do.
++   HttpRequestResponseLoggerFactory: This factory create `HttpRequestResponseLogger` instances that will be used to log requests/responses. In this 
+example we use and `HttpRequestResponseFileLoggerFactory` which will persist them to disk so we can replay them with MockHttpServer.
+
+Builder parameters mandatory for MOCKING mode:
+
++   HttpResponseProvider: Provides responses for expected requests. In our example we use `FileHttpResponseProvider` which will use the requests/responses 
+persisted by `HttpRequestResponseFileLoggerFactory`. Notice `HttpRequestResponseFileLoggerFactory` and `FileHttpResponseProvider` are configured with same directory and filename
+values.  This will make sure FileHttpResponseProvider will pick up requests/responses persisted during LOGGING mode.
+
+So if we want to switch between mocking and logging mode, because we expect our depend service is changed, we can simply change the mode parameter we pass to the `buildFade(Mode)`
+method. The remaining test code and logic stays the same.
 
 Advantages of this approach:
 
 +   By having the requests/responses of external services persisted and versioned
 with the code our tests keep on functioning also if the external services change over 
 time.
-+   Decoupling our code from externally deployed services.
++   Decoupling our code from externally deployed services and having everything under version control.
 +   The tests typically should run faster as the logic of MockHttpServer to serve up 
 responses is easy and typically faster than the real services.
 +   Persisted requests/responses are copies from the requests/responses with the real
