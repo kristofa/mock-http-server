@@ -216,15 +216,20 @@ services so no chance of mistakes by manually creating requests/responses.
 
 ### 2.0-SNAPSHOT ###
 
-Version bump because the changes explained in first bullet point can lead to failing tests that worked with 1.3 or earlier.
+Version bump because the changes explained in 1st, 2nd and 3rd main bullet points can lead to failing tests that worked with 1.3 or earlier.
 The api is still the same but the behaviour is different.
 
-+   Bring `MockHttpServer` and `LoggingHttpProxy` in line (by sharing code and removing some code duplication).
++   Bugfix: Bring `MockHttpServer` and `LoggingHttpProxy` in line (by sharing code and removing some code duplication).
       +   Do not filter http headers anymore in LoggingHttpProxy.
       +   Support request entities for which content length is not provided in LoggingHttpProxy.
++   Change default response code of `MockHttpServer` that indicates no matching request is found from 500 to 598.
++   Introduce and use a custom http client in `LoggingHttpProxy` so that original requests/responses are not modified. Previously some http headers could be added when they were not provided for example User-Agent.
++   Bugfix: `HttpRequestFileReaderImpl` supports message headers / key value pairs with multiple 'equal signs'. We now support for example: ContentType=application/json; charset=UTF-8.
++   Bugfix: `HttpResponseFileWriterImpl` supports responses without Content-Type.
++   Improve robustness of `MockHttpServer` by catching any exception that occurs, log it, and return specific response code which is configurable (default=599).
 +   Add some error and debug log messages in both MockHttpSever and LoggingHttpProxy. This should improve debugging of unexpected requests.
-+   TODO: Integration tests between MockHttpServer and LoggingHttpProxy.
-+   TODO: Api that makes it easier to switch between logging of requests and run in 'mock mode'.
++   Update FileHttpResponseProvider to use lazy initialization. This is needed to get it working with MockAndProxyFacade.
++   New: Introduce `MockAndProxyFacade` which makes it a lot more easy to switch between 'logging request' mode and 'mocking' mode. There is an integration test `ITMockAndProxyFacade` that shows how it works.
 
 ### 1.3 - 14th of July 2013 ###
 
