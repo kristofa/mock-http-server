@@ -104,9 +104,9 @@ public class MockHttpServer {
     /**
      * Starts the server.
      * 
-     * @throws Exception In case starting fails.
+     * @throws IOException In case starting fails.
      */
-    public void start() throws Exception {
+    public void start() throws IOException {
         handler = new ExpectationHandler();
         connection = new SocketConnection(handler);
         final SocketAddress address = new InetSocketAddress(port);
@@ -116,9 +116,9 @@ public class MockHttpServer {
     /**
      * Closes the server.
      * 
-     * @throws Exception In case closing fails.
+     * @throws IOException In case closing fails.
      */
-    public void stop() throws Exception {
+    public void stop() throws IOException {
         connection.close();
     }
 
