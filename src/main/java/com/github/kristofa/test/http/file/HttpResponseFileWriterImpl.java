@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.github.kristofa.test.http.HttpResponse;
 
@@ -36,7 +37,9 @@ class HttpResponseFileWriterImpl implements HttpResponseFileWriter {
 
             writer.write("[ContentType]");
             writer.newLine();
-            writer.write(httpResponse.getContentType());
+            if (!StringUtils.isBlank(httpResponse.getContentType())) {
+                writer.write(httpResponse.getContentType());
+            }
             writer.newLine();
         } finally {
             writer.close();
