@@ -92,15 +92,14 @@ class HttpRequestFileReaderImpl implements HttpRequestFileReader {
     private String readKeyValuePairs(final BufferedReader reader, final List<KeyValuePair> properties) throws IOException {
         String newLine = null;
         while ((newLine = reader.readLine()) != null) {
-            if (newLine.indexOf("=") != -1) {
-                final String[] split = newLine.split("=");
+            final int equalSignIndex = newLine.indexOf("=");
+            if (equalSignIndex != -1) {
                 final KeyValuePair pair = new KeyValuePair();
-                if (split.length == 2) {
-                    pair.key = split[0];
-                    pair.value = split[1];
+                if (newLine.length() > equalSignIndex + 1) {
+                    pair.key = newLine.substring(0, equalSignIndex);
+                    pair.value = newLine.substring(equalSignIndex + 1);
                 } else {
-                    // Expect length to be 1. Key with empty value.
-                    pair.key = split[0];
+                    pair.key = newLine.substring(0, equalSignIndex);
                     pair.value = "";
                 }
                 properties.add(pair);

@@ -16,7 +16,6 @@ import com.github.kristofa.test.http.HttpMessageHeader;
 import com.github.kristofa.test.http.HttpRequest;
 import com.github.kristofa.test.http.Method;
 import com.github.kristofa.test.http.QueryParameter;
-import com.github.kristofa.test.http.file.HttpRequestFileReaderImpl;
 
 public class HttpRequestFileReaderTest {
 
@@ -39,7 +38,7 @@ public class HttpRequestFileReaderTest {
         assertEquals("/a/b", request.getPath());
         final Set<HttpMessageHeader> httpMessageHeaders = request.getHttpMessageHeaders();
         assertEquals(2, httpMessageHeaders.size());
-        assertTrue(httpMessageHeaders.contains(new HttpMessageHeader("Content-Type", "application/json")));
+        assertTrue(httpMessageHeaders.contains(new HttpMessageHeader("Content-Type", "application/json; charset=UTF-8")));
         assertTrue(httpMessageHeaders.contains(new HttpMessageHeader("Agent", "Eclipse")));
         final Set<QueryParameter> queryParameters = request.getQueryParameters();
         assertEquals(3, queryParameters.size());
@@ -59,7 +58,7 @@ public class HttpRequestFileReaderTest {
         assertEquals("/a/b", request.getPath());
         final Set<HttpMessageHeader> httpMessageHeaders = request.getHttpMessageHeaders();
         assertEquals(2, httpMessageHeaders.size());
-        assertTrue(httpMessageHeaders.contains(new HttpMessageHeader("Content-Type", "application/json")));
+        assertTrue(httpMessageHeaders.contains(new HttpMessageHeader("Content-Type", "application/json; charset=UTF-8")));
         assertTrue(httpMessageHeaders.contains(new HttpMessageHeader("Agent", "Eclipse")));
         final Set<QueryParameter> queryParameters = request.getQueryParameters();
         assertEquals(3, queryParameters.size());
