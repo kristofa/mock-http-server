@@ -37,7 +37,7 @@ public class ITMockAndProxyFacade {
     private static final String MOCK_PROXY_URL = "http://localhost:" + MOCK_PROXY_PORT;
 
     @Test
-    public void testLoggingAndMocking() throws IOException {
+    public void testLoggingAndMocking() throws IOException, UnsatisfiedExpectationException {
 
         // First log requests.
         logging();
@@ -75,11 +75,12 @@ public class ITMockAndProxyFacade {
         }
     }
 
-    private void mocking() throws IOException {
+    private void mocking() throws IOException, UnsatisfiedExpectationException {
         final MockAndProxyFacade mockingFacade = buildFacade(Mode.MOCKING);
         mockingFacade.start();
         try {
             executeAndVerifyRequests();
+            mockingFacade.verify(); // Verify that we got all and only the requests we expected.
         } finally {
             mockingFacade.stop();
         }
