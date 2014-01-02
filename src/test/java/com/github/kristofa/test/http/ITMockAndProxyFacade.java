@@ -13,6 +13,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
 import com.github.kristofa.test.http.MockAndProxyFacade.Builder;
@@ -24,6 +25,8 @@ import com.github.kristofa.test.http.file.HttpRequestResponseFileLoggerFactory;
  * Integration test that shows the usage of {@link MockAndProxyFacade}. </p> It first executes some requests after starting
  * {@link MockAndProxyFacade} in {@link Mode#LOGGING} mode. The requests will get logged to disk. Next it executes the same
  * requests but in {@link Mode#MOCKING} mode so the earlier persisted responses will be returned.
+ * <p/>
+ * It also assures the integration between {@link MockHttpServer} and {@link LoggingHttpProxy}.
  * 
  * @author kristof
  */
@@ -104,6 +107,14 @@ public class ITMockAndProxyFacade {
             req3.setEntity(new StringEntity("{}", ContentType.APPLICATION_JSON));
             final HttpResponse response3 = httpClient.execute(req3);
             assertEquals(201, response3.getStatusLine().getStatusCode());
+            EntityUtils.consumeQuietly(response3.getEntity());
+
+            // Same as request 2 but query parameters in different order.
+            final HttpGet req4 = new HttpGet(MOCK_PROXY_URL + "/service/b?e=f&c=d");
+            final HttpResponse response4 = httpClient.execute(req4);
+            assertEquals(200, response4.getStatusLine().getStatusCode());
+            assertEquals("EFG1234", IOUtils.toString(response4.getEntity().getContent()));
+
         } finally {
             httpClient.getConnectionManager().shutdown();
         }
