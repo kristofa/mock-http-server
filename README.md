@@ -6,7 +6,7 @@ following dependency in your pom.xml:
     <dependency>
         <groupId>com.github.kristofa</groupId>
         <artifactId>mock-http-server</artifactId>
-        <version>1.3</version>
+        <version>2.0</version>
         <scope>test</scope>
     </dependency>
 
@@ -233,7 +233,7 @@ services so no chance of mistakes by manually creating requests/responses.
 
 ## Changelog ##
 
-### 2.0-SNAPSHOT ###
+### 2.0 - 2nd of January 2014 ###
 
 Version bump because the changes explained in 1st, 2nd and 3rd main bullet points can lead to failing tests that worked with 1.3 or earlier.
 The api is still the same but the behaviour is different.
