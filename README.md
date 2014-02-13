@@ -6,7 +6,7 @@ following dependency in your pom.xml:
     <dependency>
         <groupId>com.github.kristofa</groupId>
         <artifactId>mock-http-server</artifactId>
-        <version>2.0</version>
+        <version>3.0</version>
         <scope>test</scope>
     </dependency>
 
