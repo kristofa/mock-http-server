@@ -233,4 +233,10 @@ public class SimpleHttpResponseProvider implements HttpResponseProvider {
 
     }
 
+    @Override
+    public void addMatcher(final HttpRequestMatcher matcher) {
+        throw new UnsupportedOperationException("This HttpResponseProvider does not support custom matchers.");
+
+    }
+
 }

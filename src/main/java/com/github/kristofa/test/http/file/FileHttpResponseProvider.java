@@ -3,11 +3,13 @@ package com.github.kristofa.test.http.file;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.github.kristofa.test.http.DefaultHttpRequestMatcher;
 import com.github.kristofa.test.http.HttpRequest;
+import com.github.kristofa.test.http.HttpRequestMatcher;
 import com.github.kristofa.test.http.HttpResponse;
 import com.github.kristofa.test.http.HttpResponseProvider;
 import com.github.kristofa.test.http.LoggingHttpProxy;
@@ -30,7 +32,8 @@ public class FileHttpResponseProvider implements HttpResponseProvider {
 
     private final String directory;
     private final String fileName;
-    private final Map<HttpRequest, List<ResponseProxy>> requestResponses = new HashMap<HttpRequest, List<ResponseProxy>>();
+    private final List<Pair<HttpRequestMatcher, List<ResponseProxy>>> requestMatchers =
+        new ArrayList<Pair<HttpRequestMatcher, List<ResponseProxy>>>();
     private final HttpRequestFileReader httpRequestFileReader;
     private final HttpResponseFileReader httpResponseFileReader;
     private final List<HttpRequest> unexpectedRequests = new ArrayList<HttpRequest>();
@@ -82,26 +85,38 @@ public class FileHttpResponseProvider implements HttpResponseProvider {
             initialized = true;
         }
 
-        final List<ResponseProxy> proxyList = requestResponses.get(request);
-        if (proxyList != null) {
-            final int size = proxyList.size();
-            for (int index = 0; index < size; index++) {
-                final ResponseProxy responseProxy = proxyList.get(index);
-                if (responseProxy.requested == false) {
-                    final File responseFile =
-                        new File(directory, FileNameBuilder.RESPONSE_FILE_NAME.getFileName(fileName, responseProxy.seqNr));
-                    final File responseEntityFile =
-                        new File(directory, FileNameBuilder.RESPONSE_ENTITY_FILE_NAME.getFileName(fileName,
-                            responseProxy.seqNr));
-                    responseProxy.requested = true;
-                    return httpResponseFileReader.read(responseFile, responseEntityFile);
+        for (final Pair<HttpRequestMatcher, List<ResponseProxy>> pair : requestMatchers) {
+            if (pair.getLeft().match(request)) {
+                final List<ResponseProxy> proxyList = pair.getRight();
+                final int size = proxyList.size();
+                for (int index = 0; index < size; index++) {
+                    final ResponseProxy responseProxy = proxyList.get(index);
+                    if (responseProxy.requested == false) {
+                        final File responseFile =
+                            new File(directory,
+                                FileNameBuilder.RESPONSE_FILE_NAME.getFileName(fileName, responseProxy.seqNr));
+                        final File responseEntityFile =
+                            new File(directory, FileNameBuilder.RESPONSE_ENTITY_FILE_NAME.getFileName(fileName,
+                                responseProxy.seqNr));
+                        responseProxy.requested = true;
+                        final HttpResponse originalResponse = httpResponseFileReader.read(responseFile, responseEntityFile);
+                        return pair.getLeft().getResponse(request, originalResponse);
+                    }
                 }
             }
-            unexpectedRequests.add(request);
-        } else {
-            unexpectedRequests.add(request);
         }
+        unexpectedRequests.add(request);
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addMatcher(final HttpRequestMatcher matcher) {
+        final List<ResponseProxy> proxyList = new ArrayList<ResponseProxy>();
+        final Pair<HttpRequestMatcher, List<ResponseProxy>> of = Pair.of(matcher, proxyList);
+        requestMatchers.add(0, of);
     }
 
     /**
@@ -110,11 +125,11 @@ public class FileHttpResponseProvider implements HttpResponseProvider {
     @Override
     public void verify() throws UnsatisfiedExpectationException {
         final Collection<HttpRequest> missingRequests = new ArrayList<HttpRequest>();
-        for (final HttpRequest request : requestResponses.keySet()) {
-            final List<ResponseProxy> responseProxies = requestResponses.get(request);
+        for (final Pair<HttpRequestMatcher, List<ResponseProxy>> pair : requestMatchers) {
+            final List<ResponseProxy> responseProxies = pair.getRight();
             for (final ResponseProxy responseProxy : responseProxies) {
                 if (!responseProxy.requested) {
-                    missingRequests.add(request);
+                    missingRequests.add(responseProxy.request);
                 }
             }
         }
@@ -152,21 +167,31 @@ public class FileHttpResponseProvider implements HttpResponseProvider {
         final File requestEntityFile =
             new File(directory, FileNameBuilder.REQUEST_ENTITY_FILE_NAME.getFileName(fileName, seqNr));
         final HttpRequest request = httpRequestFileReader.read(requestFile, requestEntityFile);
+        boolean matched = false;
         final ResponseProxy responseProxy = new ResponseProxy();
+        responseProxy.request = request;
         responseProxy.seqNr = seqNr;
         responseProxy.requested = false;
-        final List<ResponseProxy> responseProxies = requestResponses.get(request);
-        if (responseProxies == null) {
-            final List<ResponseProxy> newResponseProxyList = new ArrayList<FileHttpResponseProvider.ResponseProxy>();
-            newResponseProxyList.add(responseProxy);
-            requestResponses.put(request, newResponseProxyList);
-        } else {
-            responseProxies.add(responseProxy);
+        for (final Pair<HttpRequestMatcher, List<ResponseProxy>> pair : requestMatchers) {
+            if (pair.getLeft().match(request)) {
+                pair.getRight().add(responseProxy);
+                matched = true;
+                break;
+            }
         }
+        if (!matched) {
+            final HttpRequestMatcher matcher = new DefaultHttpRequestMatcher(request);
+            final List<ResponseProxy> proxyList = new ArrayList<ResponseProxy>();
+            proxyList.add(responseProxy);
+            requestMatchers.add(Pair.of(matcher, proxyList));
+
+        }
+
     }
 
     private class ResponseProxy {
 
+        public HttpRequest request;
         public int seqNr;
         public boolean requested;
 

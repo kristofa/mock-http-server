@@ -19,6 +19,15 @@ public interface HttpResponseProvider {
     HttpResponse getResponse(final HttpRequest request);
 
     /**
+     * Adds a {@link HttpRequestMatcher}. A matcher can be added if you want to take into account variable content in some of
+     * the requests. By default HttpResponseProviders will only exactly match requests. You can however provide custom
+     * matchers which take into account the variable content and still match.
+     * 
+     * @param matcher {@link HttpRequestMatcher}
+     */
+    void addMatcher(final HttpRequestMatcher matcher);
+
+    /**
      * Should be executed when all requests have been submitted. Checks if all expected requests have been requested.
      * 
      * @throws UnsatisfiedExpectationException In case expectation were not as expected. See

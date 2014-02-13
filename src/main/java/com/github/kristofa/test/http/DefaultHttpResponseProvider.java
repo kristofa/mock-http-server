@@ -1,11 +1,12 @@
 package com.github.kristofa.test.http;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * A {@link HttpResponseProvider} that supports http request with all properties. It supports any http header you define as
@@ -16,8 +17,11 @@ import java.util.Set;
 public class DefaultHttpResponseProvider implements HttpResponseProvider {
 
     private final boolean ignoreAdditionalHeaders;
-    private final Map<HttpRequest, HttpResponse> expectedRequests = new HashMap<HttpRequest, HttpResponse>();
+    private final List<Pair<Pair<HttpRequestMatcher, HttpRequest>, HttpResponse>> requestsAndResponses =
+        new ArrayList<Pair<Pair<HttpRequestMatcher, HttpRequest>, HttpResponse>>();
     private final Set<HttpRequest> receivedRequests = new HashSet<HttpRequest>();
+    private final Set<HttpRequest> expectedRequests = new HashSet<HttpRequest>();
+    private final Collection<HttpRequestMatcher> customMatchers = new ArrayList<HttpRequestMatcher>();
 
     /**
      * Creates a new instance.
@@ -38,7 +42,25 @@ public class DefaultHttpResponseProvider implements HttpResponseProvider {
      * @param response Response that should be returned for given request.
      */
     public void set(final HttpRequest request, final HttpResponse response) {
-        expectedRequests.put(request, response);
+        expectedRequests.add(request);
+        HttpRequestMatcher matcher = null;
+
+        for (final HttpRequestMatcher customMatcher : customMatchers) {
+            if (customMatcher.match(request)) {
+                matcher = customMatcher;
+                break;
+            }
+        }
+
+        if (matcher == null) {
+            if (ignoreAdditionalHeaders) {
+                matcher = new IgnoreAdditionalHeadersHttpRequestMatcher(request);
+            } else {
+                matcher = new DefaultHttpRequestMatcher(request);
+            }
+
+        }
+        requestsAndResponses.add(Pair.of(Pair.of(matcher, request), response));
     }
 
     /**
@@ -47,17 +69,14 @@ public class DefaultHttpResponseProvider implements HttpResponseProvider {
     @Override
     public HttpResponse getResponse(final HttpRequest request) {
 
-        final HttpResponse httpResponse = expectedRequests.get(request);
-        if (ignoreAdditionalHeaders && httpResponse == null) {
-            final HttpResponse response = findAndIgnoreAdditionalHeaders(request);
-            if (response == null) {
-                receivedRequests.add(request);
+        for (final Pair<Pair<HttpRequestMatcher, HttpRequest>, HttpResponse> pair : requestsAndResponses) {
+            if (pair.getLeft().getLeft().match(request)) {
+                receivedRequests.add(pair.getLeft().getRight());
+                return pair.getLeft().getLeft().getResponse(request, pair.getRight());
             }
-            return response;
-        } else {
-            receivedRequests.add(request);
         }
-        return httpResponse;
+        receivedRequests.add(request);
+        return null;
     }
 
     /**
@@ -65,11 +84,11 @@ public class DefaultHttpResponseProvider implements HttpResponseProvider {
      */
     @Override
     public void verify() throws UnsatisfiedExpectationException {
-        if (!expectedRequests.keySet().equals(receivedRequests)) {
+        if (!expectedRequests.equals(receivedRequests)) {
 
             final Collection<HttpRequest> missing = new HashSet<HttpRequest>();
 
-            for (final HttpRequest expectedRequest : expectedRequests.keySet()) {
+            for (final HttpRequest expectedRequest : expectedRequests) {
                 if (!receivedRequests.contains(expectedRequest)) {
                     missing.add(expectedRequest);
                 }
@@ -77,7 +96,7 @@ public class DefaultHttpResponseProvider implements HttpResponseProvider {
 
             final Collection<HttpRequest> unexpected = new HashSet<HttpRequest>();
             for (final HttpRequest receivedRequest : receivedRequests) {
-                if (!expectedRequests.keySet().contains(receivedRequest)) {
+                if (!expectedRequests.contains(receivedRequest)) {
                     unexpected.add(receivedRequest);
                 }
             }
@@ -88,38 +107,12 @@ public class DefaultHttpResponseProvider implements HttpResponseProvider {
 
     }
 
-    private HttpResponse findAndIgnoreAdditionalHeaders(final HttpRequest request) {
-        for (final HttpRequest expectedRequest : expectedRequests.keySet()) {
-            if (expectedRequest == request) {
-                receivedRequests.add(expectedRequest);
-                return expectedRequests.get(expectedRequest);
-            }
-            if (!Arrays.equals(expectedRequest.getContent(), request.getContent())) {
-                continue;
-            }
-            if (expectedRequest.getMethod() != request.getMethod()) {
-                continue;
-            }
-            if (expectedRequest.getPath() == null) {
-                if (request.getPath() != null) {
-                    continue;
-                }
-            } else if (!expectedRequest.getPath().equals(request.getPath())) {
-                continue;
-            }
-            if (!expectedRequest.getQueryParameters().equals(request.getQueryParameters())) {
-                continue;
-            }
-
-            if (!request.getHttpMessageHeaders().containsAll(expectedRequest.getHttpMessageHeaders())) {
-                // The input request should at least contain all headers from the expected request.
-                continue;
-            }
-            receivedRequests.add(expectedRequest);
-            return expectedRequests.get(expectedRequest);
-
-        }
-        return null;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addMatcher(final HttpRequestMatcher matcher) {
+        customMatchers.add(matcher);
     }
 
 }
