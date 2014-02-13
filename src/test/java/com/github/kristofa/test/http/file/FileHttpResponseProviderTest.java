@@ -1,6 +1,7 @@
 package com.github.kristofa.test.http.file;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -12,7 +13,9 @@ import org.junit.Test;
 
 import com.github.kristofa.test.http.HttpRequest;
 import com.github.kristofa.test.http.HttpRequestImpl;
+import com.github.kristofa.test.http.HttpRequestMatcher;
 import com.github.kristofa.test.http.HttpResponse;
+import com.github.kristofa.test.http.HttpResponseImpl;
 import com.github.kristofa.test.http.Method;
 import com.github.kristofa.test.http.UnsatisfiedExpectationException;
 
@@ -125,7 +128,52 @@ public class FileHttpResponseProviderTest {
             assertEquals("expectedRequest1 is expected to be submitted twice so it should be twice in collection.", 2, count);
 
         }
-
     }
 
+    @Test
+    public void testCustomMatcher() {
+        final FileHttpResponseProvider responseProvider =
+            new FileHttpResponseProvider(TEST_FILE_DIRECTORY, "FileHttpResponseProviderTest");
+        final HttpRequestMatcher matcher = new HttpRequestMatcher() {
+
+            @Override
+            public boolean match(final HttpRequest request) {
+                if (!request.getPath().equals("/a/b")) {
+                    return false;
+                }
+                return true;
+            }
+
+            @Override
+            public HttpResponse getResponse(final HttpRequest request, final HttpResponse originalResponse) {
+                return new HttpResponseImpl(201, "application/json", null);
+            }
+
+        };
+        responseProvider.addMatcher(matcher);
+
+        final HttpRequestImpl request1 = new HttpRequestImpl();
+        request1.path("/a/b");
+        request1.httpMessageHeader("custom", "value");
+
+        final HttpResponse response1 = responseProvider.getResponse(request1);
+        assertNotNull("We expect matcher to be kicked in and provided response.", response1);
+        assertEquals("We expect custom response.", 201, response1.getHttpCode());
+
+        final HttpRequestImpl request2 = new HttpRequestImpl();
+        request2.path("/a/c");
+        request2.httpMessageHeader("custom", "value");
+        assertNull("for /a/c we need exact match.", responseProvider.getResponse(request2));
+
+        final HttpRequestImpl request3 = new HttpRequestImpl();
+        request3.method(Method.GET);
+        request3.path("/a/c");
+        request3.httpMessageHeader("Content-Type", "application/json");
+        request3.queryParameter("a", "1");
+
+        final HttpResponse response3 = responseProvider.getResponse(request3);
+        assertNotNull("We expected exact match to have worked.", response3);
+        assertEquals(200, response3.getHttpCode());
+
+    }
 }
