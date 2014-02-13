@@ -233,6 +233,13 @@ services so no chance of mistakes by manually creating requests/responses.
 
 ## Changelog ##
 
+### 3.0 - 13th of February 2014 ###
+
+Major version bump because `HttpResponseProvider` interface has a new method.
+
++   New: Introduce `HttpRequestMatcher` which allows you to match http request which have variable content and which don't match by default.
+You can add custom HttpRequestMatcher instances to HttpResponseProviders which will than be used to match taking into account variable content.
+
 ### 2.0 - 2nd of January 2014 ###
 
 Version bump because the changes explained in 1st, 2nd and 3rd main bullet points can lead to failing tests that worked with 1.3 or earlier.
