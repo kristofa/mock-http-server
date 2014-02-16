@@ -1,14 +1,14 @@
 package com.github.kristofa.test.http;
 
 /**
- * Potentially http responses can be large and they are only needed when the corresponding http request matched. So we don't
- * need and don't want to keep all responses for expected http requests in memory.
+ * Http responses can be large and they are only needed when the corresponding http request matched. So we don't need and
+ * don't want to keep all responses for expected http requests in memory.
  * <p/>
  * This proxy knows how to fetch and build the http response but does not necessary keep it in memory. It can fetch the
  * response lazily.
  * <p/>
- * It also keeps track if the response is already been returned. In that way we can avoid that same response is returned
- * multiple times and we can support different responses for same request.
+ * It also keeps track if the response has already been requested before In that way we can avoid that same response is
+ * returned multiple times and we can support different responses for same request.
  * 
  * @author kristof
  * @see AbstractHttpResponseProvider
