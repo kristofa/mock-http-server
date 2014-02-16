@@ -7,15 +7,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.github.kristofa.test.http.file.FileHttpResponseProvider;
+
 /**
  * Abstract {@link HttpResponseProvider} that contains the basic functionality any HttpResponseProvider should have:
  * <ul>
  * <li>Exactly matching HttpRequests</li>
- * <li>In case of non exact match used provided {@link HttpRequestMatcher http request matchers} to perform matching.</li>
- * <li>Support multiple same requests with potentially different ordered responses.
+ * <li>In case of non exact match use submitted {@link HttpRequestMatcher http request matchers} to perform matching.</li>
+ * <li>Support multiple times the same request with potentially different responses that are returned in a fixed order.
  * </ul>
+ * <p/>
+ * If you create your own {@link HttpResponseProvider} it is probably a good idea to extend this class.
  * 
  * @author kristof
+ * @see DefaultHttpResponseProvider
+ * @see FileHttpResponseProvider
  */
 public abstract class AbstractHttpResponseProvider implements HttpResponseProvider {
 
@@ -89,6 +95,9 @@ public abstract class AbstractHttpResponseProvider implements HttpResponseProvid
         matchers.add(matcher);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final void verify() throws UnsatisfiedExpectationException {
         final Collection<HttpRequest> missingRequests = new ArrayList<HttpRequest>();
