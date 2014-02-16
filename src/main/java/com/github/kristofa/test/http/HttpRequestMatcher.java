@@ -1,10 +1,16 @@
 package com.github.kristofa.test.http;
 
 /**
- * If you have Http requests that have variable content and so don't match exactly you can use a {@link HttpRequestMatcher}
- * that takes into account the variable content.
+ * If you have Http requests that have variable content and so repeating them does not give an exact match you can use a
+ * {@link HttpRequestMatcher} that takes into account the variable content.
  * <p/>
  * You can set 1 or more {@link HttpRequestMatcher http request matchers} in a {@link HttpResponseProvider}.
+ * <p/>
+ * Examples of requests that you might have to match using a {@link HttpRequestMatcher} are:
+ * <ul>
+ * <li>requests that contain a random generated id.</li>
+ * <li>requests that contain date/time information</li>
+ * </ul>
  * 
  * @author kristof
  * @see HttpResponseProvider
