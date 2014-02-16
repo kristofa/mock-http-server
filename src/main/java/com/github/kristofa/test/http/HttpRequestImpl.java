@@ -2,6 +2,7 @@ package com.github.kristofa.test.http;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -19,10 +20,18 @@ public class HttpRequestImpl implements HttpRequest {
     private final Set<QueryParameter> queryParameters = new TreeSet<QueryParameter>();
     private final Set<HttpMessageHeader> httpMessageHeaders = new TreeSet<HttpMessageHeader>();
 
+    /**
+     * Creates a new unintialized instance.
+     */
     public HttpRequestImpl() {
         // Default constructor.
     }
 
+    /**
+     * Copy constructor. Will initialize http request with content of given request.
+     * 
+     * @param request Request to copy.
+     */
     public HttpRequestImpl(final HttpRequest request) {
         content = request.getContent();
         method = request.getMethod();
@@ -83,14 +92,75 @@ public class HttpRequestImpl implements HttpRequest {
     }
 
     /**
+     * Removes Query Parameter with given key and value.
+     * 
+     * @param key Query parameter key.
+     * @param value Query parameter value.
+     * @return This http request.
+     */
+    public HttpRequestImpl removeQueryParameter(final String key, final String value) {
+        queryParameters.remove(new QueryParameter(key, value));
+        return this;
+    }
+
+    /**
+     * Removes all Query Parameters that have given key.
+     * 
+     * @param key Query parameter key.
+     * @return This http request.
+     */
+    public HttpRequestImpl removeQueryParameters(final String key) {
+        final Set<QueryParameter> toRemove = new HashSet<QueryParameter>();
+
+        for (final QueryParameter qp : queryParameters) {
+            if (qp.getKey().equals(key)) {
+                toRemove.add(qp);
+            }
+        }
+        queryParameters.removeAll(toRemove);
+        return this;
+    }
+
+    /**
      * Adds a Http message header.
      * 
      * @param name header name. Should not be <code>null</code> or blank.
      * @param value header value. Should not be <code>null</code> or blank.
-     * @return The http request.
+     * @return This http request.
      */
     public HttpRequestImpl httpMessageHeader(final String name, final String value) {
         httpMessageHeaders.add(new HttpMessageHeader(name, value));
+        return this;
+    }
+
+    /**
+     * Removes Http message header with given name and value.
+     * 
+     * @param name Http message header name.
+     * @param value Http message header value.
+     * @return This http request.
+     */
+    public HttpRequestImpl removeHttpMessageHeader(final String name, final String value) {
+        httpMessageHeaders.remove(new HttpMessageHeader(name, value));
+        return this;
+    }
+
+    /**
+     * Removes all Http message headers with given name.
+     * 
+     * @param name Http message header name.
+     * @return This http request.
+     */
+    public HttpRequestImpl removeHttpMessageHeaders(final String name) {
+        final Set<HttpMessageHeader> toRemove = new HashSet<HttpMessageHeader>();
+
+        for (final HttpMessageHeader header : httpMessageHeaders) {
+            if (header.getName().equals(name)) {
+                toRemove.add(header);
+            }
+        }
+
+        httpMessageHeaders.removeAll(toRemove);
         return this;
     }
 

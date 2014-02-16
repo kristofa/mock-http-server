@@ -14,12 +14,6 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.github.kristofa.test.http.HttpMessageHeaderField;
-import com.github.kristofa.test.http.HttpRequestImpl;
-import com.github.kristofa.test.http.MediaType;
-import com.github.kristofa.test.http.Method;
-import com.github.kristofa.test.http.QueryParameter;
-
 public class HttpRequestImplTest {
 
     private final static byte[] CONTENT = "content".getBytes();
@@ -28,6 +22,11 @@ public class HttpRequestImplTest {
     private static final String QUERY_PARAM_VALUE = "value1";
     private static final String QUERY_PARAM_KEY2 = "key2";
     private static final String QUERY_PARAM_VALUE2 = "value2";
+    private static final String QUERY_PARAM_VALUE3 = "value3";
+    private static final String HTTP_MESSAGE_HEADER_NAME = "Content-Type";
+    private static final String HTTP_MESSAGE_HEADER_VALUE = "application/json";
+    private static final String HTTP_MESSAGE_HEADER_NAME2 = "header2";
+    private static final String HTTP_MESSAGE_HEADER_VALUE2 = "value2";
 
     private HttpRequestImpl httpRequest;
 
@@ -59,6 +58,49 @@ public class HttpRequestImplTest {
     }
 
     @Test
+    public void testHttpMessageHeader() {
+        assertTrue(httpRequest.getHttpMessageHeaders().isEmpty());
+        assertSame(httpRequest, httpRequest.httpMessageHeader(HTTP_MESSAGE_HEADER_NAME, HTTP_MESSAGE_HEADER_VALUE)
+            .httpMessageHeader(HTTP_MESSAGE_HEADER_NAME2, HTTP_MESSAGE_HEADER_VALUE2));
+
+        final Set<HttpMessageHeader> expectedHeaders = new HashSet<HttpMessageHeader>();
+        expectedHeaders.add(new HttpMessageHeader(HTTP_MESSAGE_HEADER_NAME, HTTP_MESSAGE_HEADER_VALUE));
+        expectedHeaders.add(new HttpMessageHeader(HTTP_MESSAGE_HEADER_NAME2, HTTP_MESSAGE_HEADER_VALUE2));
+        assertEquals(expectedHeaders, httpRequest.getHttpMessageHeaders());
+
+    }
+
+    @Test
+    public void testRemoveHttpMessageHeader() {
+        assertTrue(httpRequest.getHttpMessageHeaders().isEmpty());
+        assertSame(httpRequest, httpRequest.httpMessageHeader(HTTP_MESSAGE_HEADER_NAME, HTTP_MESSAGE_HEADER_VALUE)
+            .httpMessageHeader(HTTP_MESSAGE_HEADER_NAME2, HTTP_MESSAGE_HEADER_VALUE2));
+
+        assertSame(httpRequest, httpRequest.removeHttpMessageHeader(HTTP_MESSAGE_HEADER_NAME2, HTTP_MESSAGE_HEADER_VALUE2));
+
+        final Set<HttpMessageHeader> expectedHeaders = new HashSet<HttpMessageHeader>();
+        expectedHeaders.add(new HttpMessageHeader(HTTP_MESSAGE_HEADER_NAME, HTTP_MESSAGE_HEADER_VALUE));
+        assertEquals(expectedHeaders, httpRequest.getHttpMessageHeaders());
+    }
+
+    @Test
+    public void testRemoveHttpMessageHeaders() {
+        assertTrue(httpRequest.getHttpMessageHeaders().isEmpty());
+        assertSame(
+            httpRequest,
+            httpRequest.httpMessageHeader(HTTP_MESSAGE_HEADER_NAME, HTTP_MESSAGE_HEADER_VALUE)
+                .httpMessageHeader(HTTP_MESSAGE_HEADER_NAME2, HTTP_MESSAGE_HEADER_VALUE2)
+                .httpMessageHeader(HTTP_MESSAGE_HEADER_NAME, HTTP_MESSAGE_HEADER_VALUE2));
+
+        assertSame(httpRequest, httpRequest.removeHttpMessageHeaders(HTTP_MESSAGE_HEADER_NAME));
+
+        final Set<HttpMessageHeader> expectedHeaders = new HashSet<HttpMessageHeader>();
+        expectedHeaders.add(new HttpMessageHeader(HTTP_MESSAGE_HEADER_NAME2, HTTP_MESSAGE_HEADER_VALUE2));
+        assertEquals(expectedHeaders, httpRequest.getHttpMessageHeaders());
+
+    }
+
+    @Test
     public void testQueryParameter() {
         assertTrue(httpRequest.getQueryParameters().isEmpty());
         assertSame(
@@ -68,6 +110,38 @@ public class HttpRequestImplTest {
 
         final Set<QueryParameter> expectedParameters = new HashSet<QueryParameter>();
         expectedParameters.add(new QueryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE));
+        expectedParameters.add(new QueryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2));
+        assertEquals(expectedParameters, httpRequest.getQueryParameters());
+    }
+
+    @Test
+    public void testRemoveQueryParameter() {
+        assertTrue(httpRequest.getQueryParameters().isEmpty());
+        assertSame(
+            httpRequest,
+            httpRequest.queryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE).queryParameter(QUERY_PARAM_KEY2,
+                QUERY_PARAM_VALUE2));
+
+        assertSame(httpRequest, httpRequest.removeQueryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE));
+
+        final Set<QueryParameter> expectedParameters = new HashSet<QueryParameter>();
+        expectedParameters.add(new QueryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2));
+        assertEquals(expectedParameters, httpRequest.getQueryParameters());
+    }
+
+    @Test
+    public void testRemoveQueryParameters() {
+        assertTrue(httpRequest.getQueryParameters().isEmpty());
+        assertSame(
+            httpRequest,
+            httpRequest.queryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE)
+                .queryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2).queryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE3));
+
+        assertEquals(3, httpRequest.getQueryParameters().size());
+
+        assertSame(httpRequest, httpRequest.removeQueryParameters(QUERY_PARAM_KEY));
+
+        final Set<QueryParameter> expectedParameters = new HashSet<QueryParameter>();
         expectedParameters.add(new QueryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2));
         assertEquals(expectedParameters, httpRequest.getQueryParameters());
     }
