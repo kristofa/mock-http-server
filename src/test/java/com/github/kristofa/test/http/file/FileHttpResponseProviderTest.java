@@ -137,15 +137,17 @@ public class FileHttpResponseProviderTest {
         final HttpRequestMatcher matcher = new HttpRequestMatcher() {
 
             @Override
-            public boolean match(final HttpRequest request) {
-                if (!request.getPath().equals("/a/b")) {
-                    return false;
+            public boolean match(final HttpRequest originalRequest, final HttpRequest otherRequest) {
+
+                if (originalRequest.getPath().equals("/a/b") && otherRequest.getPath().equals("/a/b")) {
+                    return true;
                 }
-                return true;
+                return false;
             }
 
             @Override
-            public HttpResponse getResponse(final HttpRequest request, final HttpResponse originalResponse) {
+            public HttpResponse getResponse(final HttpRequest originalRequest, final HttpResponse originalResponse,
+                final HttpRequest matchingRequest) {
                 return new HttpResponseImpl(201, "application/json", null);
             }
 

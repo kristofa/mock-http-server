@@ -23,38 +23,32 @@ public class IgnoreAdditionalHeadersHttpRequestMatcherTest {
         request.httpMessageHeader(CONTENT_TYPE, APPLICATION_JSON);
         request.path(PATH);
 
-        matcher = new IgnoreAdditionalHeadersHttpRequestMatcher(request);
+        matcher = new IgnoreAdditionalHeadersHttpRequestMatcher();
 
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testIgnoreAdditionalHeadersHttpRequestMatcher() {
-        new IgnoreAdditionalHeadersHttpRequestMatcher(null);
     }
 
     @Test
     public void testMatch() {
-        assertTrue(matcher.match(request));
 
         final HttpRequestImpl request2 = new HttpRequestImpl(request);
         request2.httpMessageHeader("another", "header");
-        assertTrue(matcher.match(request2));
+        assertTrue(matcher.match(request, request2));
 
         final HttpRequestImpl request3 = new HttpRequestImpl(request);
         request3.queryParameter("param1", "value1");
-        assertFalse(matcher.match(request3));
+        assertFalse(matcher.match(request, request3));
 
         final HttpRequestImpl request4 = new HttpRequestImpl();
         request4.method(Method.GET);
         request4.path(PATH);
-        assertFalse(matcher.match(request4));
+        assertFalse(matcher.match(request, request4));
 
     }
 
     @Test
     public void testGetResponse() {
         final HttpResponse mockResponse = mock(HttpResponse.class);
-        assertSame(mockResponse, matcher.getResponse(request, mockResponse));
+        assertSame(mockResponse, matcher.getResponse(request, mockResponse, request));
     }
 
 }

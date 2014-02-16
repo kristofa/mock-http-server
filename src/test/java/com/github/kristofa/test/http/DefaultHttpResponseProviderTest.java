@@ -40,7 +40,6 @@ public class DefaultHttpResponseProviderTest {
         httpResponseProviderIgnoreAdditionalHeaders = new DefaultHttpResponseProvider(true);
         httpResponseProviderIgnoreAdditionalHeaders.set(httpRequest, httpResponse);
 
-        assertSame(httpResponse, httpResponseProviderIgnoreAdditionalHeaders.getResponse(httpRequest));
         final HttpRequestImpl requestCopy = new HttpRequestImpl(httpRequest);
         assertSame("Should also work for a copy", httpResponse,
             httpResponseProviderIgnoreAdditionalHeaders.getResponse(requestCopy));

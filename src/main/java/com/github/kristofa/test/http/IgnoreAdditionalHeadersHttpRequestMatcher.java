@@ -2,50 +2,39 @@ package com.github.kristofa.test.http;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang3.Validate;
-
 /**
- * {@link HttpRequestMatcher} that is initialized with a {@link HttpRequest} and which will match another request if it is
- * equal or if it has more http headers than the expected request.
+ * {@link HttpRequestMatcher} that will match requests in case the new request contains additional http header entries but
+ * the other content is equal (same http method, path, query params, content).
  * 
  * @author kristof
  */
 public class IgnoreAdditionalHeadersHttpRequestMatcher implements HttpRequestMatcher {
 
-    private final HttpRequest expectedRequest;
-
-    public IgnoreAdditionalHeadersHttpRequestMatcher(final HttpRequest expectedRequest) {
-        Validate.notNull(expectedRequest);
-        this.expectedRequest = expectedRequest;
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean match(final HttpRequest request) {
-        if (request == expectedRequest) {
-            return true;
-        }
-        if (!Arrays.equals(expectedRequest.getContent(), request.getContent())) {
+    public boolean match(final HttpRequest originalRequest, final HttpRequest otherRequest) {
+
+        if (!Arrays.equals(originalRequest.getContent(), otherRequest.getContent())) {
             return false;
         }
-        if (expectedRequest.getMethod() != request.getMethod()) {
+        if (originalRequest.getMethod() != otherRequest.getMethod()) {
             return false;
         }
-        if (expectedRequest.getPath() == null) {
-            if (request.getPath() != null) {
+        if (originalRequest.getPath() == null) {
+            if (otherRequest.getPath() != null) {
                 return false;
             }
-        } else if (!expectedRequest.getPath().equals(request.getPath())) {
+        } else if (!originalRequest.getPath().equals(otherRequest.getPath())) {
             return false;
         }
-        if (!expectedRequest.getQueryParameters().equals(request.getQueryParameters())) {
+        if (!originalRequest.getQueryParameters().equals(otherRequest.getQueryParameters())) {
             return false;
         }
 
-        if (!request.getHttpMessageHeaders().containsAll(expectedRequest.getHttpMessageHeaders())) {
-            // The input request should at least contain all headers from the expected request.
+        if (!otherRequest.getHttpMessageHeaders().containsAll(originalRequest.getHttpMessageHeaders())) {
+            // The new request should at least contain all headers from the expected request.
             return false;
         }
         return true;
@@ -56,7 +45,8 @@ public class IgnoreAdditionalHeadersHttpRequestMatcher implements HttpRequestMat
      * {@inheritDoc}
      */
     @Override
-    public HttpResponse getResponse(final HttpRequest request, final HttpResponse originalResponse) {
+    public HttpResponse getResponse(final HttpRequest originalRequest, final HttpResponse originalResponse,
+        final HttpRequest matchingRequest) {
         return originalResponse;
     }
 
