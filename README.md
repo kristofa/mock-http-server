@@ -233,6 +233,16 @@ services so no chance of mistakes by manually creating requests/responses.
 
 ## Changelog ##
 
+### 4.0-SNAPSHOT ###
+
+Major version bump because `HttpRequestMatcher` interface introduced in 3.0 has changed.
+Version 3.0 was released prematurely and wasn't tested enough before release. 
+This has a lot nicer implementation of `HttpRequestMatcher` and major cleanup of existing
+`HttpResponseProvider` instances.
+
++   `HttpRequestMatcher` has a more usable interface.
++   Clean-up of existing HttpResponseProvider implementations. 
+
 ### 3.0 - 13th of February 2014 ###
 
 Major version bump because `HttpResponseProvider` interface has a new method.
@@ -240,7 +250,7 @@ Code that worked with 2.0 will also still work with 3.0 but if you have written 
 
 +   New: Introduce `HttpRequestMatcher` which allows you to match http requests on part of their content.  Can also be used to match http requests that have variable content. For example a
 UUID that is generated and part of the request and which will be always different.
-You can add custom `HttpRequestMatcher` instances to `HttpResponseProvider` intances which will than be used for matching.
+You can add custom `HttpRequestMatcher` instances to `HttpResponseProvider` instances which will than be used for matching.
 
 ### 2.0 - 2nd of January 2014 ###
 
