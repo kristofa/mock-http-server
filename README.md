@@ -243,8 +243,8 @@ This has a lot nicer implementation of `HttpRequestMatcher` and major cleanup of
 +   `HttpRequestMatcher` has a more usable interface.
 +   Clean-up of existing HttpResponseProvider implementations. 
 +   `HttpRequestResponseFileLoggerFactory` has the option to delete previously logged requests/responses. 
-This prevents potential test failures if your new log session has less request/responses as your previous one or if the requests/responses come in different order.
-In reality most people manually deleted previously logged files manually. Now it can be done automatically through optional constructor argument.
+This prevents potential test failures if your new log session has less request/responses than previous one or if the requests/responses come in different order.
+In reality most people manually deleted previously logged files. Now it can be done automatically through optional constructor argument.
 
 ### 3.0 - 13th of February 2014 ###
 
