@@ -38,10 +38,26 @@ public interface HttpRequest {
     Set<QueryParameter> getQueryParameters();
 
     /**
+     * Gets query parameters with given key.
+     * 
+     * @param key Query parameter key. Should not be <code>null</code> or blank.
+     * @return Query parameters with given key.
+     */
+    Set<QueryParameter> getQueryParameters(final String key);
+
+    /**
      * Get http message headers.
      * 
      * @return Http message headers.
      */
     Set<HttpMessageHeader> getHttpMessageHeaders();
+
+    /**
+     * Get http message headers with given name/key.
+     * 
+     * @param name Name/key. Should not be <code>null</code> or blank.
+     * @return Http message headers with given name/key.
+     */
+    Set<HttpMessageHeader> getHttpMessageHeaders(final String name);
 
 }

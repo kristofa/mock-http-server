@@ -193,6 +193,22 @@ public final class FullHttpRequestImpl implements FullHttpRequest {
      * {@inheritDoc}
      */
     @Override
+    public Set<QueryParameter> getQueryParameters(final String key) {
+        return httpRequest.getQueryParameters(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<HttpMessageHeader> getHttpMessageHeaders(final String name) {
+        return httpRequest.getHttpMessageHeaders(name);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getUrl() {
         try {
             final String queryParamsAsString = getQueryParamsAsString();

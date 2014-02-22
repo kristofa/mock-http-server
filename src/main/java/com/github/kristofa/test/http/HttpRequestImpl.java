@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -205,6 +206,36 @@ public class HttpRequestImpl implements HttpRequest {
     @Override
     public Set<HttpMessageHeader> getHttpMessageHeaders() {
         return Collections.unmodifiableSet(httpMessageHeaders);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<QueryParameter> getQueryParameters(final String key) {
+        Validate.notBlank(key);
+        final Set<QueryParameter> qpSubset = new TreeSet<QueryParameter>();
+        for (final QueryParameter qp : queryParameters) {
+            if (qp.getKey().equals(key)) {
+                qpSubset.add(qp);
+            }
+        }
+        return qpSubset;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<HttpMessageHeader> getHttpMessageHeaders(final String name) {
+        Validate.notBlank(name);
+        final Set<HttpMessageHeader> mhSubset = new TreeSet<HttpMessageHeader>();
+        for (final HttpMessageHeader header : httpMessageHeaders) {
+            if (header.getName().equals(name)) {
+                mhSubset.add(header);
+            }
+        }
+        return mhSubset;
     }
 
     /**

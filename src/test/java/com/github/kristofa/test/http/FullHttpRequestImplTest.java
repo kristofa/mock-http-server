@@ -83,6 +83,15 @@ public class FullHttpRequestImplTest {
         assertEquals(expectedParameters, httpRequest.getQueryParameters());
     }
 
+    @Test
+    public void testGetQueryParametersForKey() {
+        assertTrue(httpRequest.getQueryParameters(QUERY_PARAM_KEY).isEmpty());
+        httpRequest.queryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE).queryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2);
+        final Set<QueryParameter> queryParams = httpRequest.getQueryParameters(QUERY_PARAM_KEY);
+        assertEquals(1, queryParams.size());
+        assertTrue(queryParams.contains(new QueryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE)));
+    }
+
     @Test(expected = IllegalStateException.class)
     public void testGetInvalidUrl() {
         httpRequest.getUrl();
@@ -125,7 +134,7 @@ public class FullHttpRequestImplTest {
     }
 
     @Test
-    public void testCopyConstructor() throws CloneNotSupportedException {
+    public void testCopyConstructor() {
 
         final FullHttpRequestImpl copyNonInitializedRequest = new FullHttpRequestImpl(httpRequest);
 

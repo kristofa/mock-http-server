@@ -67,7 +67,16 @@ public class HttpRequestImplTest {
         expectedHeaders.add(new HttpMessageHeader(HTTP_MESSAGE_HEADER_NAME, HTTP_MESSAGE_HEADER_VALUE));
         expectedHeaders.add(new HttpMessageHeader(HTTP_MESSAGE_HEADER_NAME2, HTTP_MESSAGE_HEADER_VALUE2));
         assertEquals(expectedHeaders, httpRequest.getHttpMessageHeaders());
+    }
 
+    @Test
+    public void testGetHttpMessageHeadersForName() {
+        assertTrue(httpRequest.getHttpMessageHeaders(HTTP_MESSAGE_HEADER_NAME).isEmpty());
+        httpRequest.httpMessageHeader(HTTP_MESSAGE_HEADER_NAME, HTTP_MESSAGE_HEADER_VALUE).httpMessageHeader(
+            HTTP_MESSAGE_HEADER_NAME2, HTTP_MESSAGE_HEADER_VALUE2);
+        final Set<HttpMessageHeader> httpMessageHeaders = httpRequest.getHttpMessageHeaders(HTTP_MESSAGE_HEADER_NAME);
+        assertEquals(1, httpMessageHeaders.size());
+        assertTrue(httpMessageHeaders.contains(new HttpMessageHeader(HTTP_MESSAGE_HEADER_NAME, HTTP_MESSAGE_HEADER_VALUE)));
     }
 
     @Test
@@ -112,6 +121,15 @@ public class HttpRequestImplTest {
         expectedParameters.add(new QueryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE));
         expectedParameters.add(new QueryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2));
         assertEquals(expectedParameters, httpRequest.getQueryParameters());
+    }
+
+    @Test
+    public void testGetQueryParametersForKey() {
+        assertTrue(httpRequest.getQueryParameters(QUERY_PARAM_KEY).isEmpty());
+        httpRequest.queryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE).queryParameter(QUERY_PARAM_KEY2, QUERY_PARAM_VALUE2);
+        final Set<QueryParameter> queryParams = httpRequest.getQueryParameters(QUERY_PARAM_KEY);
+        assertEquals(1, queryParams.size());
+        assertTrue(queryParams.contains(new QueryParameter(QUERY_PARAM_KEY, QUERY_PARAM_VALUE)));
     }
 
     @Test
@@ -160,7 +178,7 @@ public class HttpRequestImplTest {
     }
 
     @Test
-    public void testCopyConstructor() throws CloneNotSupportedException {
+    public void testCopyConstructor() {
 
         final HttpRequestImpl copyNonInitializedRequest = new HttpRequestImpl(httpRequest);
 
