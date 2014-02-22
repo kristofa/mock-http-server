@@ -58,6 +58,16 @@ public abstract class AbstractHttpResponseProvider implements HttpResponseProvid
     }
 
     /**
+     * Clear expected request/responses as well as already received unexpected requests.
+     * <p/>
+     * Allows re-use for new test without having to recreate instance.
+     */
+    protected final void resetState() {
+        requestMap.clear();
+        unexpectedRequests.clear();
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
