@@ -57,6 +57,8 @@ public class ITMockAndProxyFacade {
         final SimpleHttpResponseProvider responseProvider = new SimpleHttpResponseProvider();
         responseProvider.expect(Method.GET, "/service/a").respondWith(200, "text/plain", "ABCD1234");
         responseProvider.expect(Method.GET, "/service/b?c=d&e=f").respondWith(200, "text/plain", "EFG1234");
+        // This is no mistake. We will call this request twice so we also need to expect it twice.
+        responseProvider.expect(Method.GET, "/service/b?c=d&e=f").respondWith(200, "text/plain", "EFG1234");
         responseProvider.expect(Method.POST, "/service/a", "application/json; charset=UTF-8", "{}").respondWith(201, null,
             null);
         final MockHttpServer service = new MockHttpServer(SERVICE_PORT, responseProvider);
