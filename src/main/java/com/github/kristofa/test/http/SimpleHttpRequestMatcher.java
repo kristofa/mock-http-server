@@ -1,5 +1,6 @@
 package com.github.kristofa.test.http;
 
+import java.util.Arrays;
 import java.util.Set;
 
 /**
@@ -38,6 +39,11 @@ public class SimpleHttpRequestMatcher implements HttpRequestMatcher {
         if (!orig.equals(other)) {
             return false;
         }
+
+        if (!Arrays.equals(originalRequest.getContent(), otherRequest.getContent())) {
+            return false;
+        }
+
         return true;
     }
 
