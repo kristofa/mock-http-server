@@ -1,6 +1,5 @@
 package com.github.kristofa.test.http;
 
-
 /**
  * A {@link HttpResponseProvider} that supports http request with all properties. It supports any http header you define as
  * opposed to {@link SimpleHttpResponseProvider} which only supports Content-Type.
@@ -20,7 +19,7 @@ public class DefaultHttpResponseProvider extends AbstractHttpResponseProvider {
     public DefaultHttpResponseProvider(final boolean ignoreAdditionalHeaders) {
         super();
         if (ignoreAdditionalHeaders) {
-            addMatcher(new IgnoreAdditionalHeadersHttpRequestMatcher());
+            setMatchingFilter(new RemoveAdditionalHeadersHttpRequestMatchingFilter());
         }
     }
 

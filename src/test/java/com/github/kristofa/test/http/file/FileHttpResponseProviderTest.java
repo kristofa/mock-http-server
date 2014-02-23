@@ -8,12 +8,16 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.junit.Test;
 
+import com.github.kristofa.test.http.HttpMessageHeader;
 import com.github.kristofa.test.http.HttpRequest;
 import com.github.kristofa.test.http.HttpRequestImpl;
-import com.github.kristofa.test.http.HttpRequestMatcher;
+import com.github.kristofa.test.http.HttpRequestMatchingContext;
+import com.github.kristofa.test.http.HttpRequestMatchingContextImpl;
+import com.github.kristofa.test.http.HttpRequestMatchingFilter;
 import com.github.kristofa.test.http.HttpResponse;
 import com.github.kristofa.test.http.HttpResponseImpl;
 import com.github.kristofa.test.http.Method;
@@ -131,31 +135,55 @@ public class FileHttpResponseProviderTest {
     }
 
     @Test
-    public void testCustomMatcher() {
+    public void testWithFilter() {
         final FileHttpResponseProvider responseProvider =
             new FileHttpResponseProvider(TEST_FILE_DIRECTORY, "FileHttpResponseProviderTest");
-        final HttpRequestMatcher matcher = new HttpRequestMatcher() {
+
+        final HttpRequestMatchingFilter filter = new HttpRequestMatchingFilter() {
 
             @Override
-            public boolean match(final HttpRequest originalRequest, final HttpRequest otherRequest) {
+            public HttpRequestMatchingContext filter(final HttpRequestMatchingContext context) {
+                final HttpRequest originalRequest = context.originalRequest();
+                final HttpRequest otherRequest = context.otherRequest();
 
-                if (originalRequest.getPath().equals("/a/b") && otherRequest.getPath().equals("/a/b")) {
-                    return true;
+                if (originalRequest.getPath().equals("/a/b")) {
+                    final HttpRequestImpl copyOriginal = new HttpRequestImpl(originalRequest);
+                    removeAllHeaderParams(copyOriginal);
+                    final HttpRequestImpl copyOther = new HttpRequestImpl(otherRequest);
+                    removeAllHeaderParams(copyOther);
+                    final HttpResponse newResponse = new HttpResponseImpl(201, "application/json", null);
+                    return new HttpRequestMatchingContextImpl(copyOriginal, copyOther, newResponse);
+
                 }
-                return false;
+                return context;
             }
 
             @Override
-            public HttpResponse getResponse(final HttpRequest originalRequest, final HttpResponse originalResponse,
-                final HttpRequest matchingRequest) {
-                return new HttpResponseImpl(201, "application/json", null);
+            public void setNext(final HttpRequestMatchingFilter filter) {
+                throw new UnsupportedOperationException();
+
+            }
+
+            @Override
+            public HttpRequestMatchingFilter next() {
+                return null;
+            }
+
+            private void removeAllHeaderParams(final HttpRequestImpl request) {
+                final Set<HttpMessageHeader> httpMessageHeaders = request.getHttpMessageHeaders();
+                for (final HttpMessageHeader header : httpMessageHeaders) {
+                    request.removeHttpMessageHeader(header.getName(), header.getValue());
+                }
             }
 
         };
-        responseProvider.addMatcher(matcher);
+
+        responseProvider.setHttpRequestMatcherFilter(filter);
 
         final HttpRequestImpl request1 = new HttpRequestImpl();
+        request1.method(Method.GET);
         request1.path("/a/b");
+        request1.queryParameter("a", "1");
         request1.httpMessageHeader("custom", "value");
 
         final HttpResponse response1 = responseProvider.getResponse(request1);

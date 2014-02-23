@@ -1,13 +1,14 @@
 package com.github.kristofa.test.http;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import org.junit.Before;
 import org.junit.Test;
 
-public class SimpleHttpRequestMatcherTest {
+public class AllExceptContentTypeHeaderFilterTest {
 
     private static final String PATH1 = "/path1/";
     private static final String PATH2 = "/path2/";
@@ -23,11 +24,13 @@ public class SimpleHttpRequestMatcherTest {
     private static final String HEADER_CONTENT_TYPE_VALUE = "application/json";
     private static final String HEADER_CONTENT_TYPE_VALUE_2 = "application/xml";
 
-    private SimpleHttpRequestMatcher matcher;
+    private AllExceptContentTypeHeaderFilter matcher;
+    private HttpResponse mockResponse;
 
     @Before
     public void setup() {
-        matcher = new SimpleHttpRequestMatcher();
+        matcher = new AllExceptContentTypeHeaderFilter();
+        mockResponse = mock(HttpResponse.class);
     }
 
     @Test
@@ -39,7 +42,12 @@ public class SimpleHttpRequestMatcherTest {
         httpRequestImpl2.method(Method.GET).path(PATH1).queryParameter(QUERY_PARAM_NAME_1, QUERY_PARAM_VALUE_1)
             .queryParameter(QUERY_PARAM_NAME_2, QUERY_PARAM_VALUE_2);
 
-        assertFalse(matcher.match(httpRequestImpl, httpRequestImpl2));
+        final HttpRequestMatchingContext context =
+            matcher.filter(new HttpRequestMatchingContextImpl(httpRequestImpl, httpRequestImpl2, mockResponse));
+        assertFalse(context.originalRequest().equals(context.otherRequest()));
+        assertEquals(httpRequestImpl, context.originalRequest());
+        assertEquals(httpRequestImpl2, context.otherRequest());
+        assertEquals(mockResponse, context.response());
 
     }
 
@@ -52,7 +60,12 @@ public class SimpleHttpRequestMatcherTest {
         httpRequestImpl2.method(Method.GET).path(PATH2).queryParameter(QUERY_PARAM_NAME_1, QUERY_PARAM_VALUE_1)
             .queryParameter(QUERY_PARAM_NAME_2, QUERY_PARAM_VALUE_2);
 
-        assertFalse(matcher.match(httpRequestImpl, httpRequestImpl2));
+        final HttpRequestMatchingContext context =
+            matcher.filter(new HttpRequestMatchingContextImpl(httpRequestImpl, httpRequestImpl2, mockResponse));
+        assertFalse(context.originalRequest().equals(context.otherRequest()));
+        assertEquals(httpRequestImpl, context.originalRequest());
+        assertEquals(httpRequestImpl2, context.otherRequest());
+        assertEquals(mockResponse, context.response());
 
     }
 
@@ -65,8 +78,12 @@ public class SimpleHttpRequestMatcherTest {
         httpRequestImpl2.method(Method.GET).path(PATH1).queryParameter(QUERY_PARAM_NAME_3, QUERY_PARAM_VALUE_3)
             .queryParameter(QUERY_PARAM_NAME_2, QUERY_PARAM_VALUE_2);
 
-        assertFalse(matcher.match(httpRequestImpl, httpRequestImpl2));
-
+        final HttpRequestMatchingContext context =
+            matcher.filter(new HttpRequestMatchingContextImpl(httpRequestImpl, httpRequestImpl2, mockResponse));
+        assertFalse(context.originalRequest().equals(context.otherRequest()));
+        assertEquals(httpRequestImpl, context.originalRequest());
+        assertEquals(httpRequestImpl2, context.otherRequest());
+        assertEquals(mockResponse, context.response());
     }
 
     @Test
@@ -80,7 +97,12 @@ public class SimpleHttpRequestMatcherTest {
             .queryParameter(QUERY_PARAM_NAME_2, QUERY_PARAM_VALUE_2)
             .httpMessageHeader(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_VALUE_2);
 
-        assertFalse(matcher.match(httpRequestImpl, httpRequestImpl2));
+        final HttpRequestMatchingContext context =
+            matcher.filter(new HttpRequestMatchingContextImpl(httpRequestImpl, httpRequestImpl2, mockResponse));
+        assertFalse(context.originalRequest().equals(context.otherRequest()));
+        assertEquals(httpRequestImpl, context.originalRequest());
+        assertEquals(httpRequestImpl2, context.otherRequest());
+        assertEquals(mockResponse, context.response());
 
     }
 
@@ -93,7 +115,13 @@ public class SimpleHttpRequestMatcherTest {
         httpRequestImpl2.method(Method.GET).path(PATH1).queryParameter(QUERY_PARAM_NAME_1, QUERY_PARAM_VALUE_1)
             .queryParameter(QUERY_PARAM_NAME_2, QUERY_PARAM_VALUE_2);
 
-        assertTrue(matcher.match(httpRequestImpl, httpRequestImpl2));
+        final HttpRequestMatchingContext context =
+            matcher.filter(new HttpRequestMatchingContextImpl(httpRequestImpl, httpRequestImpl2, mockResponse));
+        assertTrue(context.originalRequest().equals(context.otherRequest()));
+        assertFalse(httpRequestImpl.equals(context.originalRequest()));
+        assertEquals(httpRequestImpl2, context.otherRequest());
+        assertEquals(mockResponse, context.response());
+
     }
 
     @Test
@@ -107,7 +135,12 @@ public class SimpleHttpRequestMatcherTest {
             .queryParameter(QUERY_PARAM_NAME_2, QUERY_PARAM_VALUE_2).httpMessageHeader(HEADER_1_NAME, HEADER_1_VALUE)
             .httpMessageHeader(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_VALUE);
 
-        assertTrue(matcher.match(httpRequestImpl, httpRequestImpl2));
+        final HttpRequestMatchingContext context =
+            matcher.filter(new HttpRequestMatchingContextImpl(httpRequestImpl, httpRequestImpl2, mockResponse));
+        assertTrue(context.originalRequest().equals(context.otherRequest()));
+        assertFalse(httpRequestImpl.equals(context.originalRequest()));
+        assertFalse(httpRequestImpl2.equals(context.otherRequest()));
+        assertEquals(mockResponse, context.response());
     }
 
     @Test
@@ -121,7 +154,12 @@ public class SimpleHttpRequestMatcherTest {
             .queryParameter(QUERY_PARAM_NAME_2, QUERY_PARAM_VALUE_2).httpMessageHeader(HEADER_1_NAME, HEADER_1_VALUE)
             .httpMessageHeader(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_VALUE).content(new String("b").getBytes());
 
-        assertFalse(matcher.match(httpRequestImpl, httpRequestImpl2));
+        final HttpRequestMatchingContext context =
+            matcher.filter(new HttpRequestMatchingContextImpl(httpRequestImpl, httpRequestImpl2, mockResponse));
+        assertFalse(context.originalRequest().equals(context.otherRequest()));
+        assertFalse(httpRequestImpl.equals(context.originalRequest()));
+        assertFalse(httpRequestImpl2.equals(context.otherRequest()));
+        assertEquals(mockResponse, context.response());
     }
 
     @Test
@@ -135,15 +173,12 @@ public class SimpleHttpRequestMatcherTest {
             .queryParameter(QUERY_PARAM_NAME_2, QUERY_PARAM_VALUE_2)
             .httpMessageHeader(HEADER_CONTENT_TYPE, HEADER_CONTENT_TYPE_VALUE).content(new String("a").getBytes());
 
-        assertTrue(matcher.match(httpRequestImpl, httpRequestImpl2));
-    }
-
-    @Test
-    public void testGetResponse() {
-        final HttpRequestImpl request1 = new HttpRequestImpl();
-        final HttpResponseImpl response = new HttpResponseImpl(200, null, null);
-        final HttpRequestImpl request2 = new HttpRequestImpl();
-        assertSame(response, matcher.getResponse(request1, response, request2));
+        final HttpRequestMatchingContext context =
+            matcher.filter(new HttpRequestMatchingContextImpl(httpRequestImpl, httpRequestImpl2, mockResponse));
+        assertTrue(context.originalRequest().equals(context.otherRequest()));
+        assertFalse(httpRequestImpl.equals(context.originalRequest()));
+        assertTrue(httpRequestImpl2.equals(context.otherRequest()));
+        assertEquals(mockResponse, context.response());
     }
 
 }

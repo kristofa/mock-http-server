@@ -16,7 +16,7 @@ public class HttpRequestImpl implements HttpRequest {
     private static final String NOT_SPECIFIED = "null";
 
     private Method method;
-    private byte[] content;
+    private ContentDecorator contentDecorator;
     private String path;
     private final Set<QueryParameter> queryParameters = new TreeSet<QueryParameter>();
     private final Set<HttpMessageHeader> httpMessageHeaders = new TreeSet<HttpMessageHeader>();
@@ -25,7 +25,7 @@ public class HttpRequestImpl implements HttpRequest {
      * Creates a new unintialized instance.
      */
     public HttpRequestImpl() {
-        // Default constructor.
+        contentDecorator = new DefaultContentDecorator();
     }
 
     /**
@@ -34,7 +34,17 @@ public class HttpRequestImpl implements HttpRequest {
      * @param request Request to copy.
      */
     public HttpRequestImpl(final HttpRequest request) {
-        content = request.getContent();
+
+        if (request instanceof HttpRequestImpl) {
+            final ContentDecorator otherDecorator = ((HttpRequestImpl)request).contentDecorator;
+            if (otherDecorator != null) {
+                contentDecorator = otherDecorator.copy();
+            }
+        } else {
+            contentDecorator = new DefaultContentDecorator();
+            contentDecorator.setContent(request.getContent());
+
+        }
         method = request.getMethod();
         path = request.getPath();
 
@@ -65,7 +75,20 @@ public class HttpRequestImpl implements HttpRequest {
      * @return This http request.
      */
     public HttpRequestImpl content(final byte[] content) {
-        this.content = content;
+        contentDecorator.setContent(content);
+        return this;
+    }
+
+    /**
+     * Sets {@link ContentDecorator}. The decorator will be initialized with any existing data.
+     * 
+     * @param contentDecorator Content decorator.
+     * @return This http request.
+     */
+    public HttpRequestImpl contentDecorator(final ContentDecorator contentDecorator) {
+        final byte[] content = this.contentDecorator.getContent();
+        this.contentDecorator = contentDecorator;
+        this.contentDecorator.setContent(content);
         return this;
     }
 
@@ -178,6 +201,10 @@ public class HttpRequestImpl implements HttpRequest {
      */
     @Override
     public byte[] getContent() {
+        if (contentDecorator == null) {
+            return null;
+        }
+        final byte[] content = contentDecorator.getContent();
         if (content == null) {
             return null;
         }

@@ -28,7 +28,7 @@ public class SimpleHttpResponseProvider extends AbstractHttpResponseProvider {
     private HttpRequestImpl latestRequest;
 
     public SimpleHttpResponseProvider() {
-        addMatcher(new SimpleHttpRequestMatcher());
+        setMatchingFilter(new AllExceptContentTypeHeaderFilter());
     }
 
     /**
@@ -44,7 +44,8 @@ public class SimpleHttpResponseProvider extends AbstractHttpResponseProvider {
         final String requestEntity) {
 
         latestRequest = new HttpRequestImpl();
-        latestRequest.method(method).content(requestEntity.getBytes()).httpMessageHeader(CONTENT_TYPE_HTTP_HEADER_NAME, contentType);
+        latestRequest.method(method).content(requestEntity.getBytes())
+            .httpMessageHeader(CONTENT_TYPE_HTTP_HEADER_NAME, contentType);
         extractAndSetQueryParams(latestRequest, path);
         return this;
     }

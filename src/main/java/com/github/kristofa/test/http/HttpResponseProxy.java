@@ -7,8 +7,8 @@ package com.github.kristofa.test.http;
  * This proxy knows how to fetch and build the http response but does not necessary keep it in memory. It can fetch the
  * response lazily.
  * <p/>
- * It also keeps track if the response has already been requested before In that way we can avoid that same response is
- * returned multiple times and we can support different responses for same request.
+ * It also keeps track if the response has already been consumed or not. In that way we can support different responses for
+ * same request and we can check if we have the exact amount of expected calls for a request.
  * 
  * @author kristof
  * @see AbstractHttpResponseProvider
@@ -16,12 +16,12 @@ package com.github.kristofa.test.http;
 public interface HttpResponseProxy {
 
     /**
-     * Indicates if the HttpResponse has already been requested before.
+     * Indicates if the HttpResponse has already been consumed.
      * 
-     * @return <code>true</code> in case {@link HttpResponseProxy#getResponse()} has already been called before or
+     * @return <code>true</code> in case {@link HttpResponseProxy#consume()} has already been called before or
      *         <code>false</code> in case it has not been called yet.
      */
-    boolean alreadyRequested();
+    boolean consumed();
 
     /**
      * Gets HttpResponse.
@@ -29,5 +29,12 @@ public interface HttpResponseProxy {
      * @return HttpResponse.
      */
     HttpResponse getResponse();
+
+    /**
+     * Consumes HttpResponse.
+     * 
+     * @return HttpResponse.
+     */
+    HttpResponse consume();
 
 }

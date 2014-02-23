@@ -4,6 +4,7 @@ import java.io.File;
 
 import com.github.kristofa.test.http.AbstractHttpResponseProvider;
 import com.github.kristofa.test.http.HttpRequest;
+import com.github.kristofa.test.http.HttpRequestMatchingFilter;
 import com.github.kristofa.test.http.HttpResponseProvider;
 import com.github.kristofa.test.http.LoggingHttpProxy;
 
@@ -61,6 +62,16 @@ public class FileHttpResponseProvider extends AbstractHttpResponseProvider {
         this.fileName = fileName;
         httpRequestFileReader = requestFileReader;
         httpResponseFileReader = responseFileReader;
+    }
+
+    /**
+     * Set {@link HttpRequestMatchingFilter} to allow matching of requests that don't necessary equal because of variable
+     * content..
+     * 
+     * @param filter Filter. Notice that the {@link HttpRequestMatchingFilter} can be chained.
+     */
+    public void setHttpRequestMatcherFilter(final HttpRequestMatchingFilter filter) {
+        setMatchingFilter(filter);
     }
 
     /**

@@ -10,7 +10,7 @@ class FileHttpResponseProxy implements HttpResponseProxy {
     private final String directory;
     private final String filename;
     private final int seqNr;
-    private boolean requested = false;
+    private boolean isConsumed = false;
     private final HttpResponseFileReader httpResponseFileReader;
 
     public FileHttpResponseProxy(final String directory, final String filename, final int seqNr,
@@ -22,17 +22,27 @@ class FileHttpResponseProxy implements HttpResponseProxy {
     }
 
     @Override
-    public boolean alreadyRequested() {
-        return requested;
+    public boolean consumed() {
+        return isConsumed;
     }
 
     @Override
     public HttpResponse getResponse() {
+        return readResponse();
+    }
+
+    @Override
+    public HttpResponse consume() {
+        final HttpResponse response = readResponse();
+        isConsumed = true;
+        return response;
+    }
+
+    private HttpResponse readResponse() {
         final File responseFile = new File(directory, FileNameBuilder.RESPONSE_FILE_NAME.getFileName(filename, seqNr));
         final File responseEntityFile =
             new File(directory, FileNameBuilder.RESPONSE_ENTITY_FILE_NAME.getFileName(filename, seqNr));
         final HttpResponse response = httpResponseFileReader.read(responseFile, responseEntityFile);
-        requested = true;
         return response;
     }
 

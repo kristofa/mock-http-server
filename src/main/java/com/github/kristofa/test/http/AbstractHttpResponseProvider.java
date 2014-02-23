@@ -10,10 +10,10 @@ import java.util.Map.Entry;
 import com.github.kristofa.test.http.file.FileHttpResponseProvider;
 
 /**
- * Abstract {@link HttpResponseProvider} that contains the basic functionality any HttpResponseProvider should have:
+ * Abstract {@link HttpResponseProvider} that contains the following functionality:
  * <ul>
  * <li>Exactly matching HttpRequests</li>
- * <li>In case of non exact match use submitted {@link HttpRequestMatcher http request matchers} to perform matching.</li>
+ * <li>In case of non exact match use submitted {@link HttpRequestMatchingFilter} to perform matching.</li>
  * <li>Support multiple times the same request with potentially different responses that are returned in a fixed order.
  * </ul>
  * <p/>
@@ -26,8 +26,8 @@ import com.github.kristofa.test.http.file.FileHttpResponseProvider;
 public abstract class AbstractHttpResponseProvider implements HttpResponseProvider {
 
     private final Map<HttpRequest, List<HttpResponseProxy>> requestMap = new HashMap<HttpRequest, List<HttpResponseProxy>>();
-    private final Collection<HttpRequestMatcher> matchers = new ArrayList<HttpRequestMatcher>();
     private final List<HttpRequest> unexpectedRequests = new ArrayList<HttpRequest>();
+    private HttpRequestMatchingFilter requestMatcherFilter;
     private boolean initialized = false;
 
     /**
@@ -78,31 +78,42 @@ public abstract class AbstractHttpResponseProvider implements HttpResponseProvid
             initialized = true;
         }
 
-        final HttpResponse responseForExactMatchingRequest = getFirstNotYetReturnedResponseFor(request);
-        if (responseForExactMatchingRequest != null) {
-            return responseForExactMatchingRequest;
+        final HttpResponseProxy responseProxyForExactMatchingRequest = getFirstNotYetConsumedResponseProxyFor(request);
+        if (responseProxyForExactMatchingRequest != null) {
+            return responseProxyForExactMatchingRequest.consume();
         }
-
-        for (final HttpRequestMatcher matcher : matchers) {
+        // Non exact matching...
+        if (requestMatcherFilter != null) {
             for (final HttpRequest originalRequest : requestMap.keySet()) {
-                if (matcher.match(originalRequest, request)) {
-                    final HttpResponse originalResponse = getFirstNotYetReturnedResponseFor(originalRequest);
-                    if (originalResponse != null) {
-                        return matcher.getResponse(originalRequest, originalResponse, request);
+                final HttpResponseProxy originalResponseProxy = getFirstNotYetConsumedResponseProxyFor(originalRequest);
+                if (originalResponseProxy == null) {
+                    continue;
+                }
+                HttpRequestMatchingContext context =
+                    new HttpRequestMatchingContextImpl(originalRequest, request, originalResponseProxy.getResponse());
+                HttpRequestMatchingFilter next = requestMatcherFilter;
+                while (next != null) {
+                    context = next.filter(context);
+                    if (context.originalRequest().equals(context.otherRequest())) {
+                        originalResponseProxy.consume();
+                        return context.response();
                     }
+                    next = next.next();
                 }
             }
         }
+
         unexpectedRequests.add(request);
         return null;
     }
 
     /**
-     * {@inheritDoc}
+     * Sets {@link HttpRequestMatchingFilter}.
+     * 
+     * @param filter {@link HttpRequestMatchingFilter}.
      */
-    @Override
-    public final void addMatcher(final HttpRequestMatcher matcher) {
-        matchers.add(matcher);
+    protected final void setMatchingFilter(final HttpRequestMatchingFilter filter) {
+        requestMatcherFilter = filter;
     }
 
     /**
@@ -113,7 +124,7 @@ public abstract class AbstractHttpResponseProvider implements HttpResponseProvid
         final Collection<HttpRequest> missingRequests = new ArrayList<HttpRequest>();
         for (final Entry<HttpRequest, List<HttpResponseProxy>> entry : requestMap.entrySet()) {
             for (final HttpResponseProxy responseProxy : entry.getValue()) {
-                if (responseProxy.alreadyRequested() == false) {
+                if (responseProxy.consumed() == false) {
                     missingRequests.add(entry.getKey());
                 }
             }
@@ -125,12 +136,12 @@ public abstract class AbstractHttpResponseProvider implements HttpResponseProvid
 
     }
 
-    private HttpResponse getFirstNotYetReturnedResponseFor(final HttpRequest request) {
+    private HttpResponseProxy getFirstNotYetConsumedResponseProxyFor(final HttpRequest request) {
         final List<HttpResponseProxy> list = requestMap.get(request);
         if (list != null) {
             for (final HttpResponseProxy proxy : list) {
-                if (!proxy.alreadyRequested()) {
-                    return proxy.getResponse();
+                if (!proxy.consumed()) {
+                    return proxy;
                 }
             }
         }
