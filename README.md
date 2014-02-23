@@ -235,12 +235,12 @@ services so no chance of mistakes by manually creating requests/responses.
 
 ### 4.0-SNAPSHOT ###
 
-Major version bump because `HttpRequestMatcher` interface introduced in 3.0 has changed.
+Major version bump because custom matching of http requests has been reworked.
 Version 3.0 was released prematurely and wasn't tested enough before release. 
-This has a lot nicer implementation of `HttpRequestMatcher` and major cleanup of existing
+This has a lot nicer implementation and major cleanup of existing
 `HttpResponseProvider` instances.
 
-+   `HttpRequestMatcher` has a more usable interface.
++   Better and chainable matching support. (Documentation to follow)
 +   Clean-up of existing HttpResponseProvider implementations. 
 +   `HttpRequestResponseFileLoggerFactory` has the option to delete previously logged requests/responses. 
 This prevents potential test failures if your new log session has less request/responses than previous one or if the requests/responses come in different order.
