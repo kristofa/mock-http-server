@@ -16,7 +16,7 @@ public class HttpRequestImpl implements HttpRequest {
     private static final String NOT_SPECIFIED = "null";
 
     private Method method;
-    private ContentDecorator contentDecorator;
+    private ContentMatcher contentMatcher;
     private String path;
     private final Set<QueryParameter> queryParameters = new TreeSet<QueryParameter>();
     private final Set<HttpMessageHeader> httpMessageHeaders = new TreeSet<HttpMessageHeader>();
@@ -25,7 +25,7 @@ public class HttpRequestImpl implements HttpRequest {
      * Creates a new unintialized instance.
      */
     public HttpRequestImpl() {
-        contentDecorator = new DefaultContentDecorator();
+        contentMatcher = new DefaultContentMatcher();
     }
 
     /**
@@ -36,13 +36,13 @@ public class HttpRequestImpl implements HttpRequest {
     public HttpRequestImpl(final HttpRequest request) {
 
         if (request instanceof HttpRequestImpl) {
-            final ContentDecorator otherDecorator = ((HttpRequestImpl)request).contentDecorator;
-            if (otherDecorator != null) {
-                contentDecorator = otherDecorator.copy();
+            final ContentMatcher otherMatcher = ((HttpRequestImpl)request).contentMatcher;
+            if (otherMatcher != null) {
+                contentMatcher = otherMatcher.copy();
             }
         } else {
-            contentDecorator = new DefaultContentDecorator();
-            contentDecorator.setContent(request.getContent());
+            contentMatcher = new DefaultContentMatcher();
+            contentMatcher.setContent(request.getContent());
 
         }
         method = request.getMethod();
@@ -75,20 +75,23 @@ public class HttpRequestImpl implements HttpRequest {
      * @return This http request.
      */
     public HttpRequestImpl content(final byte[] content) {
-        contentDecorator.setContent(content);
+        contentMatcher.setContent(content);
         return this;
     }
 
     /**
-     * Sets {@link ContentDecorator}. The decorator will be initialized with any existing data.
+     * Sets {@link ContentMatcher}. It will be initialized with any existing data.
+     * <p/>
+     * If not set a default {@link ContentMatcher} will be used which simply does an equals on byte array.
      * 
-     * @param contentDecorator Content decorator.
+     * @param matcher New Content matcher. Should not be <code>null</code>.
      * @return This http request.
      */
-    public HttpRequestImpl contentDecorator(final ContentDecorator contentDecorator) {
-        final byte[] content = this.contentDecorator.getContent();
-        this.contentDecorator = contentDecorator;
-        this.contentDecorator.setContent(content);
+    public HttpRequestImpl contentMatcher(final ContentMatcher matcher) {
+        Validate.notNull(matcher);
+        final byte[] content = contentMatcher.getContent();
+        contentMatcher = matcher;
+        contentMatcher.setContent(content);
         return this;
     }
 
@@ -201,10 +204,10 @@ public class HttpRequestImpl implements HttpRequest {
      */
     @Override
     public byte[] getContent() {
-        if (contentDecorator == null) {
+        if (contentMatcher == null) {
             return null;
         }
-        final byte[] content = contentDecorator.getContent();
+        final byte[] content = contentMatcher.getContent();
         if (content == null) {
             return null;
         }

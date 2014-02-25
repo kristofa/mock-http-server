@@ -6,20 +6,20 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * Simple wrapper around byte[].
+ * Simple {@link ContentMatcher} around byte[] which will do an equals on the byte[] as is.
  * 
  * @see HttpRequestImpl
  * @author kristof
  */
-class DefaultContentDecorator extends ContentDecorator {
+class DefaultContentMatcher extends ContentMatcher {
 
     private byte[] content;
 
-    DefaultContentDecorator() {
+    DefaultContentMatcher() {
 
     }
 
-    DefaultContentDecorator(final byte[] content) {
+    DefaultContentMatcher(final byte[] content) {
         this.content = content;
     }
 
@@ -60,8 +60,8 @@ class DefaultContentDecorator extends ContentDecorator {
      * {@inheritDoc}
      */
     @Override
-    public ContentDecorator copy() {
-        final DefaultContentDecorator proxy = new DefaultContentDecorator();
+    public ContentMatcher copy() {
+        final DefaultContentMatcher proxy = new DefaultContentMatcher();
         if (content != null) {
             proxy.setContent(Arrays.copyOf(content, content.length));
         }

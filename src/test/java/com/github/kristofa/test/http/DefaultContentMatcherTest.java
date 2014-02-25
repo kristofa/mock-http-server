@@ -12,7 +12,7 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DefaultContentDecoratorTest {
+public class DefaultContentMatcherTest {
 
     private String string;
     private String equalString;
@@ -27,8 +27,8 @@ public class DefaultContentDecoratorTest {
 
     @Test
     public void testHashCode() {
-        final DefaultContentDecorator defaultContentProxy = new DefaultContentDecorator(string.getBytes());
-        final DefaultContentDecorator defaultContentProxy2 = new DefaultContentDecorator(equalString.getBytes());
+        final DefaultContentMatcher defaultContentProxy = new DefaultContentMatcher(string.getBytes());
+        final DefaultContentMatcher defaultContentProxy2 = new DefaultContentMatcher(equalString.getBytes());
 
         assertEquals(defaultContentProxy.hashCode(), defaultContentProxy2.hashCode());
     }
@@ -36,14 +36,14 @@ public class DefaultContentDecoratorTest {
     @Test
     public void testGetContent() {
         final byte[] bytes = string.getBytes();
-        final DefaultContentDecorator defaultContentProxy = new DefaultContentDecorator(bytes);
+        final DefaultContentMatcher defaultContentProxy = new DefaultContentMatcher(bytes);
         assertSame(bytes, defaultContentProxy.getContent());
 
     }
 
     @Test
     public void testSetContent() {
-        final DefaultContentDecorator defaultContentProxy = new DefaultContentDecorator();
+        final DefaultContentMatcher defaultContentProxy = new DefaultContentMatcher();
         assertNull(defaultContentProxy.getContent());
         defaultContentProxy.setContent(string.getBytes());
         assertTrue(Arrays.equals(string.getBytes(), defaultContentProxy.getContent()));
@@ -51,9 +51,9 @@ public class DefaultContentDecoratorTest {
 
     @Test
     public void testEqualsObject() {
-        final DefaultContentDecorator proxy = new DefaultContentDecorator(string.getBytes());
-        final DefaultContentDecorator equalProxy = new DefaultContentDecorator(equalString.getBytes());
-        final DefaultContentDecorator notEqualProxy = new DefaultContentDecorator(notEqualString.getBytes());
+        final DefaultContentMatcher proxy = new DefaultContentMatcher(string.getBytes());
+        final DefaultContentMatcher equalProxy = new DefaultContentMatcher(equalString.getBytes());
+        final DefaultContentMatcher notEqualProxy = new DefaultContentMatcher(notEqualString.getBytes());
 
         assertFalse(proxy.equals(null));
         assertFalse(proxy.equals(new String("abcd")));
@@ -64,17 +64,17 @@ public class DefaultContentDecoratorTest {
 
     @Test
     public void testCopyUninitializedObject() {
-        final DefaultContentDecorator defaultContentProxy = new DefaultContentDecorator();
-        final ContentDecorator copy = defaultContentProxy.copy();
+        final DefaultContentMatcher defaultContentProxy = new DefaultContentMatcher();
+        final ContentMatcher copy = defaultContentProxy.copy();
         assertNotSame(defaultContentProxy, copy);
         assertEquals(defaultContentProxy, copy);
     }
 
     @Test
     public void testCopyInitializedObject() {
-        final DefaultContentDecorator defaultContentProxy = new DefaultContentDecorator();
+        final DefaultContentMatcher defaultContentProxy = new DefaultContentMatcher();
         defaultContentProxy.setContent(string.getBytes());
-        final ContentDecorator copy = defaultContentProxy.copy();
+        final ContentMatcher copy = defaultContentProxy.copy();
         assertNotSame(defaultContentProxy, copy);
         assertEquals(defaultContentProxy, copy);
 
