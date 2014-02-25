@@ -42,8 +42,11 @@ public class HttpRequestImpl implements HttpRequest {
             }
         } else {
             contentMatcher = new DefaultContentMatcher();
-            contentMatcher.setContent(request.getContent());
-
+            try {
+                contentMatcher.setContent(request.getContent());
+            } catch (final UnexpectedContentException e) {
+                throw new IllegalStateException(e);
+            }
         }
         method = request.getMethod();
         path = request.getPath();
@@ -75,7 +78,11 @@ public class HttpRequestImpl implements HttpRequest {
      * @return This http request.
      */
     public HttpRequestImpl content(final byte[] content) {
-        contentMatcher.setContent(content);
+        try {
+            contentMatcher.setContent(content);
+        } catch (final UnexpectedContentException e) {
+            throw new IllegalStateException(e);
+        }
         return this;
     }
 
@@ -86,12 +93,18 @@ public class HttpRequestImpl implements HttpRequest {
      * 
      * @param matcher New Content matcher. Should not be <code>null</code>.
      * @return This http request.
+     * @throws UnexpectedContentException In case the current content is incompatible with the new ContentMatcher. In this
+     *             case the new matcher will not be set. The previous {@link ContentMatcher} will remain active.
      */
-    public HttpRequestImpl contentMatcher(final ContentMatcher matcher) {
+    public HttpRequestImpl contentMatcher(final ContentMatcher matcher) throws UnexpectedContentException {
         Validate.notNull(matcher);
         final byte[] content = contentMatcher.getContent();
-        contentMatcher = matcher;
-        contentMatcher.setContent(content);
+        if (content != null) {
+            matcher.setContent(content);
+            contentMatcher = matcher;
+        } else {
+            contentMatcher = matcher;
+        }
         return this;
     }
 

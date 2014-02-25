@@ -25,8 +25,10 @@ public abstract class ContentMatcher {
      * Sets content.
      * 
      * @param content Content.
+     * @throws UnexpectedContentException In case we don't expect given content. This matcher is incompatible with given
+     *             content.
      */
-    abstract public void setContent(byte[] content);
+    abstract public void setContent(byte[] content) throws UnexpectedContentException;
 
     /**
      * {@inheritDoc}
