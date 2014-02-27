@@ -14,14 +14,21 @@ following dependency in your pom.xml:
 MockHttpServer is used to facilitate integration testing of Java applications
 that rely on external http services (eg REST services).  MockHttpServer acts as a 
 replacement for the external services and is configured to return specific responses 
-for given requests.  
+for given requests.
 
-The advantages of using MockHttpServer are:
+Features:
+
++   Setting up expected http request/responses.
++   Support for logging existing traffic between 'System Under Test' (*) and external services and replaying the request/responses.
++   Support for matching http requests that don't completely match when re-executed.
++   Supports multiple times the same request with same or different responses.
+
+Advantages:
 
 +   Software that is being integration tested does not need to change. The 'System Under
-Test' (*) does not know it is accessing a mock service.
+Test' does not know it is accessing a mock service.
 +   MockHttpServer is configured and started in the JVM that runs the tests so you 
-don't have to set up complex systems and external services.
+don't have to set up complex systems and external services. You can test components in isolation.
 +   Integration tests typically run faster as MockHttpServer logic is very simple and no
 network traffic is needed (MockHttpServer runs on localhost)
 
@@ -33,7 +40,7 @@ See also following posts by Martin Fowler: [Self Initializing Fake](http://marti
 ![MockHttpServer class diagram](https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver_classdiagram.png)
 
 
-## Dealing with simple requests/responses
+## Simple requests/responses ##
 
     public class MockHttpServerTest {
       private static final int PORT = 51234;
@@ -57,7 +64,7 @@ See also following posts by Martin Fowler: [Self Initializing Fake](http://marti
       }
 
       @Test
-      public void testShouldHandleGetRequests() throws ClientProtocolException, IOException {
+      public void testShouldHandleGetRequests() throws ClientProtocolException, IOException, UnsatisfiedExpectationException {
           // Given a mock server configured to respond to a GET / with "OK"
           responseProvider.expect(Method.GET, "/").respondWith(200, "text/plain", "OK");
 
@@ -72,6 +79,8 @@ See also following posts by Martin Fowler: [Self Initializing Fake](http://marti
 
           // And the status code is 200
           assertEquals(200, statusCode);
+          // Check there were no unexpected requests.
+          server.verify();
       }
 
 
@@ -83,10 +92,10 @@ as shown in above piece of code.
 
 MockHttpServer is started by calling `start()` and is stopped by calling `stop()`. 
 You can execute `verify()` when your test completed to make sure you got all and only your 
-expected requests. `verify()` will throw an exception when this is not the case.
+expected requests. `verify()` will throw a `UnsatisfiedExpectationException` when this is not the case.
 
 
-## Complex request/responses: use LoggingHttpProxy
+## Complex request/responses ##
 
 ![LoggingHttpProxy class diagram](https://raw.github.com/wiki/kristofa/mock-http-server/logginghttpproxy_classdiagram.png)
 
@@ -105,19 +114,19 @@ These persisted requests/responses can be replayed by MockHttpServer.
 ![LoggingHttpProxy](https://raw.github.com/wiki/kristofa/mock-http-server/logginghttpproxy.png)
 
 When you configure LoggingHttpProxy to use `HttpRequestResponseFileLoggerFactory` the
-requests/responses will be persisted to file. These requests/responses can be replayed
+requests/responses will be persisted to files. These requests/responses can be replayed
 by MockHttpServer by using `FileHttpResponseProvider`.
 
 ![MockHttpServer](https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver.png)
 
-### Reworking existing integration tests to persist and replay http requests
+### Reworking existing integration tests to log and replay http requests
 
 We assume that you start from an integration test in which case the software you want to test 
 communicates with an external service and the test runs green. You want to mock the communication
 with the external service as it might be unreliable or even disappear.
 
-You can use `MockHttpServer` or `LoggingHttpProxy` directly but since 2.0-SNAPSHOT it is advised to
-use `MockAndProxyFacade` which will make it a lot easier. See following code
+You can use `MockHttpServer` or `LoggingHttpProxy` by themselves but since 2.0-SNAPSHOT 
+it is advised to use `MockAndProxyFacade` which will make it a lot easier. See following code
 example:
 
     import static org.junit.Assert.assertEquals;
@@ -223,7 +232,7 @@ method. The remaining test code and logic stays the same.
 Advantages of this approach:
 
 +   By having the requests/responses of external services persisted and versioned
-with the code our tests keep on functioning also if the external services change over 
+with the code our tests keep on functioning also if the external services become unavailable or change over 
 time.
 +   Decoupling our code from externally deployed services and having everything under version control.
 +   The tests typically should run faster as the logic of MockHttpServer to serve up 
@@ -231,16 +240,24 @@ responses is easy and typically faster than the real services.
 +   Persisted requests/responses are copies from the requests/responses with the real
 services so no chance of mistakes by manually creating requests/responses.
 
+
+## Contribution ##
+
+If you want to contribute, this is a list of wanted functionality:
+
++   Maven plugin: Set up and start mock-http-server before executing tests and tear it down when tests are finished.
+Preferably configured to replay requests/responses from file. 
+
 ## Changelog ##
 
 ### 4.0-SNAPSHOT ###
 
 Major version bump because custom matching of http requests has been reworked.
-Version 3.0 was released prematurely and wasn't tested enough before release. 
-This has a lot nicer implementation and major cleanup of existing
+When actually using version 3.0 it became clear that it was suboptimal.
+4.0-SNAPSHOT has a lot nicer implementation and major cleanup of existing
 `HttpResponseProvider` instances.
 
-+   Better and chainable matching support. (Documentation to follow)
++   Better and chainable request matching support. (Documentation to follow)
 +   Clean-up of existing HttpResponseProvider implementations. 
 +   `HttpRequestResponseFileLoggerFactory` has the option to delete previously logged requests/responses. 
 This prevents potential test failures if your new log session has less request/responses than previous one or if the requests/responses come in different order.
