@@ -9,7 +9,7 @@ import java.util.Set;
  * 
  * @author kristof
  */
-public class RemoveAdditionalHeadersHttpRequestMatchingFilter extends AbstractHttpRequestMatchingFilter {
+public class AllExceptOriginalHeadersFilter extends AbstractHttpRequestMatchingFilter {
 
     /**
      * {@inheritDoc}

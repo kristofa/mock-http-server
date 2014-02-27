@@ -19,7 +19,7 @@ public class DefaultHttpResponseProvider extends AbstractHttpResponseProvider {
     public DefaultHttpResponseProvider(final boolean ignoreAdditionalHeaders) {
         super();
         if (ignoreAdditionalHeaders) {
-            addHttpRequestMatchingFilter(new RemoveAdditionalHeadersHttpRequestMatchingFilter());
+            addHttpRequestMatchingFilter(new AllExceptOriginalHeadersFilter());
         }
     }
 

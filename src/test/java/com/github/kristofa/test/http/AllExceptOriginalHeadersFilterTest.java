@@ -7,14 +7,14 @@ import static org.mockito.Mockito.mock;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RemoveAdditionalHeadersHttpRequestMatchingFilterTest {
+public class AllExceptOriginalHeadersFilterTest {
 
     private static final String PATH = "/test/";
     private static final String APPLICATION_JSON = "application/json";
     private static final String CONTENT_TYPE = "Content-Type";
     private HttpRequestImpl request;
     private HttpResponse response;
-    private RemoveAdditionalHeadersHttpRequestMatchingFilter matcher;
+    private AllExceptOriginalHeadersFilter matcher;
 
     @Before
     public void setup() {
@@ -25,7 +25,7 @@ public class RemoveAdditionalHeadersHttpRequestMatchingFilterTest {
 
         response = mock(HttpResponse.class);
 
-        matcher = new RemoveAdditionalHeadersHttpRequestMatchingFilter();
+        matcher = new AllExceptOriginalHeadersFilter();
 
     }
 

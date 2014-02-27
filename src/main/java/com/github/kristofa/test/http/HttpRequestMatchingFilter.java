@@ -16,7 +16,7 @@ import com.github.kristofa.test.http.file.FileHttpResponseProvider;
  * @see AbstractHttpResponseProvider
  * @see FileHttpResponseProvider
  * @see AllExceptContentTypeHeaderFilter
- * @see RemoveAdditionalHeadersHttpRequestMatchingFilter
+ * @see AllExceptOriginalHeadersFilter
  * @author kristof
  */
 public interface HttpRequestMatchingFilter {
