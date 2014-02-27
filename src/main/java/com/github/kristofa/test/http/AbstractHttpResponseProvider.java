@@ -108,12 +108,21 @@ public abstract class AbstractHttpResponseProvider implements HttpResponseProvid
     }
 
     /**
-     * Sets {@link HttpRequestMatchingFilter}.
+     * Adds a {@link HttpRequestMatchingFilter} to the chain of {@link HttpRequestMatchingFilter http request matching
+     * filters}.
      * 
      * @param filter {@link HttpRequestMatchingFilter}.
      */
-    protected final void setMatchingFilter(final HttpRequestMatchingFilter filter) {
-        requestMatcherFilter = filter;
+    public final void addHttpRequestMatchingFilter(final HttpRequestMatchingFilter filter) {
+        if (requestMatcherFilter == null) {
+            requestMatcherFilter = filter;
+        } else {
+            HttpRequestMatchingFilter matchingFilter = requestMatcherFilter;
+            while (matchingFilter.next() != null) {
+                matchingFilter = matchingFilter.next();
+            }
+            matchingFilter.setNext(filter);
+        }
     }
 
     /**

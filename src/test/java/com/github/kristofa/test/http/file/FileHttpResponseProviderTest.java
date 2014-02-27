@@ -178,7 +178,7 @@ public class FileHttpResponseProviderTest {
 
         };
 
-        responseProvider.setHttpRequestMatcherFilter(filter);
+        responseProvider.addHttpRequestMatchingFilter(filter);
 
         final HttpRequestImpl request1 = new HttpRequestImpl();
         request1.method(Method.GET);

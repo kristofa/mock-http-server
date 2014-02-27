@@ -28,7 +28,7 @@ public class SimpleHttpResponseProvider extends AbstractHttpResponseProvider {
     private HttpRequestImpl latestRequest;
 
     public SimpleHttpResponseProvider() {
-        setMatchingFilter(new AllExceptContentTypeHeaderFilter());
+        addHttpRequestMatchingFilter(new AllExceptContentTypeHeaderFilter());
     }
 
     /**
