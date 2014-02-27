@@ -119,7 +119,7 @@ by MockHttpServer by using `FileHttpResponseProvider`.
 
 ![MockHttpServer](https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver.png)
 
-### Reworking existing integration tests to log and replay http requests
+### Reworking existing integration tests to log and replay http requests ###
 
 We assume that you start from an integration test in which case the software you want to test 
 communicates with an external service and the test runs green. You want to mock the communication
@@ -240,6 +240,30 @@ responses is easy and typically faster than the real services.
 +   Persisted requests/responses are copies from the requests/responses with the real
 services so no chance of mistakes by manually creating requests/responses.
 
+## Custom http request matching logic ##
+
+As of version 4.0-SNAPSHOT support is added for matching variable, 
+non deterministic content in http requests.
+
+An example of variable content can be a JSON entity.
+JSON does not specify a fixed order of properties so when serializing JSON the order of
+the properties can be different from 1 run to the other.
+
+By default mock-http-server does an exact match of http requests, including entities. 
+To change the matching logic you can implement a `HttpRequestMatchingFilter` that you
+can set in any of the available `HttpResponseProvider` instances.
+
+Also `HttpRequestMatchingFilter` instances can be chained so you can set use multiple.
+If you would have json entities but also other variable content like access tokens you
+can build 2 `HttpRequestMatchingFilter` instances, 1 for each purpose and chain them.
+
+There are some examples of Http Request Matching Filters that you can inspect:
+
++   AllExceptContentTypeHeaderFilter
++   AllExceptOriginalHeadersFilter
++   JsonMatchingFilter ([in separate project](https://github.com/kristofa/mock-http-server-json-matcher))
+
+
 
 ## Contribution ##
 
@@ -252,12 +276,12 @@ Preferably configured to replay requests/responses from file.
 
 ### 4.0-SNAPSHOT ###
 
-Major version bump because custom matching of http requests has been reworked.
-When actually using version 3.0 it became clear that it was suboptimal.
-4.0-SNAPSHOT has a lot nicer implementation and major cleanup of existing
+Major version bump because custom matching of http requests, introduced in 3.0, has been reworked.
+When using version 3.0 in real use cases it became clear that it was sub optimal.
+4.0-SNAPSHOT has a better implementation of custom matching and major cleanup of existing
 `HttpResponseProvider` instances.
 
-+   Better and chainable request matching support. (Documentation to follow)
++   Better and chainable custom http request matching support.
 +   Clean-up of existing HttpResponseProvider implementations. 
 +   `HttpRequestResponseFileLoggerFactory` has the option to delete previously logged requests/responses. 
 This prevents potential test failures if your new log session has less request/responses than previous one or if the requests/responses come in different order.
