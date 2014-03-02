@@ -13,6 +13,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class ITHttpRequestMatchingFilter {
     }
 
     @Test
-    public void testHttpRequestMatchingFilters() throws ClientProtocolException, IOException {
+    public void testChainedHttpRequestMatchingFilters() throws ClientProtocolException, IOException {
         final UUID origId = UUID.randomUUID();
         final HttpRequestImpl request = new HttpRequestImpl();
         request.method(Method.POST).path("/service").httpMessageHeader(DATE_TIME_PARAM, new Date().toString())
@@ -66,6 +67,29 @@ public class ITHttpRequestMatchingFilter {
             assertEquals(200, receivedResponse.getStatusLine().getStatusCode());
             assertEquals("Expected new id to be returned as response.", newId.toString(),
                 IOUtils.toString(receivedResponse.getEntity().getContent()));
+        } finally {
+            httpClient.getConnectionManager().shutdown();
+        }
+    }
+
+    @Test
+    public void testShouldNotMatch() throws ClientProtocolException, IOException {
+        final UUID origId = UUID.randomUUID();
+        final HttpRequestImpl request = new HttpRequestImpl();
+        request.method(Method.POST).path("/service").httpMessageHeader(DATE_TIME_PARAM, new Date().toString())
+            .httpMessageHeader(ID_PARAM, origId.toString()).httpMessageHeader("otherHeader", "otherValue");
+        final HttpResponseImpl response = new HttpResponseImpl(200, "text/plain", origId.toString().getBytes());
+        responseProvider.set(request, response);
+
+        final UUID newId = UUID.randomUUID();
+        final HttpPost post = new HttpPost(MOCK_URL + "/service");
+        post.addHeader(DATE_TIME_PARAM, new Date(20334).toString());
+        post.addHeader(ID_PARAM, newId.toString());
+        final HttpClient httpClient = new DefaultHttpClient();
+        try {
+            final HttpResponse receivedResponse = httpClient.execute(post);
+            assertEquals(598, receivedResponse.getStatusLine().getStatusCode());
+            EntityUtils.consume(receivedResponse.getEntity());
         } finally {
             httpClient.getConnectionManager().shutdown();
         }
