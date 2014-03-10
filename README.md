@@ -6,7 +6,7 @@ following dependency in your pom.xml:
     <dependency>
         <groupId>com.github.kristofa</groupId>
         <artifactId>mock-http-server</artifactId>
-        <version>3.0</version>
+        <version>4.0</version>
         <scope>test</scope>
     </dependency>
 
@@ -274,7 +274,7 @@ Preferably configured to replay requests/responses from file.
 
 ## Changelog ##
 
-### 4.0-SNAPSHOT ###
+### 4.0 - 10th of March 2014 ###
 
 Major version bump because custom matching of http requests, introduced in 3.0, has been reworked.
 When using version 3.0 in real use cases it became clear that it was sub optimal.
