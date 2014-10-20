@@ -39,6 +39,9 @@ See also following posts by Martin Fowler: [Self Initializing Fake](http://marti
 
 ![MockHttpServer class diagram](https://raw.github.com/wiki/kristofa/mock-http-server/mockhttpserver_classdiagram.png)
 
+There are also other solutions to this problem which might be a better fit to your needs or which might be more mature: [wiremock](http://wiremock.org/), [rest-driver](https://github.com/rest-driver/rest-driver),
+[mockwebserver](https://github.com/square/okhttp/tree/master/mockwebserver).
+
 
 ## Simple requests/responses ##
 
