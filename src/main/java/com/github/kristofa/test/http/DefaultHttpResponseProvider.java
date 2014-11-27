@@ -33,5 +33,12 @@ public class DefaultHttpResponseProvider extends AbstractHttpResponseProvider {
 
         addExpected(request, new DefaultHttpResponseProxy(response));
     }
+    
+    /**
+     * Reset the response provider to its original state
+     */
+    public void reset() {
+        resetState();
+    }
 
 }

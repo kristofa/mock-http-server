@@ -130,6 +130,25 @@ public class DefaultHttpResponseProviderTest {
 
         expectVerifyToFail(httpResponseProviderIgnoreAdditionalHeaders, httpRequest, requestWithOtherContent);
     }
+    
+    @Test
+    public void testReset() throws UnsatisfiedExpectationException {
+    	 httpResponseProviderIgnoreAdditionalHeaders = new DefaultHttpResponseProvider(false);
+         httpResponseProviderIgnoreAdditionalHeaders.set(httpRequest, httpResponse);
+
+         httpResponseProviderIgnoreAdditionalHeaders.reset();
+         
+         final HttpRequestImpl requestWithAdditionalParam = new HttpRequestImpl(httpRequest);
+         requestWithAdditionalParam.httpMessageHeader("param2", "value2");
+
+         httpResponseProviderIgnoreAdditionalHeaders.set(requestWithAdditionalParam, httpResponse);
+         
+         assertSame(httpResponse,
+             httpResponseProviderIgnoreAdditionalHeaders.getResponse(requestWithAdditionalParam));
+
+         httpResponseProviderIgnoreAdditionalHeaders.verify();
+
+    }
 
     private void expectVerifyToFail(final DefaultHttpResponseProvider responseProvider, final HttpRequest missingRequest,
         final HttpRequest unexpectedRequest) {
