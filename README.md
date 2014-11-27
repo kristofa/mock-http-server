@@ -6,7 +6,7 @@ following dependency in your pom.xml:
     <dependency>
         <groupId>com.github.kristofa</groupId>
         <artifactId>mock-http-server</artifactId>
-        <version>4.0</version>
+        <version>4.1</version>
         <scope>test</scope>
     </dependency>
 
@@ -276,6 +276,11 @@ If you want to contribute, this is a list of wanted functionality:
 Preferably configured to replay requests/responses from file. 
 
 ## Changelog ##
+
+### 4.1 - 27th of November 2014 ###
+
++   `MockHttpServer` selects a free port when 0 is passed as port number. This prevents conflicts as opposed to always taking a fixed port which can already be in used. Used port is returned by `start`method and there is also a new `getPort`method.
++   `DefaultHttpResponseProvider`has a `reset`method which allows reseting its state.
 
 ### 4.0 - 10th of March 2014 ###
 
