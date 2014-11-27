@@ -104,6 +104,7 @@ public class MockHttpServer {
     public static final String DELETE = "DELETE";
 
     private Connection connection;
+    private int connectedPort = -1;
 
     private int noMatchFoundResponseCode = 598;
     private int exceptionResponseCode = 599;
@@ -111,7 +112,7 @@ public class MockHttpServer {
     /**
      * Creates a new instance.
      * 
-     * @param port Port on which mock server should operate.
+     * @param port Port on which mock server should operate. If you provide 0 as port number a free port will be choosen for you. You can get the port through {@link MockHttpServer#getPort()}
      * @param responseProvider {@link HttpResponseProvider}. Should not be <code>null</code>.
      */
     public MockHttpServer(final int port, final HttpResponseProvider responseProvider) {
@@ -123,13 +124,25 @@ public class MockHttpServer {
     /**
      * Starts the server.
      * 
+     * @return Port used by server.
      * @throws IOException In case starting fails.
      */
-    public void start() throws IOException {
+    public int start() throws IOException {
         handler = new ExpectationHandler();
         connection = new SocketConnection(handler);
         final SocketAddress address = new InetSocketAddress(port);
-        connection.connect(address);
+        final InetSocketAddress connectedAddress = (InetSocketAddress) connection.connect(address);
+        connectedPort = connectedAddress.getPort();
+        return connectedPort;
+    }
+    
+    /**
+     * Return the port used by the server.
+     * 
+     * @return The port in case the server is successfully started or -1 in case the server has not been started yet.
+     */
+    public int getPort() {
+    	return connectedPort;
     }
 
     /**

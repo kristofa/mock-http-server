@@ -8,6 +8,7 @@
 package com.github.kristofa.test.http;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
@@ -32,18 +33,19 @@ import org.junit.Test;
 public class MockHttpServerTest {
 
     private static final String UTF_8 = "UTF-8";
-    private static final int PORT = 51234;
-    private static final String baseUrl = "http://localhost:" + PORT;
     private static MockHttpServer server;
     private static SimpleHttpResponseProvider responseProvider;
     private HttpClient client;
+    private static String baseUrl;
+    
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         responseProvider = new SimpleHttpResponseProvider();
-        server = new MockHttpServer(PORT, responseProvider);
-        server.start();
-
+        server = new MockHttpServer(0, responseProvider);
+        final int port = server.start();
+        assertTrue(port != -1);
+        baseUrl = "http://localhost:" + server.getPort();
     }
 
     @AfterClass
@@ -288,6 +290,32 @@ public class MockHttpServerTest {
 
         assertEquals(200, response.getStatusLine().getStatusCode());
         assertEquals("", IOUtils.toString(response.getEntity().getContent()));
+    }
+    
+    @Test
+    public void testStartMultipleServers() throws IOException {
+    	MockHttpServer server2 = new MockHttpServer(0, responseProvider);
+    	MockHttpServer server3 = new MockHttpServer(0, responseProvider);
+    	
+    	final int server2Port = server2.start();
+    	try
+    	{
+    		final int server3Port = server3.start();
+    		try
+    		{
+    			assertTrue(server2Port != server3Port);
+    			assertEquals(server2Port, server2.getPort());
+    			assertEquals(server3Port, server3.getPort());
+    		}
+    		finally
+    		{
+    			server3.stop();
+    		}
+    	}
+    	finally
+    	{
+    		server2.stop();
+    	}
     }
 
 }
