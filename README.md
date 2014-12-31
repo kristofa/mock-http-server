@@ -1,5 +1,7 @@
 # MockHttpServer
 
+[![Build Status](https://travis-ci.org/kristofa/mock-http-server.svg?branch=master)](https://travis-ci.org/kristofa/mock-http-server)
+
 MockHttpServer is available through Maven Central so you can get it by including
 following dependency in your pom.xml:
 
