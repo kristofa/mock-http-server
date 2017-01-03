@@ -1,2 +1,2 @@
 language: java
-script: "mvn verify"
+script: "mvn -Dmaven.javadoc.skip=true verify"
