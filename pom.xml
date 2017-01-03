@@ -26,13 +26,6 @@
     <url>git@github.com:kristofa/mock-http-server.git</url>
     <developerConnection>scm:git:git@github.com:kristofa/mock-http-server.git</developerConnection>
   </scm>
-  <developers>
-    <developer>
-      <id>kristofa</id>
-      <name>Kristof Adriaenssens</name>
-      <email>kr_adr@yahoo.co.uk</email>
-    </developer>
-  </developers>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
