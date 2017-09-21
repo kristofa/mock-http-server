@@ -3,6 +3,7 @@ package com.github.kristofa.test.http;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.apache.http.HttpHeaders.HOST;
 import static org.junit.Assert.assertEquals;
 
 public class PassthroughForwardHttpRequestBuilderTest {
@@ -41,9 +42,10 @@ public class PassthroughForwardHttpRequestBuilderTest {
 		expectedRequest.path("/resource");
 		expectedRequest.content(data);
 		expectedRequest.method(Method.POST);
+		expectedRequest.httpMessageHeader(HOST, targetDomain+':'+targetPort);
 		
 		FullHttpRequest passthroughRequest = requestBuilder.getForwardRequest(inputRequest);
-		
+
 		assertEquals(expectedRequest, passthroughRequest);
 	}
 }

@@ -2,6 +2,8 @@ package com.github.kristofa.test.http;
 
 import org.apache.commons.lang3.Validate;
 
+import static org.apache.http.HttpHeaders.HOST;
+
 /**
  * An implementation of {@link ForwardHttpRequestBuilder} that constructs {@link FullHttpRequest}s that redirects
  * the request to the external service by changing the domain and port of the request.
@@ -33,6 +35,7 @@ public class PassthroughForwardHttpRequestBuilder implements ForwardHttpRequestB
 		FullHttpRequestImpl result= new FullHttpRequestImpl(request);
 		result.domain(targetDomain);
 		result.port(targetPort);
+		result.httpMessageHeader(HOST, targetDomain+':'+targetPort);
 		return result;
 	}
 
