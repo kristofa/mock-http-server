@@ -8,7 +8,7 @@ import org.apache.commons.lang3.Validate;
 
 /**
  * Facade that lets you easily configure and use either the {@link LoggingHttpProxy} for using real services and logging
- * requests/responses or the {@link MockHttpServer} for running your code against mocked http requests/responses. </p> You
+ * requests/responses or the {@link MockHttpServer} for running your code against mocked http requests/responses. You
  * can use {@link MockHttpServer} or {@link LoggingHttpProxy} by themselves but if you use both it is most likely that this
  * class will make things easier for you.
  * 
@@ -151,7 +151,7 @@ public class MockAndProxyFacade {
     }
 
     /**
-     * In case we are in Mocking operation mode we will verify if all expected requests have been invoked. </p> In case we
+     * In case we are in Mocking operation mode we will verify if all expected requests have been invoked. In case we
      * are in Logging operation mode nothing will be checked.
      * 
      * @throws UnsatisfiedExpectationException In case we got unexpected requests and/or not all expected requests were

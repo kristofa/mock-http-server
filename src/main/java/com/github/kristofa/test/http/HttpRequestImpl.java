@@ -88,7 +88,7 @@ public class HttpRequestImpl implements HttpRequest {
 
     /**
      * Sets {@link ContentMatcher}. It will be initialized with any existing data.
-     * <p/>
+     * 
      * If not set a default {@link ContentMatcher} will be used which simply does an equals on byte array.
      * 
      * @param matcher New Content matcher. Should not be <code>null</code>.

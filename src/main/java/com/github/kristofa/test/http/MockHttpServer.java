@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Mock Http Server which can be used to return upfront defined responses for a set of http requests.
- * <p/>
+ *
  * Mock http server will in its default configuration return code 598 in case it receives a request which was not foreseen.
  * In case of an internal exception it will return http returncode 599.
  * 
@@ -165,7 +165,7 @@ public class MockHttpServer {
 
     /**
      * Allows you to set a custom response code to be returned when no matching response is found.
-     * <p/>
+     *
      * If not set the default code is 598.
      * 
      * @param code HTTP response code to return when no matching response is found.
@@ -176,7 +176,7 @@ public class MockHttpServer {
 
     /**
      * Allows to set a custom response code to be returned when an unexpected exception happens.
-     * <p/>
+     *
      * If not set the default code is 599.
      * 
      * @param code HTTP response code to return when an unexpected exception happens.

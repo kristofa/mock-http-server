@@ -5,11 +5,11 @@ import com.github.kristofa.test.http.file.FileHttpResponseProvider;
 /**
  * A {@link HttpRequestMatchingFilter} contains logic to deal with expected differences between 2 requests and brings them
  * in-line so that they can potentially match.
- * <p/>
+ *
  * If we have a request that contains a http header entry that can differ from request to request, for example a user token,
  * the {@link HttpRequestMatchingFilter} can create copies of both input requests and remove the header entry of both or set
  * a common value so they can match.
- * <p/>
+ *
  * Http Request Matching Filters can be chained. Each filter working on the output of the previous one. This is implemented
  * in {@link AbstractHttpResponseProvider}.
  * 

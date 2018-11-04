@@ -9,7 +9,7 @@ import org.apache.http.client.utils.URLEncodedUtils;
 /**
  * {@link HttpResponseProvider} that keeps expected request/responses in memory. Its purpose is to match simple requests that
  * can be easily programmatically defined in code. It supports matching:
- * <p/>
+ *
  * <ul>
  * <li>HTTP Method (GET, PUT, POST, DELETE)</li>
  * <li>Path (including query parmeters)</li>
@@ -35,7 +35,7 @@ public class SimpleHttpResponseProvider extends AbstractHttpResponseProvider {
      * Provide an expected request with content.
      * 
      * @param method HTTP method.
-     * @param path Path. Path can contain query parameters, eg: path?a=b&b=c
+     * @param path Path
      * @param contentType Content type.
      * @param requestEntity Request entity as string.
      * @return current {@link SimpleHttpResponseProvider}. Allows chaining calls.
@@ -54,7 +54,7 @@ public class SimpleHttpResponseProvider extends AbstractHttpResponseProvider {
      * Provide an expected request without content.
      * 
      * @param method HTTP method.
-     * @param path Path. Path can contain query parameters, eg: path?a=b&b=c
+     * @param path Path.
      * @return current {@link SimpleHttpResponseProvider}. Allows chaining calls.
      */
     public SimpleHttpResponseProvider expect(final Method method, final String path) {

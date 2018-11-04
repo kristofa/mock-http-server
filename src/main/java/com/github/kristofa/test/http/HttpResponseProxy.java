@@ -3,10 +3,10 @@ package com.github.kristofa.test.http;
 /**
  * Http responses can be large and they are only needed when the corresponding http request matched. So we don't need and
  * don't want to keep all responses for expected http requests in memory.
- * <p/>
+ *
  * This proxy knows how to fetch and build the http response but does not necessary keep it in memory. It can fetch the
  * response lazily.
- * <p/>
+ *
  * It also keeps track if the response has already been consumed or not. In that way we can support different responses for
  * same request and we can check if we have the exact amount of expected calls for a request.
  * 

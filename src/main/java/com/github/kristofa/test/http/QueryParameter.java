@@ -6,10 +6,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Defines a query parameter key/value.
- * <p>
- * In following url: http://localhost:8081/persons?name=Smith&gender=female there are 2 query parameters: name=Smith and
- * gender=female.
- * 
+ *
  * @author kristof
  */
 public class QueryParameter implements Comparable<QueryParameter> {

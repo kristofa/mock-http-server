@@ -16,7 +16,7 @@ import com.github.kristofa.test.http.file.FileHttpResponseProvider;
  * <li>In case of non exact match use submitted {@link HttpRequestMatchingFilter} to perform matching.</li>
  * <li>Support multiple times the same request with potentially different responses that are returned in a fixed order.
  * </ul>
- * <p/>
+ *
  * If you create your own {@link HttpResponseProvider} it is probably a good idea to extend this class.
  * 
  * @author kristof
@@ -47,9 +47,9 @@ public abstract class AbstractHttpResponseProvider implements HttpResponseProvid
 
     /**
      * Override this method if you want to lazily initialize requests/responses.
-     * <p/>
+     *
      * This method will be called with the first call to {@link AbstractHttpResponseProvider#getResponse(HttpRequest)}.
-     * <p/>
+     *
      * You can initialize expected requests and responses by calling
      * {@link AbstractHttpResponseProvider#addExpected(HttpRequest, HttpResponseProxy)}.
      */
@@ -59,7 +59,7 @@ public abstract class AbstractHttpResponseProvider implements HttpResponseProvid
 
     /**
      * Clear expected request/responses as well as already received unexpected requests.
-     * <p/>
+     *
      * Allows re-use for new test without having to recreate instance.
      */
     protected final void resetState() {

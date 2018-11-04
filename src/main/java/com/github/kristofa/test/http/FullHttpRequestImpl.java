@@ -13,17 +13,13 @@ import static org.apache.http.HttpHeaders.HOST;
 /**
  * Represents a HTTP request. Contains following properties:
  * <ul>
- * <li>method: HTTP method (GET, PUT, POST, DELETE, HEAD, ...).
- * <li>contentType: Content type of the message body. Content of Content-Type header.
- * <li>content: Message body.
- * <li>domain: host name part of url. For example in following example:
- * http://localhost:8081/persons?name=Smith&gender=female host name is localhost
- * <li>port: port part of url. For example in following example: http://localhost:8081/persons?name=Smith&gender=female port
- * is 8081
- * <li>path: Path part of url. For example in following example: http://localhost:8081/persons?name=Smith&gender=female path
- * part is /persons
- * <li>query parameters: query parameters part of url. For example in following example:
- * http://localhost:8081/persons?name=Smith&gender=female query parameters are name=Smith, gender=female.
+ * <li>method: HTTP method (GET, PUT, POST, DELETE, HEAD, ...).</li>
+ * <li>contentType: Content type of the message body. Content of Content-Type header.</li>
+ * <li>content: Message body.</li>
+ * <li>domain: host name part of url.</li>
+ * <li>port: port part of url.</li>
+ * <li>path: Path part of url.</li>
+ * <li>query parameters: query parameters part of url.</li>
  * </ul>
  * 
  * @author kristof

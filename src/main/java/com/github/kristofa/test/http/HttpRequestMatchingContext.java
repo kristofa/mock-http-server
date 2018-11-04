@@ -2,9 +2,9 @@ package com.github.kristofa.test.http;
 
 /**
  * Context for matching a http request.
- * <p/>
+ *
  * If contains a request and another request and a response. Both requests did originally not equal.
- * <p/>
+ *
  * {@link HttpRequestMatchingContext Http Request matching contexts} can change through out the chain of
  * {@link HttpRequestMatchingFilter http request matching filters} that are executed.
  * 

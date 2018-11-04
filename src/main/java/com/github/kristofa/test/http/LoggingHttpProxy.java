@@ -30,13 +30,13 @@ import com.github.kristofa.test.http.client.HttpRequestException;
  * capture request/responses that can be mocked later on for testing purposes. It forwards requests it gets to another
  * service and returns the result of that service unmodified to the requester. While doing that it also allows logging
  * request/response pairs.
- * <p>
+ *
  * Those persisted request/response pairs can be mocked by {@link MockHttpServer}.
- * <p>
+ *
  * Using the {@link LoggingHttpProxy} to persist request/responses and using them with the {@link MockHttpServer} is
  * especially useful for complex responses that are not that easy to mock by hand. It allows building a <a
  * href="http://googletesting.blogspot.be/2012/10/hermetic-servers.html">hermetic server</a>.
- * <p>
+ *
  * The {@link LoggingHttpProxy} will return following HTTP return codes when things go wrong:
  * <ul>
  * <li>570: We could not build a forward request for input request. Missing of faulty {@link ForwardHttpRequestBuilder}.
@@ -193,7 +193,7 @@ public class LoggingHttpProxy {
     /**
      * Starts proxy.
      * 
-     * @throws Exception In case starting fails.
+     * @throws IOException In case starting fails.
      */
     public void start() throws IOException {
         // Close existing connection if it exists.
