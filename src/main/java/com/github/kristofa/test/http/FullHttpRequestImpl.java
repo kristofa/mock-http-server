@@ -8,6 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import static org.apache.http.HttpHeaders.HOST;
+
 /**
  * Represents a HTTP request. Contains following properties:
  * <ul>
@@ -50,6 +52,7 @@ public final class FullHttpRequestImpl implements FullHttpRequest {
      */
     public FullHttpRequestImpl(final FullHttpRequest request) {
         httpRequest = new HttpRequestImpl(request);
+        httpRequest.removeHttpMessageHeaders(HOST);
         domain = request.getDomain();
         port = request.getPort();
     }
