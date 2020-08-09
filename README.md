@@ -1,5 +1,8 @@
 # MockHttpServer
 
+
+**This project is archived and not maintained anymore. The repo remains read-only and can be forked. I suggest you to look at similar projects that are still maintained like [wiremock](http://wiremock.org/) or [mockwebserver](https://github.com/square/okhttp/tree/master/mockwebserver)**
+
 [![Build Status](https://travis-ci.org/kristofa/mock-http-server.svg?branch=master)](https://travis-ci.org/kristofa/mock-http-server)
 
 MockHttpServer is available through Maven Central so you can get it by including
